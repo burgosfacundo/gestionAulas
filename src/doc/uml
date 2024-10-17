@@ -1,0 +1,148 @@
+@startuml
+interface CrudOperations<T> {
+    +void crear(T objeto)
+    +T leer(int id)
+    +void actualizar(T objeto)
+    +void eliminar(int id)
+    +List<T> listar()
+}
+
+enum BloqueHorario {
+    MANIANA_PRIMER_BLOQUE,
+    MANIANA_SEGUNDO_BLOQUE,
+    TARDE_PRIMER_BLOQUE,
+    TARDE_SEGUNDO_BLOQUE,
+    NOCHE_PRIMER_BLOQUE,
+    NOCHE_SEGUNDO_BLOQUE
+}
+
+abstract class Aula {
+    int numero
+    int capacidad
+    List<Reserva> reservas
+}
+
+class AulaEstandar extends Aula {
+}
+
+class Laboratorio extends Aula {
+    int computadoras
+}
+
+class Reserva {
+    LocalDate fechaInicio
+    LocalDate fechaFin
+    BloqueHorario bloque
+    Aula aula
+    Inscripcion inscripcion  // Relación directa con Inscripción
+}
+
+class Alumno {
+    String nombre
+    String legajo
+}
+
+class Profesor extends Usuario {
+    String nombre
+    String apellido
+    String matricula
+}
+
+class Comision {
+    String nombre
+    BloqueHorario bloque
+    Profesor profesor
+}
+
+class Asignatura {
+    String nombre
+    boolean requiereLaboratorio
+}
+
+class Inscripcion {
+    List<Alumno> alumnos    // Lista de alumnos inscritos
+    Asignatura asignatura
+    Comision comision
+    Profesor profesor       // Profesor específico para esta inscripción
+}
+
+class GestorAula implements CrudOperations<Aula> {
+    List<Aula> aulas
+}
+
+class GestorReserva implements CrudOperations<Reserva> {
+    List<Reserva> reservas
+}
+
+class GestorProfesor implements CrudOperations<Profesor> {
+    List<Profesor> profesores
+}
+
+class GestorAlumno implements CrudOperations<Alumno> {
+    List<Alumno> alumnos
+}
+
+class GestorComision implements CrudOperations<Comision> {
+    List<Comision> comisiones
+}
+
+class GestorAsignatura implements CrudOperations<Asignatura> {
+    List<Asignatura> asignaturas
+}
+
+class Seguridad {
+    Usuario autenticar(String username, String password)
+    boolean validarAcceso(Usuario usuario, Accion accion)
+}
+
+class Menu {
+    MenuAdministrador menuAdmin
+    MenuProfesor menuProfesor
+    Seguridad seguridad
+}
+
+
+class MenuAdministrador {
+    GestorAula gestorAula
+    GestorReserva gestorReserva
+    GestorProfesor gestorProfesor
+    GestorAlumno gestorAlumno
+    GestorComision gestorComision
+    GestorAsignatura gestorAsignatura
+}
+
+class MenuProfesor {
+    GestorReserva gestorReserva
+}
+
+abstract class Usuario {
+    String username
+    String password
+}
+
+class Administrador extends Usuario {
+}
+
+enum Accion {
+    GESTIONAR_AULA,
+    APROBAR_CAMBIO_AULA,
+    SOLICITAR_CAMBIO_AULA,
+    GESTIONAR_RESERVA
+}
+
+Aula <|-- AulaEstandar
+Aula <|-- Laboratorio
+Reserva o-- Aula
+Reserva o-- Inscripcion
+Reserva *-- BloqueHorario
+Inscripcion o-- Asignatura
+Inscripcion o-- Comision
+Inscripcion o-- "many" Alumno
+Inscripcion -- Profesor
+Administrador --|> Usuario
+Profesor --|> Usuario
+Seguridad *-- Accion
+Menu o-- Seguridad
+Menu o-- MenuAdministrador
+Menu o-- MenuProfesor
+@enduml
