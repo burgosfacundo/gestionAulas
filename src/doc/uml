@@ -19,7 +19,8 @@ enum BloqueHorario {
 abstract class Aula {
     int numero
     int capacidad
-    List<Reserva> reservas
+    boolean tieneProyector
+    boolean tieneTV
 }
 
 class AulaEstandar extends Aula {
@@ -37,11 +38,6 @@ class Reserva {
     Inscripcion inscripcion  // Relación directa con Inscripción
 }
 
-class Alumno {
-    String nombre
-    String legajo
-}
-
 class Profesor extends Usuario {
     String nombre
     String apellido
@@ -51,7 +47,6 @@ class Profesor extends Usuario {
 class Comision {
     String nombre
     BloqueHorario bloque
-    Profesor profesor
 }
 
 class Asignatura {
@@ -60,7 +55,9 @@ class Asignatura {
 }
 
 class Inscripcion {
-    List<Alumno> alumnos    // Lista de alumnos inscritos
+    int cantidadAlumnos
+    int margenAlumnos
+    LocalDate fechaFinInscripcion
     Asignatura asignatura
     Comision comision
     Profesor profesor       // Profesor específico para esta inscripción
@@ -72,22 +69,6 @@ class GestorAula implements CrudOperations<Aula> {
 
 class GestorReserva implements CrudOperations<Reserva> {
     List<Reserva> reservas
-}
-
-class GestorProfesor implements CrudOperations<Profesor> {
-    List<Profesor> profesores
-}
-
-class GestorAlumno implements CrudOperations<Alumno> {
-    List<Alumno> alumnos
-}
-
-class GestorComision implements CrudOperations<Comision> {
-    List<Comision> comisiones
-}
-
-class GestorAsignatura implements CrudOperations<Asignatura> {
-    List<Asignatura> asignaturas
 }
 
 class Seguridad {
@@ -105,10 +86,6 @@ class Menu {
 class MenuAdministrador {
     GestorAula gestorAula
     GestorReserva gestorReserva
-    GestorProfesor gestorProfesor
-    GestorAlumno gestorAlumno
-    GestorComision gestorComision
-    GestorAsignatura gestorAsignatura
 }
 
 class MenuProfesor {
@@ -137,7 +114,6 @@ Reserva o-- Inscripcion
 Reserva *-- BloqueHorario
 Inscripcion o-- Asignatura
 Inscripcion o-- Comision
-Inscripcion o-- "many" Alumno
 Inscripcion -- Profesor
 Administrador --|> Usuario
 Profesor --|> Usuario
