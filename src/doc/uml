@@ -16,15 +16,13 @@ enum BloqueHorario {
     NOCHE_SEGUNDO_BLOQUE
 }
 
-abstract class Aula {
+class Aula {
     int numero
     int capacidad
     boolean tieneProyector
     boolean tieneTV
 }
 
-class AulaEstandar extends Aula {
-}
 
 class Laboratorio extends Aula {
     int computadoras
@@ -38,16 +36,12 @@ class Reserva {
     Inscripcion inscripcion  // Relación directa con Inscripción
 }
 
-class Profesor extends Usuario {
+class Profesor {
     String nombre
     String apellido
     String matricula
 }
 
-class Comision {
-    String nombre
-    BloqueHorario bloque
-}
 
 class Asignatura {
     String nombre
@@ -59,21 +53,48 @@ class Inscripcion {
     int margenAlumnos
     LocalDate fechaFinInscripcion
     Asignatura asignatura
-    Comision comision
-    Profesor profesor       // Profesor específico para esta inscripción
+    String comision
+    Profesor profesor
 }
 
 class GestorAula implements CrudOperations<Aula> {
-    List<Aula> aulas
+    Set<Aula> aulas
+    RepositorioAula repositorioAula
 }
 
 class GestorReserva implements CrudOperations<Reserva> {
     List<Reserva> reservas
+    RepositorioReserva repositorioReserva
+    RepositorioAsignatura repositorioAsignatura
+    RepositorioInscripcion repositorioInscripcion
+    RepositorioProfesor repositorioProfesor
+    RepositorioAula repositorioAula
+}
+
+class RepositorioAula implements JSONRepository<Aula> {
+}
+
+class RepositorioReserva implements JSONRepository<Reserva> {
+}
+
+class RepositorioAsignatura implements JSONRepository<Asignatura> {
+}
+
+class RepositorioInscripcion implements JSONRepository<Inscripcion> {
+}
+
+class RepositorioProfesor implements JSONRepository<Profesor> {
+}
+
+class RepositorioUsuario implements JSONRepository<Usuario> {
+}
+
+class RepositorioRol implements JSONRepository<Rol> {
 }
 
 class Seguridad {
     Usuario autenticar(String username, String password)
-    boolean validarAcceso(Usuario usuario, Accion accion)
+    boolean tienePermiso(Usuario usuario, String accion)
 }
 
 class Menu {
@@ -92,32 +113,25 @@ class MenuProfesor {
     GestorReserva gestorReserva
 }
 
-abstract class Usuario {
+class Usuario {
     String username
     String password
+    Rol rol
 }
 
-class Administrador extends Usuario {
+class Rol{
+    int id
+    String nombre
+    String descripcion
+    Set<String> permisos;
 }
 
-enum Accion {
-    GESTIONAR_AULA,
-    APROBAR_CAMBIO_AULA,
-    SOLICITAR_CAMBIO_AULA,
-    GESTIONAR_RESERVA
-}
 
-Aula <|-- AulaEstandar
-Aula <|-- Laboratorio
 Reserva o-- Aula
 Reserva o-- Inscripcion
 Reserva *-- BloqueHorario
 Inscripcion o-- Asignatura
-Inscripcion o-- Comision
 Inscripcion -- Profesor
-Administrador --|> Usuario
-Profesor --|> Usuario
-Seguridad *-- Accion
 Menu o-- Seguridad
 Menu o-- MenuAdministrador
 Menu o-- MenuProfesor

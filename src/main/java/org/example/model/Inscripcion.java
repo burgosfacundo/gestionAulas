@@ -1,4 +1,4 @@
-package model;
+package org.example.model;
 
 import java.time.LocalDate;
 
@@ -9,16 +9,14 @@ public class Inscripcion {
     private LocalDate fechaFinInscripcion;
     private Asignatura asignatura;
     private String comision;
-    private Perfil perfil; /// A CONFIRMAR
 
 
-    public Inscripcion(int cantidadAlumnos, int margenAlumnos, LocalDate fechaFinInscripcion, Asignatura asignatura, String comision, Perfil perfil) {
+    public Inscripcion(int cantidadAlumnos, int margenAlumnos, LocalDate fechaFinInscripcion, Asignatura asignatura, String comision) {
         this.cantidadAlumnos = cantidadAlumnos;
         this.margenAlumnos = margenAlumnos;
         this.fechaFinInscripcion = fechaFinInscripcion;
         this.asignatura = asignatura;
         this.comision = comision;
-        this.perfil = perfil;
     }
 
     /// GETTERS AND SETTERS:
@@ -36,9 +34,4 @@ public class Inscripcion {
 
     public String getComision() { return comision; }
     public void setComision(String comision) { this.comision = comision; }
-
-    public Perfil getPerfil() { return perfil; }
-    public void setPerfil(Perfil perfil) { this.perfil = perfil; }
-
-
 }
