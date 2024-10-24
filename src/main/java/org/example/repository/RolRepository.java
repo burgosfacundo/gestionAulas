@@ -44,6 +44,9 @@ public class RolRepository implements JSONRepository<Integer, Rol>{
         var lastId = roles.isEmpty() ? 0 : roles.getLast().getId();
         rol.setId(lastId + 1);
 
+        // Agregamos el nuevo rol
+        roles.add(rol);
+
         // Convertir cada rol a JsonObject usando el método toJson personalizado
         var jsonArray = new JsonArray();
         roles.forEach(r -> jsonArray.add(JsonParser.parseString(r.toJson())));
