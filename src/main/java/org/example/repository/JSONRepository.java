@@ -30,6 +30,7 @@ public interface JSONRepository <ID,T>{
     default void write(JsonArray list) throws JsonNotFoundException {
         try (FileWriter writer = new FileWriter(getRuta())) {
             gson.toJson(list, writer);
+            writer.flush();
         }catch (IOException e){
             throw new JsonNotFoundException(STR."No se encontro el archivo json \{getRuta()}");
         }
