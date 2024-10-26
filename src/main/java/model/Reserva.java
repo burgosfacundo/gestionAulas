@@ -10,6 +10,8 @@ import java.time.LocalDate;
 
 public class Reserva {
 
+    private static int contador;
+    private int id;
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
     private BloqueHorario bloque;
@@ -18,6 +20,7 @@ public class Reserva {
 
 
     public Reserva(LocalDate fechaInicio, LocalDate fechaFin, BloqueHorario bloque, Aula aula, Inscripcion inscripcion) {
+        this.id = contador++;
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
         this.bloque = bloque;
@@ -43,6 +46,7 @@ public class Reserva {
     public Inscripcion getInscripcion() { return inscripcion; }
     public void setInscripcion(Inscripcion inscripcion) { this.inscripcion = inscripcion; }
 
+    public int getId() {return id; }
 
     // REVISAR
     public JsonObject reservaToJson(){

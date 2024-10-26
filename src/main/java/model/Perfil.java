@@ -1,7 +1,7 @@
 package model;
 
 /// CLASE A CONFIRMAR:
-public class Perfil {
-
-
+public enum Perfil {
+    ESTUDIANTE,
+    PROFESOR
 }

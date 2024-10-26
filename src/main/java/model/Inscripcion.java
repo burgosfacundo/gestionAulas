@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 public class Inscripcion {
 
+    private int id;
     private int cantidadAlumnos;
     private int margenAlumnos;
     private LocalDate fechaFinInscripcion;
@@ -12,7 +13,8 @@ public class Inscripcion {
     private Perfil perfil; /// A CONFIRMAR
 
 
-    public Inscripcion(int cantidadAlumnos, int margenAlumnos, LocalDate fechaFinInscripcion, Asignatura asignatura, String comision, Perfil perfil) {
+    public Inscripcion(int id, int cantidadAlumnos, int margenAlumnos, LocalDate fechaFinInscripcion, Asignatura asignatura, String comision, Perfil perfil) {
+        this.id = id;
         this.cantidadAlumnos = cantidadAlumnos;
         this.margenAlumnos = margenAlumnos;
         this.fechaFinInscripcion = fechaFinInscripcion;
@@ -22,6 +24,11 @@ public class Inscripcion {
     }
 
     /// GETTERS AND SETTERS:
+
+
+    public int getId() {return id;}
+    public void setId(int id) {this.id = id;}
+
     public int getCantidadAlumnos() { return cantidadAlumnos; }
     public void setCantidadAlumnos(int cantidadAlumnos) { this.cantidadAlumnos = cantidadAlumnos; }
 
