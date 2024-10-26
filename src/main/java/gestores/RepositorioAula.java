@@ -6,7 +6,8 @@ import com.google.gson.reflect.TypeToken;
 import excepciones.AulaNoEncontradaException;
 import excepciones.EscrituraException;
 import interfaces.JsonRepository;
-import model.Aula;
+import org.example.model.Aula;
+
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;

@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import interfaces.JsonRepository;
-import model.Reserva;
+import org.example.model.Reserva;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;

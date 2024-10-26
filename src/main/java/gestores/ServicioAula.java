@@ -1,11 +1,12 @@
 package gestores;
 
-import enums.BloqueHorario;
 import excepciones.AulaNoEncontradaException;
 import excepciones.AulaYaExisteException;
 import interfaces.Service;
-import model.Aula;
-import model.Reserva;
+import org.example.enums.BloqueHorario;
+import org.example.model.Aula;
+import org.example.model.Reserva;
+
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -118,7 +119,6 @@ public class ServicioAula implements Service<Aula> {
                 .filter(r -> r.getBloque() == bloqueHorario)
                 .filter(r -> servicioReserva.seSolapan(fechaInicio1, fechaFin1, r.getFechaInicio(), r.getFechaFin()))
                 .toList();
-
         List<Aula> aulasSolapadas = new ArrayList<>();
 
         for (Reserva r : reservasSolapadas) {

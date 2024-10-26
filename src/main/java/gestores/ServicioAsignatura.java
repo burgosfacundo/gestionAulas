@@ -3,7 +3,7 @@ package gestores;
 import excepciones.AsignaturaNoEncontradaException;
 import excepciones.AsignaturaYaExisteException;
 import interfaces.Service;
-import model.Asignatura;
+import org.example.model.Asignatura;
 
 import java.util.List;
 

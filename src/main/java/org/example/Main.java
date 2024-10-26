@@ -1,8 +1,8 @@
 package org.example;
 
 import gestores.*;
-import model.*;
-import enums.BloqueHorario;
+import org.example.model.*;
+import org.example.enums.*;
 
 import java.time.LocalDate;
 import java.util.List;

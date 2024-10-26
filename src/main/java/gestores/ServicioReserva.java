@@ -3,7 +3,7 @@ package gestores;
 import excepciones.ReservaNoEncontradaException;
 import excepciones.ReservaYaExisteException;
 import interfaces.Service;
-import model.Reserva;
+import org.example.model.Reserva;
 
 import java.time.LocalDate;
 import java.util.List;

@@ -1,5 +1,7 @@
 package model;
 
+import org.example.model.Asignatura;
+
 import java.time.LocalDate;
 
 public class Inscripcion {

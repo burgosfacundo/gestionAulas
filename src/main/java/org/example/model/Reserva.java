@@ -3,6 +3,7 @@ package org.example.model;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import model.Inscripcion;
 import org.example.enums.BloqueHorario;
 
 import java.time.LocalDate;
