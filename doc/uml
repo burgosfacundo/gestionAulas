@@ -1,0 +1,173 @@
+@startuml
+enum BloqueHorario {
+    MANIANA_PRIMER_BLOQUE,
+    MANIANA_SEGUNDO_BLOQUE,
+    TARDE_PRIMER_BLOQUE,
+    TARDE_SEGUNDO_BLOQUE,
+    NOCHE_PRIMER_BLOQUE,
+    NOCHE_SEGUNDO_BLOQUE
+}
+
+class Aula {
+    int numero
+    int capacidad
+    boolean tieneProyector
+    boolean tieneTV
+}
+
+
+class Laboratorio extends Aula {
+    int computadoras
+}
+
+class Reserva {
+    LocalDate fechaInicio
+    LocalDate fechaFin
+    BloqueHorario bloque
+    Aula aula
+    Inscripcion inscripcion  // Relación directa con Inscripción
+}
+
+class Profesor {
+    String nombre
+    String apellido
+    String matricula
+}
+
+
+class Asignatura {
+    String nombre
+    boolean requiereLaboratorio
+}
+
+class Inscripcion {
+    int cantidadAlumnos
+    int margenAlumnos
+    LocalDate fechaFinInscripcion
+    Asignatura asignatura
+    String comision
+    Profesor profesor
+}
+
+interface CrudOperations<T> {
+    +void crear(T objeto)
+    +T leer(int id)
+    +void actualizar(T objeto)
+    +void eliminar(int id)
+    +List<T> listar()
+}
+
+class GestorAula implements CrudOperations<Aula> {
+    RepositorioAula repositorioAula
+}
+
+class GestorReserva implements CrudOperations<Reserva> {
+    RepositorioReserva repositorioReserva
+    RepositorioAsignatura repositorioAsignatura
+    RepositorioInscripcion repositorioInscripcion
+    RepositorioProfesor repositorioProfesor
+    RepositorioAula repositorioAula
+}
+
+interface JSONRepository<T> {
+      void escribir(List<String> list)
+       T guardar(T t)
+       List<T> listarTodos()
+       T findById(ID id)
+       void deleteById(ID id)
+}
+
+class RepositorioAula implements JSONRepository<Aula> {
+    String ruta
+    Gson gson
+}
+
+class RepositorioReserva implements JSONRepository<Reserva> {
+    String ruta
+    Gson gson
+}
+
+class RepositorioAsignatura implements JSONRepository<Asignatura> {
+    String ruta
+    Gson gson
+}
+
+class RepositorioInscripcion implements JSONRepository<Inscripcion> {
+    String ruta
+    Gson gson
+}
+
+class RepositorioProfesor implements JSONRepository<Profesor> {
+    String ruta
+    Gson gson
+}
+
+class RepositorioUsuario implements JSONRepository<Usuario> {
+    String ruta
+    Gson gson
+}
+
+class RepositorioRol implements JSONRepository<Rol> {
+    String ruta
+    Gson gson
+}
+
+class Seguridad {
+    Usuario autenticar(String username, String password)
+    boolean tienePermiso(Usuario usuario, String accion)
+}
+
+class Menu {
+    MenuAdministrador menuAdmin
+    MenuProfesor menuProfesor
+    Seguridad seguridad
+}
+
+
+class MenuAdministrador {
+    GestorAula gestorAula
+    GestorReserva gestorReserva
+}
+
+class MenuProfesor {
+    GestorReserva gestorReserva
+}
+
+class Usuario {
+    String username
+    String password
+    Rol rol
+}
+
+class Rol{
+    int id
+    String nombre
+    String descripcion
+    Set<Permisos> permisos;
+}
+
+enum Permisos{
+    CREAR_AULA,
+    ELIMINAR_AULA,
+    MODIFICAR_AULA,
+    VER_AULAS,
+    CREAR_RESERVA,
+    MODIFICAR_RESERVA,
+    ELIMINAR_RESERVA,
+    VER_RESERVAS,
+    SOLICITAR_CAMBIO,
+    GESTIONAR_CAMBIOS
+}
+
+
+Usuario *-- Rol
+Rol *-- Permisos
+Reserva o-- Aula
+Reserva o-- Inscripcion
+Reserva *-- BloqueHorario
+Inscripcion o-- Asignatura
+Inscripcion o-- Profesor
+Menu o-- Seguridad
+Menu o-- MenuAdministrador
+Menu o-- MenuProfesor
+@enduml

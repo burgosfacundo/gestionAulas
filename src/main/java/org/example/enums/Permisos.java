@@ -1,0 +1,15 @@
+package org.example.enums;
+
+public enum Permisos {
+    CREAR_AULA,
+    ELIMINAR_AULA,
+    MODIFICAR_AULA,
+    VER_AULAS,
+    CREAR_RESERVA,
+    MODIFICAR_RESERVA,
+    ELIMINAR_RESERVA,
+    VER_RESERVAS,
+    SOLICITAR_CAMBIO,
+    GESTIORNAR_CAMBIOS
+
+}

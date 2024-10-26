@@ -1,0 +1,24 @@
+[
+  {
+    "id": 1,
+    "nombre": "Administrador",
+    "permisos": [
+      "CREAR_AULA",
+      "MODIFICAR_RESERVA",
+      "VER_AULAS",
+      "CREAR_RESERVA",
+      "MODIFICAR_RESERVA",
+      "ELIMINAR_RESERVA",
+      "VER_RESERVAS",
+      "GESTIORNAR_CAMBIOS"
+    ]
+  },
+  {
+    "id": 2,
+    "nombre": "Profesor",
+    "permisos": [
+      "VER_AULAS",
+      "SOLICITAR_CAMBIO"
+    ]
+  }
+  ]
