@@ -4,6 +4,7 @@ import adaptadores.AdaptadorLocalDate;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import excepciones.EscrituraException;
 import interfaces.JsonRepository;
 import org.example.model.Reserva;
 
@@ -25,6 +26,10 @@ public class RepositorioReserva implements JsonRepository<Reserva> {
                 .create();
     }
 
+    public String getFILE_PATH() {
+        return FILE_PATH;
+    }
+
     @Override
     public void guardar(Reserva entidad) throws Exception {
         List<Reserva> lista;
@@ -41,8 +46,8 @@ public class RepositorioReserva implements JsonRepository<Reserva> {
             gson.toJson(lista, fw);
             fw.flush();
         }catch(IOException e){
-            System.err.println("Error al guardar la reserva. Error: " + e.getMessage());
-            throw e;
+            throw new EscrituraException("Error al guardar la asignatura.", e);
+
         }
     }
 
@@ -73,14 +78,13 @@ public class RepositorioReserva implements JsonRepository<Reserva> {
     }
 
     @Override
-    public void actualizar(Reserva entidad) throws Exception {
+    public void actualizar(Reserva entidad) throws IOException {
         List<Reserva> lista;
 
         try(FileReader fr = new FileReader(FILE_PATH)){
             lista = gson.fromJson(fr, new TypeToken<List<Reserva>>(){}.getType());
-        }catch (FileNotFoundException e){
-            System.err.println("No existe archivo del cual leer.");
-            return;
+        }catch (IOException e){
+            throw new FileNotFoundException("No se encontró el archivo " + FILE_PATH);
         }
 
         for (int i = 0; i < lista.size(); i++) {
@@ -95,7 +99,7 @@ public class RepositorioReserva implements JsonRepository<Reserva> {
             fw.flush();
             System.out.println("Reserva actualizada.");
         }catch(IOException e){
-            System.err.println("Error al actualizar la reserva. Error: " + e.getMessage());
+            throw new IOException("Error al actualizar la reserva.", e);
         }
     }
 
@@ -109,12 +113,7 @@ public class RepositorioReserva implements JsonRepository<Reserva> {
             throw e;
         }
 
-        for (int i = 0; i < lista.size(); i++) {
-            if(lista.get(i).getId() == id){
-                lista.remove(i);
-                break;
-            }
-        }
+        lista.removeIf(r -> r.getId() == id);
 
         try(FileWriter fw = new FileWriter(FILE_PATH)){
             gson.toJson(lista, fw);

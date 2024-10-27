@@ -5,6 +5,7 @@ import excepciones.ReservaYaExisteException;
 import interfaces.Service;
 import org.example.model.Reserva;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class ServicioReserva implements Service<Reserva> {
     public void modificar(Reserva entidad) throws Exception {
         try {
             repositorioReserva.actualizar(entidad);
-        } catch (ReservaNoEncontradaException e) {
+        } catch (IOException e) {
             System.err.println("Error: " + e.getMessage());
             throw e;
         } catch (Exception e) {

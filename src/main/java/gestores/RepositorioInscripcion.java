@@ -8,6 +8,7 @@ import excepciones.InscripcionNoEncontradaException;
 import excepciones.EscrituraException;
 import interfaces.JsonRepository;
 import model.Inscripcion;
+import org.example.model.Reserva;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -26,6 +27,10 @@ public class RepositorioInscripcion implements JsonRepository<Inscripcion> {
                 .setPrettyPrinting()
                 .registerTypeAdapter(LocalDate.class, new AdaptadorLocalDate())
                 .create();
+    }
+
+    public String getFILE_PATH() {
+        return FILE_PATH;
     }
 
     @Override
@@ -48,8 +53,7 @@ public class RepositorioInscripcion implements JsonRepository<Inscripcion> {
             gson.toJson(lista, fw);
             fw.flush();
         } catch (IOException e) {
-            System.err.println("Error al guardar la inscripción. Error: " + e.getMessage());
-            throw e;
+            throw new EscrituraException("Error al guardar la asignatura.", e);
         }
     }
 
@@ -63,45 +67,50 @@ public class RepositorioInscripcion implements JsonRepository<Inscripcion> {
                 }
             }
         }
-        throw new InscripcionNoEncontradaException("No se encontró la inscripción con el ID " + id);
+        throw new InscripcionNoEncontradaException("No se encontró la inscripción con el ID " + id, id);
     }
 
     @Override
-    public void actualizar(Inscripcion entidad) throws Exception {
-        FileReader fr = new FileReader(FILE_PATH);
-        boolean existe = false;
-        List<Inscripcion> lista = gson.fromJson(fr, new TypeToken<List<Inscripcion>>() {}.getType());
-        fr.close();
+    public void actualizar(Inscripcion entidad) throws IOException {
+        List<Inscripcion> lista;
+
+        try(FileReader fr = new FileReader(FILE_PATH)){
+            lista = gson.fromJson(fr, new TypeToken<List<Inscripcion>>(){}.getType());
+        }catch (IOException e){
+            throw new FileNotFoundException("No se encontró el archivo " + FILE_PATH);
+        }
 
         for (int i = 0; i < lista.size(); i++) {
-            if(lista.get(i).getId() == entidad.getId()) {
+            if(lista.get(i).getId() == entidad.getId()){
                 lista.set(i, entidad);
-                existe = true;
                 break;
             }
         }
 
-        if(!existe) throw new InscripcionNoEncontradaException("No existe una inscripción con el ID " + entidad.getId());
-
-        try (FileWriter fw = new FileWriter(FILE_PATH)) {
+        try(FileWriter fw = new FileWriter(FILE_PATH)){
             gson.toJson(lista, fw);
-        } catch (EscrituraException e) {
-            System.err.println("Error de escritura: " + e.getMessage());
+            fw.flush();
+            System.out.println("Inscripción actualizada.");
+        }catch(IOException e){
+            throw new IOException("Error al actualizar la inscripción.", e);
         }
     }
 
     @Override
-    public void eliminar(int id) throws Exception {
-        FileReader fr = new FileReader(FILE_PATH);
-        List<Inscripcion> lista = gson.fromJson(fr, new TypeToken<List<Inscripcion>>() {}.getType());
-        fr.close();
+    public void eliminar(int id) throws IOException {
+        List<Reserva> lista;
+        try(FileReader fr = new FileReader(FILE_PATH)){
+            lista = gson.fromJson(fr, new TypeToken<List<Inscripcion>>() {}.getType());
+        }catch (IOException e){
+            throw new FileNotFoundException("No se encontró el archivo " + FILE_PATH);
+        }
 
         lista.removeIf(inscripcion -> inscripcion.getId() == id);
 
         try (FileWriter fw = new FileWriter(FILE_PATH)) {
             gson.toJson(lista, fw);
-        } catch (EscrituraException e) {
-            System.err.println("Error de escritura: " + e.getMessage());
+        } catch (IOException e) {
+            throw  new EscrituraException("Error de escritura.", e);
         }
     }
 

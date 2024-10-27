@@ -6,7 +6,9 @@ import com.google.gson.reflect.TypeToken;
 import excepciones.AulaNoEncontradaException;
 import excepciones.EscrituraException;
 import interfaces.JsonRepository;
+import model.Inscripcion;
 import org.example.model.Aula;
+import org.example.model.Reserva;
 
 
 import java.io.FileNotFoundException;
@@ -22,6 +24,10 @@ public class RepositorioAula implements JsonRepository<Aula> {
 
     public RepositorioAula() {
         this.gson = new GsonBuilder().setPrettyPrinting().create();
+    }
+
+    public String getFILE_PATH() {
+        return FILE_PATH;
     }
 
     @Override
@@ -44,8 +50,8 @@ public class RepositorioAula implements JsonRepository<Aula> {
             gson.toJson(lista, fw);
             fw.flush();
         }catch(IOException e){
-            System.err.println("Error al guardar el aula. Error: " + e.getMessage());
-            throw e;
+            throw new EscrituraException("Error al guardar la asignatura.", e);
+
         }
     }
 
@@ -59,47 +65,50 @@ public class RepositorioAula implements JsonRepository<Aula> {
                 }
             }
         }
-        throw new AulaNoEncontradaException("No se encontró el aula de número " + id);
+        throw new AulaNoEncontradaException("No se encontró el aula de número " + id, id);
     }
 
     @Override
-    public void actualizar(Aula entidad) throws Exception {
-        FileReader fr = new FileReader(FILE_PATH);
-        boolean existe = false;
-        List<Aula> lista = gson.fromJson(fr, new TypeToken<List<Aula>>() {}.getType());
-        fr.close();
+    public void actualizar(Aula entidad) throws IOException {
+        List<Aula> lista;
+
+        try(FileReader fr = new FileReader(FILE_PATH)){
+            lista = gson.fromJson(fr, new TypeToken<List<Aula>>(){}.getType());
+        }catch (IOException e){
+            throw new FileNotFoundException("No se encontró el archivo " + FILE_PATH);
+        }
 
         for (int i = 0; i < lista.size(); i++) {
             if(lista.get(i).getNumero() == entidad.getNumero()){
                 lista.set(i, entidad);
-                existe = true;
                 break;
             }
         }
 
-        if(!existe) throw new AulaNoEncontradaException("No existe un aula de número " + entidad.getNumero());
-
         try(FileWriter fw = new FileWriter(FILE_PATH)){
             gson.toJson(lista, fw);
-        }catch(EscrituraException e){
-            System.err.println("Error de escritura: " + e.getMessage());
+            fw.flush();
+            System.out.println("Aula actualizada.");
+        }catch(IOException e){
+            throw new IOException("Error al actualizar el aula.", e);
         }
     }
 
     @Override
-    public void eliminar(int id) throws Exception {
-        FileReader fr = new FileReader(FILE_PATH);
-        List<Aula> lista = gson.fromJson(fr, new TypeToken<List<Aula>>() {}.getType());
-        fr.close();
-        for (Aula a : lista) {
-            if(a.getNumero() == id){
-                lista.remove(a);
-            }
+    public void eliminar(int id) throws IOException {
+        List<Aula> lista;
+        try(FileReader fr = new FileReader(FILE_PATH)){
+            lista = gson.fromJson(fr, new TypeToken<List<Aula>>() {}.getType());
+        }catch (IOException e){
+            throw new FileNotFoundException("No se encontró el archivo " + FILE_PATH);
         }
-        try(FileWriter fw = new FileWriter(FILE_PATH)){
+
+        lista.removeIf(aula -> aula.getNumero() == id);
+
+        try (FileWriter fw = new FileWriter(FILE_PATH)) {
             gson.toJson(lista, fw);
-        }catch(EscrituraException e){
-            System.err.println("Error de escritura: " + e.getMessage());
+        } catch (IOException e) {
+            throw  new EscrituraException("Error de escritura.", e);
         }
     }
 

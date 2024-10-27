@@ -1,7 +1,11 @@
 package excepciones;
 
 public class ReservaNoEncontradaException extends ElementoNoEncontradoException{
-    public ReservaNoEncontradaException(String mensaje){
-        super(mensaje);
+    public ReservaNoEncontradaException(int numeroId) {
+        super(numeroId);
+    }
+
+    public ReservaNoEncontradaException(String message, int numeroId) {
+        super(message, numeroId);
     }
 }

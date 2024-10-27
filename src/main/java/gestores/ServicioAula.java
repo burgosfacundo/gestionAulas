@@ -8,6 +8,7 @@ import org.example.model.Aula;
 import org.example.model.Reserva;
 
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +50,7 @@ public class ServicioAula implements Service<Aula> {
     public void modificar(Aula entidad) throws Exception {
         try{
             repositorioAula.actualizar(entidad);
-        }catch (AulaNoEncontradaException e){
+        }catch (IOException e){
             System.err.println("Error: " + e.getMessage());
             throw e;
         }catch(Exception e){
@@ -62,7 +63,7 @@ public class ServicioAula implements Service<Aula> {
     public void eliminar(int id) throws Exception {
         try{
             repositorioAula.eliminar(id);
-        }catch (AulaNoEncontradaException e){
+        }catch (IOException e){
             System.err.println("Error: " + e.getMessage());
             throw e;
         }catch(Exception e){

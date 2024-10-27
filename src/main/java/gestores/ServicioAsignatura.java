@@ -5,6 +5,7 @@ import excepciones.AsignaturaYaExisteException;
 import interfaces.Service;
 import org.example.model.Asignatura;
 
+import java.io.IOException;
 import java.util.List;
 
 public class ServicioAsignatura implements Service<Asignatura> {
@@ -44,7 +45,7 @@ public class ServicioAsignatura implements Service<Asignatura> {
     public void modificar(Asignatura entidad) throws Exception {
         try {
             repositorioAsignatura.actualizar(entidad);
-        } catch (AsignaturaNoEncontradaException e) {
+        } catch (IOException e) {
             System.err.println("Error: " + e.getMessage());
             throw e;
         } catch (Exception e) {
@@ -57,7 +58,7 @@ public class ServicioAsignatura implements Service<Asignatura> {
     public void eliminar(int id) throws Exception {
         try {
             repositorioAsignatura.eliminar(id);
-        } catch (AsignaturaNoEncontradaException e) {
+        } catch (IOException e) {
             System.err.println("Error: " + e.getMessage());
             throw e;
         } catch (Exception e) {

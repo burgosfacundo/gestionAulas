@@ -5,6 +5,7 @@ import excepciones.InscripcionYaExisteException;
 import interfaces.Service;
 import model.Inscripcion;
 
+import java.io.IOException;
 import java.util.List;
 
 public class ServicioInscripcion implements Service<Inscripcion> {
@@ -44,7 +45,7 @@ public class ServicioInscripcion implements Service<Inscripcion> {
     public void modificar(Inscripcion entidad) throws Exception {
         try {
             repositorioInscripcion.actualizar(entidad);
-        } catch (InscripcionNoEncontradaException e) {
+        } catch (IOException e) {
             System.err.println("Error: " + e.getMessage());
             throw e;
         } catch (Exception e) {
@@ -57,7 +58,7 @@ public class ServicioInscripcion implements Service<Inscripcion> {
     public void eliminar(int id) throws Exception {
         try {
             repositorioInscripcion.eliminar(id);
-        } catch (InscripcionNoEncontradaException e) {
+        } catch (IOException e) {
             System.err.println("Error: " + e.getMessage());
             throw e;
         } catch (Exception e) {
