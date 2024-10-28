@@ -1,11 +1,14 @@
 package org.example.repository;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import org.example.adaptadores.AdaptadorLocalDate;
 import org.example.exception.JsonNotFoundException;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -14,7 +17,8 @@ import java.util.List;
  * @param <T> Recibe el tipo de Clase que se guarda en el JSON
  */
 public interface JSONRepository <ID,T>{
-    Gson gson = new Gson();
+    Gson gson = new GsonBuilder().setPrettyPrinting()
+            .registerTypeAdapter(LocalDate.class, new AdaptadorLocalDate()).create();
 
     /**
      * Método para obtener la ruta del archivo JSON.

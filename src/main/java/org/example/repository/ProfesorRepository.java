@@ -31,7 +31,7 @@ public class ProfesorRepository implements JSONRepository<Integer, Profesor>{
 
     /**
      * Metodo que guarda un nuevo profesor en el JSON llamando al metodo write
-     * @param profesor el nuevo rol que se guarda en el JSON
+     * @param profesor el nuevo profesor que se guarda en el JSON
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
     @Override
@@ -46,7 +46,7 @@ public class ProfesorRepository implements JSONRepository<Integer, Profesor>{
         // Agregamos el nuevo profesor
         profesores.add(profesor);
 
-        // Convertir cada rol a JsonObject usando el método toJson personalizado
+        // Convertir cada profesor a JsonObject usando el método toJson personalizado
         var jsonArray = new JsonArray();
         profesores.forEach(p -> jsonArray.add(JsonParser.parseString(p.toJson())));
         write(jsonArray);
@@ -93,14 +93,14 @@ public class ProfesorRepository implements JSONRepository<Integer, Profesor>{
     @Override
     public void deleteById(Integer id) throws JsonNotFoundException{
         //Traigo lo que tiene el json
-        var roles = getAll();
+        var profesores = getAll();
 
         //Borro al que tenga el id
-        roles.removeIf(p -> p.getId() == id);
+        profesores.removeIf(p -> p.getId() == id);
 
         // Convertir cada profesor a JsonObject usando el método toJson personalizado
         var jsonArray = new JsonArray();
-        roles.forEach(p -> jsonArray.add(JsonParser.parseString(p.toJson())));
+        profesores.forEach(p -> jsonArray.add(JsonParser.parseString(p.toJson())));
         write(jsonArray);
     }
 

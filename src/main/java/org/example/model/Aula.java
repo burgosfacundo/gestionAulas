@@ -1,7 +1,9 @@
 package org.example.model;
 
-public class Aula {
+import com.google.gson.Gson;
 
+public class Aula {
+    private int id;
     private int numero;
     private int capacidad;
     boolean tieneProyector;
@@ -9,20 +11,27 @@ public class Aula {
 
 
     /// CONSTRUCTOR:
-    public Aula(int numero, int capacidad, boolean tieneProyector, boolean tieneTV) {
+    public Aula(int id,int numero, int capacidad, boolean tieneProyector, boolean tieneTV) {
+        this.id = id;
         this.numero = numero;
         this.capacidad = capacidad;
         this.tieneProyector = tieneProyector;
         this.tieneTV = tieneTV;
     }
 
-    /// CONSTRUCTOR VACIO POR SI SE NECESITA PARA PRUEBAS O ALGUN USO:
-    public Aula() {}
 
+    public int getId() {
+        return id;
+    }
 
+    public void setId(int id) {
+        this.id = id;
+    }
 
+    public void setNumero(int numero) {
+        this.numero = numero;
+    }
 
-    /// GETTERS AND SETTERS:
     public int getNumero() { return numero; }
 
     public int getCapacidad() { return capacidad; }
@@ -36,13 +45,7 @@ public class Aula {
 
     @Override
     public String toString() {
-        return "\nAula " +
-                "numero=" + numero +
-                "\n----------" +
-                "\ncapacidad=" + capacidad +
-                "\ntieneProyector=" + tieneProyector +
-                "\ntieneTV=" + tieneTV +
-                '\n';
+        return STR."Aula{id=\{id}, numero=\{numero}, capacidad=\{capacidad}, tieneProyector=\{tieneProyector}, tieneTV=\{tieneTV}\{'}'}";
     }
 
     @Override
@@ -57,5 +60,14 @@ public class Aula {
     @Override
     public int hashCode() {
         return numero;
+    }
+
+    /**
+     * Método para convertir un aula a JSON
+     * @return String que representa la cadena JSON de esta clase
+     */
+    public String toJson() {
+        Gson gson = new Gson();
+        return gson.toJson(this);
     }
 }

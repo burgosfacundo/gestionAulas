@@ -1,9 +1,9 @@
-package gestores;
+package org.example.service;
 
 import excepciones.InscripcionNoEncontradaException;
 import excepciones.InscripcionYaExisteException;
-import interfaces.Service;
 import model.Inscripcion;
+import org.example.repository.RepositorioInscripcion;
 
 import java.io.IOException;
 import java.util.List;

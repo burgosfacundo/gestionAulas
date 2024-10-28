@@ -1,11 +1,10 @@
-package gestores;
+package org.example.repository;
 
-import adaptadores.AdaptadorLocalDate;
+import org.example.adaptadores.AdaptadorLocalDate;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import excepciones.EscrituraException;
-import interfaces.JsonRepository;
 import org.example.model.Reserva;
 
 import java.io.FileNotFoundException;

@@ -1,4 +1,4 @@
-package org.example.Menues;
+package org.example.menu;
 
 import org.example.enums.Permisos;
 import org.example.model.Usuario;

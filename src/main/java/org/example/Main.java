@@ -1,8 +1,11 @@
 package org.example;
 
-import gestores.*;
 import org.example.model.*;
 import org.example.enums.*;
+import org.example.service.ServicioAsignatura;
+import org.example.service.ServicioAula;
+import org.example.service.ServicioInscripcion;
+import org.example.service.ServicioReserva;
 
 import java.time.LocalDate;
 import java.util.List;

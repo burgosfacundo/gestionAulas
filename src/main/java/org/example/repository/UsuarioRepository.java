@@ -1,7 +1,7 @@
 package org.example.repository;
 
 import com.google.gson.JsonArray;
-import org.example.dto.UsuarioDTO;
+import org.example.model.dto.UsuarioDTO;
 import org.example.exception.JsonNotFoundException;
 
 import java.io.FileReader;
@@ -28,6 +28,7 @@ public class UsuarioRepository implements JSONRepository<Integer, UsuarioDTO> {
     public String getRuta() {
         return ruta;
     }
+
     /**
      * Metodo que guarda un nuevo usuario en el JSON llamando al metodo write
      * @param dto el nuevo usuario que se guarda en el JSON

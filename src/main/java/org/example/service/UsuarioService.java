@@ -1,7 +1,8 @@
 package org.example.service;
 
 
-import org.example.dto.UsuarioDTO;
+import org.example.model.Rol;
+import org.example.model.dto.UsuarioDTO;
 import org.example.exception.BadRequestException;
 import org.example.exception.JsonNotFoundException;
 import org.example.exception.NotFoundException;
@@ -17,7 +18,7 @@ import java.util.List;
  * Clase que se encarga de comunicarse con el repositorio
  * y aplicar la logica de negocio para manipular usuarios
  */
-public class UsuarioService {
+public class UsuarioService implements Service<Usuario>{
     private final UsuarioRepository repositorioUsuario = new UsuarioRepository();
     private final RolRepository repositorioRol = new RolRepository();
 
@@ -31,7 +32,8 @@ public class UsuarioService {
         List<Usuario> usuarios = new ArrayList<>();
         var dtos = repositorioUsuario.getAll();
         for (UsuarioDTO dto : dtos){
-            usuarios.add(toUsuario(dto));
+            var rol = repositorioRol.findById(dto.idRol());
+            usuarios.add(toUsuario(dto,rol));
         }
         return usuarios;
     }
@@ -80,19 +82,49 @@ public class UsuarioService {
         repositorioUsuario.deleteById(id);
     }
 
+    @Override
+    public Usuario obtener(int id) throws JsonNotFoundException, NotFoundException {
+        var dto = repositorioUsuario.findById(id);
+        if (dto == null){
+            throw new NotFoundException(STR."No existe un usuario con el id: \{id}");
+        }
+
+        var rol = repositorioRol.findById(dto.idRol());
+        if (rol == null){
+            throw new NotFoundException(STR."No existe un rol con el id: \{id}");
+        }
+
+        return toUsuario(dto,rol);
+    }
+
+    @Override
+    public void modificar(Usuario usuario) throws JsonNotFoundException, NotFoundException {
+        var dto = repositorioUsuario.findById(usuario.getId());
+        if(dto == null){
+            throw new NotFoundException(STR."No existe un usuario con el id: \{usuario.getId()}");
+        }
+        var rol = repositorioRol.findById(usuario.getRol().getId());
+
+        if(rol == null){
+            throw new NotFoundException("No existe ese rol");
+        }
+        
+        repositorioUsuario.save(toDTO(usuario));
+    }
+
     /**
      * Metodo para mapear un dto a Usuario
      * @param dto que queremos mapear
      * @return Usuario mapeado desde dto
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
-    private Usuario toUsuario(UsuarioDTO dto) throws JsonNotFoundException {
+    private Usuario toUsuario(UsuarioDTO dto, Rol rol){
         //Retornamos el usuario mapeado desde dto, incluyendo su rol
         return new Usuario(
                 dto.id(),
                 dto.username(),
                 dto.password(),
-                repositorioRol.findById(dto.idRol())
+                rol
         );
     }
 

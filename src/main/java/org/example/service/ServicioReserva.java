@@ -1,9 +1,8 @@
-package gestores;
+package org.example.service;
 
 import excepciones.ReservaNoEncontradaException;
-import excepciones.ReservaYaExisteException;
-import interfaces.Service;
 import org.example.model.Reserva;
+import org.example.repository.RepositorioReserva;
 
 import java.io.IOException;
 import java.time.LocalDate;

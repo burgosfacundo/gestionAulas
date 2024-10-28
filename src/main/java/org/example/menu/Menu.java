@@ -1,4 +1,4 @@
-package org.example.Menues;
+package org.example.menu;
 
 import org.example.exception.AutenticacionException;
 import org.example.exception.JsonNotFoundException;
