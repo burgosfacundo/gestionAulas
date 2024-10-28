@@ -26,6 +26,7 @@ class Reserva {
     BloqueHorario bloque
     Aula aula
     Inscripcion inscripcion  // Relación directa con Inscripción
+    Set<DayOfWeek> diasSemana;
 }
 
 class Profesor {

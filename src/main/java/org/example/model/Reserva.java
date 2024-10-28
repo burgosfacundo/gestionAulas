@@ -6,31 +6,46 @@ import com.google.gson.JsonObject;
 import model.Inscripcion;
 import org.example.enums.BloqueHorario;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.Set;
 
 public class Reserva {
-
-    private static int contador;
     private int id;
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
     private BloqueHorario bloque;
     private Aula aula;
     private Inscripcion inscripcion;
+    Set<DayOfWeek> diasSemana;
 
 
-    public Reserva(LocalDate fechaInicio, LocalDate fechaFin, BloqueHorario bloque, Aula aula, Inscripcion inscripcion) {
-        this.id = contador++;
+    public Reserva(int id, LocalDate fechaInicio, LocalDate fechaFin, BloqueHorario bloque, Aula aula, Inscripcion inscripcion, Set<DayOfWeek> diasSemana) {
+        this.id = id;
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
         this.bloque = bloque;
         this.aula = aula;
         this.inscripcion = inscripcion;
+        this.diasSemana = diasSemana;
     }
 
 
 
     /// GETTERS AND SETTERS:
+    public int getId() {return id; }
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Set<DayOfWeek> getDiasSemana() {
+        return diasSemana;
+    }
+
+    public void setDiasSemana(Set<DayOfWeek> diasSemana) {
+        this.diasSemana = diasSemana;
+    }
+
     public LocalDate getFechaInicio() { return fechaInicio; }
     public void setFechaInicio(LocalDate fechaInicio) { this.fechaInicio = fechaInicio; }
 
@@ -45,8 +60,6 @@ public class Reserva {
 
     public Inscripcion getInscripcion() { return inscripcion; }
     public void setInscripcion(Inscripcion inscripcion) { this.inscripcion = inscripcion; }
-
-    public int getId() {return id; }
 
     // REVISAR
     public JsonObject reservaToJson(){
@@ -67,4 +80,9 @@ public class Reserva {
         return jsonElement.getAsJsonObject();
     }
 
+
+    @Override
+    public String toString() {
+        return STR."Reserva{id=\{id}, fechaInicio=\{fechaInicio}, fechaFin=\{fechaFin}, bloque=\{bloque}, aula=\{aula}, inscripcion=\{inscripcion}, diasSemana=\{diasSemana}\{'}'}";
+    }
 }
