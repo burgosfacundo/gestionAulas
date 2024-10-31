@@ -42,7 +42,7 @@ public class InscripcionRepository implements JSONRepository<Integer, Inscripcio
         // Verificamos el último ID y generamos el próximo
         var lastId = dtos.isEmpty() ? 0 : dtos.getLast().id();
         dto = new InscripcionDTO(lastId + 1, dto.cantidadAlumnos(), dto.margenAlumnos(),dto.fechaFinInscripcion(),
-                dto.idAsignatura(),dto.idComision(),dto.idProfesor());
+                dto.idAsignatura(),dto.comision(),dto.idProfesor());
 
         // Agregamos la nueva inscripción
         dtos.add(dto);
@@ -81,7 +81,7 @@ public class InscripcionRepository implements JSONRepository<Integer, Inscripcio
     public Optional<InscripcionDTO> findById(Integer id) throws JsonNotFoundException {
         //Usamos stream para filtrar por id
         //Devuelve la Inscripción si existe
-        //Devuelve null si no existe
+        //Devuelve Optional.empty() si no existe
         return getAll().stream()
                 .filter(dto -> dto.id() == id)
                 .findFirst();
@@ -129,7 +129,7 @@ public class InscripcionRepository implements JSONRepository<Integer, Inscripcio
         }
         // Reemplaza el objeto en la lista con una nueva instancia actualizada
         var nuevoDTO = new InscripcionDTO(dto.id(), dto.cantidadAlumnos(),dto.margenAlumnos(),
-                dto.fechaFinInscripcion(),dto.idAsignatura(),dto.idComision(),dto.idProfesor());
+                dto.fechaFinInscripcion(),dto.idAsignatura(),dto.comision(),dto.idProfesor());
         dtos.set(index, nuevoDTO);
 
         // Crea el array JSON actualizado
@@ -138,5 +138,25 @@ public class InscripcionRepository implements JSONRepository<Integer, Inscripcio
 
         // Guarda los cambios en el archivo JSON
         write(jsonArray);
+    }
+
+
+    /**
+     * Método para saber si una inscripción ya existe
+     * @param idAsignatura id de la asignatura de la inscripción
+     * @param idProfesor id del profesor de la inscripción
+     * @param comision comisión de la inscripción
+     * @return Optional<InscripcionDTO> el DTO si lo encuentra u Optional.empty() si no
+     * @throws JsonNotFoundException si ocurre un problema con el archivo JSON
+     */
+    public Optional<InscripcionDTO> find(Integer idAsignatura, Integer idProfesor, String comision) throws JsonNotFoundException {
+        //Usamos stream para filtrar por los id de Asignatura y Profesor y la comisión
+        //Devuelve la Inscripción si existe
+        //Devuelve Optional.empty() si no existe
+        return getAll().stream()
+                .filter(dto -> dto.idAsignatura() == idAsignatura &&
+                        dto.idProfesor() == idProfesor &&
+                        dto.comision().equals(comision))
+                .findFirst();
     }
 }
