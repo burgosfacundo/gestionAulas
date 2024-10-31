@@ -1,22 +1,20 @@
 package org.example;
 
-import org.example.model.*;
-import org.example.enums.*;
-import org.example.service.ServicioAsignatura;
-import org.example.service.ServicioAula;
-import org.example.service.ServicioInscripcion;
-import org.example.service.ServicioReserva;
 
-import java.time.LocalDate;
-import java.util.List;
+import org.example.service.AsignaturaService;
+import org.example.service.AulaService;
+import org.example.service.InscripcionService;
+import org.example.service.ReservaService;
+
+
 
 public class Main {
     public static void main(String[] args) {
 
-        ServicioReserva servicioReserva = new ServicioReserva();
-        ServicioAsignatura servicioAsignatura = new ServicioAsignatura();
-        ServicioAula servicioAula = new ServicioAula();
-        ServicioInscripcion servicioInscripcion = new ServicioInscripcion();
+        ReservaService reservaService = new ReservaService();
+        AsignaturaService asignaturaService = new AsignaturaService();
+        AulaService aulaService = new AulaService();
+        InscripcionService inscripcionService = new InscripcionService();
 
         /*
         try {
@@ -121,13 +119,14 @@ public class Main {
             }
         });
 
-        */
 
-        List<Aula> lista = servicioAula.listarAulasDisponibles(
+
+        List<Aula> lista = aulaService.listarAulasDisponibles(
                 LocalDate.of(2024, 3, 10),
                 LocalDate.of(2024, 12, 25),
                 BloqueHorario.MANIANA_PRIMER_BLOQUE);
 
         System.out.println(lista);
+         */
     }
 }

@@ -6,11 +6,11 @@ import org.example.exception.NotFoundException;
 
 import java.util.List;
 
-public interface Service<T> {
+public interface Service<ID,T> {
     List<T> listar() throws JsonNotFoundException;
-    T guardar(T t) throws JsonNotFoundException, NotFoundException, BadRequestException;
-    void eliminar(Integer id) throws JsonNotFoundException, NotFoundException;
-    T obtener(int id)throws JsonNotFoundException, NotFoundException;
+    T guardar(T t) throws JsonNotFoundException, BadRequestException;
+    void eliminar(ID id) throws JsonNotFoundException, NotFoundException;
+    T obtener(ID id)throws JsonNotFoundException, NotFoundException;
     void modificar(T t)throws JsonNotFoundException, NotFoundException;
 }
 
