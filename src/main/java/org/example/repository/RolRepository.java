@@ -20,8 +20,8 @@ public class RolRepository implements JSONRepository<Integer, Rol>{
     private final String ruta = "./json/roles.json";
 
     /**
-     * Metodo para retornar la ruta al json
-     * que se quiere utilizar en el metodo default
+     * Método para retornar la ruta al json
+     * que se quiere utilizar en el método default
      * de la interfaz
      * @return la ruta al JSON
      */
@@ -31,7 +31,7 @@ public class RolRepository implements JSONRepository<Integer, Rol>{
     }
 
     /**
-     * Metodo que guarda un nuevo rol en el JSON llamando al metodo write
+     * Método que guarda un nuevo rol en el JSON llamando al método write
      * @param rol el nuevo rol que se guarda en el JSON
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
@@ -55,7 +55,7 @@ public class RolRepository implements JSONRepository<Integer, Rol>{
 
 
     /**
-     * Metodo que devuelve la lista de roles que tenemos en el JSON
+     * Método que devuelve la lista de roles que tenemos en el JSON
      * @return List<Rol> lista de roles en el JSON
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
@@ -72,14 +72,14 @@ public class RolRepository implements JSONRepository<Integer, Rol>{
 
 
     /**
-     * Metodo para buscar un rol por id
+     * Método para buscar un rol por id
      * @param id para buscar y devolver el rol
-     * @return Rol con el id del parametro
+     * @return Rol con el ID del parámetro
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
     @Override
     public Rol findById(Integer id) throws JsonNotFoundException {
-        //Uso stream para filtrar por id si no existe lanzo excepcion
+        //Uso stream para filtrar por id si no existe lanzo excepción
         return getAll().stream()
                 .filter(r -> r.getId() == id)
                 .findFirst()
@@ -87,7 +87,7 @@ public class RolRepository implements JSONRepository<Integer, Rol>{
     }
 
     /**
-     * Metodo para borrar un rol por id
+     * Método para borrar un rol por ID
      * @param id para buscar y borrar el rol
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
@@ -106,7 +106,7 @@ public class RolRepository implements JSONRepository<Integer, Rol>{
     }
 
     /**
-     * Metodo para buscar rol por nombre
+     * Método para buscar rol por nombre
      * @param nombre para buscar el rol
      * @return Rol con ese nombre
      * @throws JsonNotFoundException si no se encuentra el archivo JSON

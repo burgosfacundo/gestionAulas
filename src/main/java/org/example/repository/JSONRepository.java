@@ -12,8 +12,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Interfaz generica para comunicarse con el JSON
- * @param <ID> Recibe el tipo del id de T
+ * Interfaz genérica para comunicarse con el JSON
+ * @param <ID> Recibe el tipo del ID de T
  * @param <T> Recibe el tipo de Clase que se guarda en el JSON
  */
 public interface JSONRepository <ID,T>{
@@ -27,7 +27,7 @@ public interface JSONRepository <ID,T>{
     String getRuta();
 
     /**
-     * Metodo default que escribe en un JSON
+     * Método default que escribe en un JSON
      * @param list JsonArray que se va a write en el archivo JSON
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */

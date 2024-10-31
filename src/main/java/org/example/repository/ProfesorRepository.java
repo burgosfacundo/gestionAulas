@@ -19,8 +19,8 @@ public class ProfesorRepository implements JSONRepository<Integer, Profesor>{
     private final String ruta = "./json/profesores.json";
 
     /**
-     * Metodo para retornar la ruta al json
-     * que se quiere utilizar en el metodo default
+     * Método para retornar la ruta al json
+     * que se quiere utilizar en el método default
      * de la interfaz
      * @return la ruta al JSON
      */
@@ -30,7 +30,7 @@ public class ProfesorRepository implements JSONRepository<Integer, Profesor>{
     }
 
     /**
-     * Metodo que guarda un nuevo profesor en el JSON llamando al metodo write
+     * Método que guarda un nuevo profesor en el JSON llamando al método write
      * @param profesor el nuevo profesor que se guarda en el JSON
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
@@ -39,7 +39,7 @@ public class ProfesorRepository implements JSONRepository<Integer, Profesor>{
         //Traigo lo que tengo en el json
         var profesores = getAll();
 
-        //Verifico el ultimo id y genero el proximo
+        //Verífico el último id y genero el próximo
         var lastId = profesores.isEmpty() ? 0 : profesores.getLast().getId();
         profesor.setId(lastId + 1);
 
@@ -54,7 +54,7 @@ public class ProfesorRepository implements JSONRepository<Integer, Profesor>{
 
 
     /**
-     * Metodo que devuelve la lista de profesores que tenemos en el JSON
+     * Método que devuelve la lista de profesores que tenemos en el JSON
      * @return List<Profesor> lista de profesores en el JSON
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
@@ -71,14 +71,14 @@ public class ProfesorRepository implements JSONRepository<Integer, Profesor>{
 
 
     /**
-     * Metodo para buscar un profesor por id
+     * Método para buscar un profesor por ID
      * @param id para buscar y devolver el profesor
-     * @return Profesor con el id del parametro
+     * @return Profesor con el ID del parámetro
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
     @Override
     public Profesor findById(Integer id) throws JsonNotFoundException {
-        //Uso stream para filtrar por id si no existe lanzo excepcion
+        //Uso stream para filtrar por id si no existe lanzo excepción
         return getAll().stream()
                 .filter(p -> p.getId() == id)
                 .findFirst()
@@ -86,7 +86,7 @@ public class ProfesorRepository implements JSONRepository<Integer, Profesor>{
     }
 
     /**
-     * Metodo para borrar un profesor por id
+     * Método para borrar un profesor por ID
      * @param id para buscar y borrar el profesor
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
@@ -105,9 +105,9 @@ public class ProfesorRepository implements JSONRepository<Integer, Profesor>{
     }
 
     /**
-     * Metodo para buscar profesor por matricula
+     * Método para buscar profesor por matrícula
      * @param matricula para buscar el profesor
-     * @return Profesor con esa matricula
+     * @return Profesor con esa matrícula
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
     public Profesor findByMatricula(String matricula) throws JsonNotFoundException {

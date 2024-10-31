@@ -19,8 +19,8 @@ public class UsuarioRepository implements JSONRepository<Integer, UsuarioDTO> {
     private final String ruta = "./json/usuarios.json";
 
     /**
-     * Metodo para retornar la ruta al json
-     * que se quiere utilizar en el metodo default
+     * Método para retornar la ruta al json
+     * que se quiere utilizar en el método default
      * de la interfaz
      * @return la ruta al JSON
      */
@@ -30,7 +30,7 @@ public class UsuarioRepository implements JSONRepository<Integer, UsuarioDTO> {
     }
 
     /**
-     * Metodo que guarda un nuevo usuario en el JSON llamando al metodo write
+     * Método que guarda un nuevo usuario en el JSON llamando al método write
      * @param dto el nuevo usuario que se guarda en el JSON
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
@@ -53,14 +53,14 @@ public class UsuarioRepository implements JSONRepository<Integer, UsuarioDTO> {
     }
 
     /**
-     * Metodo que devuelve la lista de usuarios que tenemos en el JSON
-     * @return List<UsuarioDTO> lista de los dto de usuarios en el JSON
+     * Método que devuelve la lista de usuarios que tenemos en el JSON
+     * @return List<UsuarioDTO> lista de los DTO de usuarios en el JSON
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
     @Override
     public List<UsuarioDTO> getAll() throws JsonNotFoundException {
         try (FileReader reader = new FileReader(ruta)) {
-            //Usamos UsuarioDTO porque guardamos solo el id del Rol que corresponde al usuario en este json
+            //Usamos UsuarioDTO porque guardamos solo el ID del Rol que corresponde al usuario en este json
             var usuarioListType = new TypeToken<List<UsuarioDTO>>() {}.getType();
             return gson.fromJson(reader, usuarioListType);
         } catch (IOException e) {
@@ -70,9 +70,9 @@ public class UsuarioRepository implements JSONRepository<Integer, UsuarioDTO> {
 
 
     /**
-     * Metodo para buscar un usuario por id
+     * Método para buscar un usuario por id
      * @param id para buscar y devolver el usuario
-     * @return UsuarioDTO con el id del parametro
+     * @return UsuarioDTO con el ID del parámetro
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
     @Override
@@ -88,7 +88,7 @@ public class UsuarioRepository implements JSONRepository<Integer, UsuarioDTO> {
 
 
     /**
-     * Metodo para borrar un usuario por id
+     * Método para borrar un usuario por ID
      * @param id para buscar y borrar el usuario
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
@@ -105,9 +105,9 @@ public class UsuarioRepository implements JSONRepository<Integer, UsuarioDTO> {
     }
 
     /**
-     * Metodo para buscar un usuario por username
+     * Método para buscar un usuario por username
      * @param username para buscar y devolver el usuario
-     * @return UsuarioDTO con el username del parametro
+     * @return UsuarioDTO con el username del parámetro
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
     public UsuarioDTO findByUsername(String username) throws JsonNotFoundException {

@@ -21,8 +21,8 @@ public class AulaRepository implements JSONRepository<Integer,Aula> {
     private final String ruta = "aulas.json";
 
     /**
-     * Metodo para retornar la ruta al json
-     * que se quiere utilizar en el metodo default
+     * Método para retornar la ruta al json
+     * que se quiere utilizar en el método default
      * de la interfaz
      * @return la ruta al JSON
      */
@@ -32,7 +32,7 @@ public class AulaRepository implements JSONRepository<Integer,Aula> {
     }
 
     /**
-     * Metodo que guarda una nueva aula en el JSON llamando al metodo write
+     * Método que guarda una nueva aula en el JSON llamando al método write
      * @param aula la nueva aula que se guarda en el JSON
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
@@ -41,7 +41,7 @@ public class AulaRepository implements JSONRepository<Integer,Aula> {
         //Traigo lo que tengo en el json
         var aulas = getAll();
 
-        //Verifico el ultimo id y genero el proximo
+        //Verífico el último id y genero el próximo
         var lastId = aulas.isEmpty() ? 0 : aulas.getLast().getId();
         aula.setId(lastId + 1);
 
@@ -56,7 +56,7 @@ public class AulaRepository implements JSONRepository<Integer,Aula> {
 
 
     /**
-     * Metodo que devuelve la lista de aulas que tenemos en el JSON
+     * Método que devuelve la lista de aulas que tenemos en el JSON
      * @return List<Aula> lista de aulas en el JSON
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
@@ -73,14 +73,14 @@ public class AulaRepository implements JSONRepository<Integer,Aula> {
 
 
     /**
-     * Metodo para buscar un aula por id
+     * Método para buscar un aula por ID
      * @param id para buscar y devolver la aula
-     * @return Aula con el id del parametro
+     * @return Aula con el ID del parámetro
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
     @Override
     public Aula findById(Integer id) throws JsonNotFoundException {
-        //Uso stream para filtrar por id si no existe lanzo excepcion
+        //Uso stream para filtrar por id si no existe lanzo excepción
         return getAll().stream()
                 .filter(a -> a.getId() == id)
                 .findFirst()
@@ -88,7 +88,7 @@ public class AulaRepository implements JSONRepository<Integer,Aula> {
     }
 
     /**
-     * Metodo para borrar un aula por id
+     * Método para borrar un aula por ID
      * @param id para buscar y borrar la aula
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
