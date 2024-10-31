@@ -104,4 +104,39 @@ public class InscripcionRepository implements JSONRepository<Integer, Inscripcio
         inscripciones.forEach(dto -> jsonArray.add(gson.toJsonTree(dto)));
         write(jsonArray);
     }
+
+    /**
+     * Método para modificar una inscripción
+     * @param dto que queremos modificar
+     * @throws JsonNotFoundException si no encuentra el archivo JSON
+     */
+    @Override
+    public void modify(InscripcionDTO dto) throws JsonNotFoundException {
+        // Obtén todas las inscripciones del JSON
+        var dtos = getAll();
+
+        // Busca el índice de la inscripción que deseas modificar
+        int index = -1;
+        for (int i = 0; i < dtos.size(); i++) {
+            if (dtos.get(i).id() == dto.id()) {
+                index = i;
+                break;
+            }
+        }
+        // Si no se encuentra el índice, lanza la excepción
+        if (index == -1) {
+            throw new JsonNotFoundException(STR."No se encontró el archivo JSON: \{ruta}");
+        }
+        // Reemplaza el objeto en la lista con una nueva instancia actualizada
+        var nuevoDTO = new InscripcionDTO(dto.id(), dto.cantidadAlumnos(),dto.margenAlumnos(),
+                dto.fechaFinInscripcion(),dto.idAsignatura(),dto.idComision(),dto.idProfesor());
+        dtos.set(index, nuevoDTO);
+
+        // Crea el array JSON actualizado
+        var jsonArray = new JsonArray();
+        dtos.forEach(d -> jsonArray.add(gson.toJsonTree(d)));
+
+        // Guarda los cambios en el archivo JSON
+        write(jsonArray);
+    }
 }

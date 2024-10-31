@@ -106,6 +106,35 @@ public class RolRepository implements JSONRepository<Integer, Rol>{
     }
 
     /**
+     * Método para modificar el rol
+     * @param rol que queremos modificar
+     * @throws JsonNotFoundException si no encuentra el archivo JSON
+     */
+    @Override
+    public void modify(Rol rol) throws JsonNotFoundException {
+        // Obtén todos los roles del JSON
+        var roles = getAll();
+
+        // Busca el rol por ID y actualiza sus campos
+        var exist = roles.stream()
+                .filter(r -> r.getId() == rol.getId())
+                .findFirst()
+                .orElseThrow(() -> new JsonNotFoundException(STR."No se encontró el archivo JSON: \{ruta}"));
+
+        // Actualiza los atributos del rol existente con los del nuevo objeto
+        exist.setId(rol.getId());
+        exist.setNombre(rol.getNombre());
+        exist.setPermisos(rol.getPermisos());
+
+        // Crea el array JSON actualizado
+        var jsonArray = new JsonArray();
+        roles.forEach(r -> jsonArray.add(JsonParser.parseString(r.toJson())));
+
+        // Guarda los cambios en el archivo JSON
+        write(jsonArray);
+    }
+
+    /**
      * Método para buscar rol por nombre
      * @param nombre para buscar el rol
      * @return Rol con ese nombre

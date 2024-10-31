@@ -104,4 +104,39 @@ public class ReservaRepository implements JSONRepository<Integer, ReservaDTO> {
         reservas.forEach(dto -> jsonArray.add(gson.toJsonTree(dto)));
         write(jsonArray);
     }
+
+    /**
+     * Método para modificar una reserva
+     * @param dto que queremos modificar
+     * @throws JsonNotFoundException si no encuentra el archivo JSON
+     */
+    @Override
+    public void modify(ReservaDTO dto) throws JsonNotFoundException {
+        // Obtén todas las reservas del JSON
+        var dtos = getAll();
+
+        // Busca el índice de la reserva que deseas modificar
+        int index = -1;
+        for (int i = 0; i < dtos.size(); i++) {
+            if (dtos.get(i).id() == dto.id()) {
+                index = i;
+                break;
+            }
+        }
+        // Si no se encuentra el índice, lanza la excepción
+        if (index == -1) {
+            throw new JsonNotFoundException(STR."No se encontró el archivo JSON: \{ruta}");
+        }
+        // Reemplaza el objeto en la lista con una nueva instancia actualizada
+        var nuevoDTO = new ReservaDTO(dto.id(), dto.fechaInicio(),dto.fechaFin(),dto.bloque(),dto.idAula(),
+                dto.idInscripcion(),dto.diasSemana());
+        dtos.set(index, nuevoDTO);
+
+        // Crea el array JSON actualizado
+        var jsonArray = new JsonArray();
+        dtos.forEach(d -> jsonArray.add(gson.toJsonTree(d)));
+
+        // Guarda los cambios en el archivo JSON
+        write(jsonArray);
+    }
 }

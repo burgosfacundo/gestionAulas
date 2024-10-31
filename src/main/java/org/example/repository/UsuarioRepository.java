@@ -105,6 +105,40 @@ public class UsuarioRepository implements JSONRepository<Integer, UsuarioDTO> {
     }
 
     /**
+     * Método para modificar un usuario
+     * @param dto que queremos modificar
+     * @throws JsonNotFoundException si no encuentra el archivo JSON
+     */
+    @Override
+    public void modify(UsuarioDTO dto) throws JsonNotFoundException {
+        // Obtén todos los usuarios del JSON
+        var dtos = getAll();
+
+        // Busca el índice del usuario que deseas modificar
+        int index = -1;
+        for (int i = 0; i < dtos.size(); i++) {
+            if (dtos.get(i).id() == dto.id()) {
+                index = i;
+                break;
+            }
+        }
+        // Si no se encuentra el índice, lanza la excepción
+        if (index == -1) {
+            throw new JsonNotFoundException(STR."No se encontró el archivo JSON: \{ruta}");
+        }
+        // Reemplaza el objeto en la lista con una nueva instancia actualizada
+        var nuevoDTO = new UsuarioDTO(dto.id(),dto.username(),dto.password(),dto.idRol());
+        dtos.set(index, nuevoDTO);
+
+        // Crea el array JSON actualizado
+        var jsonArray = new JsonArray();
+        dtos.forEach(d -> jsonArray.add(gson.toJsonTree(d)));
+
+        // Guarda los cambios en el archivo JSON
+        write(jsonArray);
+    }
+
+    /**
      * Método para buscar un usuario por username
      * @param username para buscar y devolver el usuario
      * @return UsuarioDTO con el username del parámetro

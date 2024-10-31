@@ -105,4 +105,35 @@ public class AulaRepository implements JSONRepository<Integer,Aula> {
         aulas.forEach(a -> jsonArray.add(JsonParser.parseString(a.toJson())));
         write(jsonArray);
     }
+
+    /**
+     * Método para modificar el aula
+     * @param aula que queremos modificar
+     * @throws JsonNotFoundException si no encuentra el archivo JSON
+     */
+    @Override
+    public void modify(Aula aula) throws JsonNotFoundException {
+        // Obtén todas las aulas del JSON
+        var aulas = getAll();
+
+        // Busca el aula por ID y actualiza sus campos
+        var exist = aulas.stream()
+                .filter(a -> a.getId() == aula.getId())
+                .findFirst()
+                .orElseThrow(() -> new JsonNotFoundException(STR."No se encontró el archivo JSON: \{ruta}"));
+
+        // Actualiza los atributos del aula existente con los del nuevo objeto
+        exist.setId(aula.getId());
+        exist.setNumero(aula.getNumero());
+        exist.setCapacidad(aula.getCapacidad());
+        exist.setTieneProyector(aula.isTieneProyector());
+        exist.setTieneTV(aula.isTieneTV());
+
+        // Crea el array JSON actualizado
+        var jsonArray = new JsonArray();
+        aulas.forEach(a -> jsonArray.add(JsonParser.parseString(a.toJson())));
+
+        // Guarda los cambios en el archivo JSON
+        write(jsonArray);
+    }
 }

@@ -103,4 +103,35 @@ public class AsignaturaRepository implements JSONRepository<Integer,Asignatura> 
         asignaturas.forEach(a -> jsonArray.add(JsonParser.parseString(a.toJson())));
         write(jsonArray);
     }
+
+    /**
+     * Método para modificar la asignatura
+     * @param asignatura que queremos modificar
+     * @throws JsonNotFoundException si no encuentra el archivo JSON
+     */
+    @Override
+    public void modify(Asignatura asignatura) throws JsonNotFoundException {
+        // Obtén todas las asignaturas del JSON
+        var asignaturas = getAll();
+
+        // Busca la asignatura por ID y actualiza sus campos
+        var exist = asignaturas.stream()
+                .filter(a -> a.getId() == asignatura.getId())
+                .findFirst()
+                .orElseThrow(() -> new JsonNotFoundException(STR."No se encontró el archivo JSON: \{ruta}"));
+
+        // Actualiza los atributos de la asignatura existente con los del nuevo objeto
+        exist.setId(asignatura.getId());
+        exist.setNombre(asignatura.getNombre());
+        exist.setCodigo(asignatura.getCodigo());
+        exist.setRequiereLaboratorio(asignatura.isRequiereLaboratorio());
+
+        // Crea el array JSON actualizado
+        var jsonArray = new JsonArray();
+        asignaturas.forEach(a -> jsonArray.add(JsonParser.parseString(a.toJson())));
+
+        // Guarda los cambios en el archivo JSON
+        write(jsonArray);
+    }
+
 }

@@ -43,4 +43,5 @@ public interface JSONRepository <ID,T>{
     List<T> getAll() throws JsonNotFoundException;
     T findById(ID id) throws JsonNotFoundException;
     void deleteById(ID id) throws JsonNotFoundException;
+    void modify(T t) throws JsonNotFoundException;
 }

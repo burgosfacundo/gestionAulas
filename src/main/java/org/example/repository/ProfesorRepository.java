@@ -105,6 +105,36 @@ public class ProfesorRepository implements JSONRepository<Integer, Profesor>{
     }
 
     /**
+     * Método para modificar el profesor
+     * @param profesor que queremos modificar
+     * @throws JsonNotFoundException si no encuentra el archivo JSON
+     */
+    @Override
+    public void modify(Profesor profesor) throws JsonNotFoundException {
+        // Obtén todos los profesores del JSON
+        var profesores = getAll();
+
+        // Busca el profesor por ID y actualiza sus campos
+        var exist = profesores.stream()
+                .filter(p -> p.getId() == profesor.getId())
+                .findFirst()
+                .orElseThrow(() -> new JsonNotFoundException(STR."No se encontró el archivo JSON: \{ruta}"));
+
+        // Actualiza los atributos del profesor existente con los del nuevo objeto
+        exist.setId(profesor.getId());
+        exist.setNombre(profesor.getNombre());
+        exist.setApellido(profesor.getApellido());
+        exist.setMatricula(profesor.getMatricula());
+
+        // Crea el array JSON actualizado
+        var jsonArray = new JsonArray();
+        profesores.forEach(p -> jsonArray.add(JsonParser.parseString(p.toJson())));
+
+        // Guarda los cambios en el archivo JSON
+        write(jsonArray);
+    }
+
+    /**
      * Método para buscar profesor por matrícula
      * @param matricula para buscar el profesor
      * @return Profesor con esa matrícula
