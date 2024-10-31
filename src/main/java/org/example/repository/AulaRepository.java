@@ -10,6 +10,7 @@ import org.example.model.Aula;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -75,16 +76,15 @@ public class AulaRepository implements JSONRepository<Integer,Aula> {
     /**
      * Método para buscar un aula por ID
      * @param id para buscar y devolver la aula
-     * @return Aula con el ID del parámetro
+     * @return Optional<Aula> el aula si lo encuentra u Optional.empty() si no
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
     @Override
-    public Aula findById(Integer id) throws JsonNotFoundException {
+    public Optional<Aula> findById(Integer id) throws JsonNotFoundException {
         //Uso stream para filtrar por id si no existe lanzo excepción
         return getAll().stream()
                 .filter(a -> a.getId() == id)
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
     /**
@@ -136,4 +136,18 @@ public class AulaRepository implements JSONRepository<Integer,Aula> {
         // Guarda los cambios en el archivo JSON
         write(jsonArray);
     }
+
+    /**
+     * Método para buscar un aula por número
+     * @param numero para buscar y devolver el aula
+     * @return Optional<Aula> el aula si lo encuentra u Optional.empty() si no
+     * @throws JsonNotFoundException si no se encuentra el archivo JSON
+     */
+    public Optional<Aula> findByNumero(Integer numero) throws JsonNotFoundException {
+        // Uso de stream para filtrar por número; si no existe, retorna Optional.empty()
+        return getAll().stream()
+                .filter(a -> a.getNumero() == numero)
+                .findFirst();
+    }
+
 }

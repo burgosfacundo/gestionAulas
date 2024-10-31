@@ -9,6 +9,7 @@ import org.example.model.Asignatura;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repositorio de asignatura
@@ -73,16 +74,15 @@ public class AsignaturaRepository implements JSONRepository<Integer,Asignatura> 
     /**
      * Metodo para buscar una asignatura por id
      * @param id para buscar y devolver la asignatura
-     * @return Asignatura con el id del parametro
+     * @return Optional<Asignatura> el DTO si lo encuentra o Optional.empty() si no
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
     @Override
-    public Asignatura findById(Integer id) throws JsonNotFoundException {
+    public Optional<Asignatura> findById(Integer id) throws JsonNotFoundException {
         //Uso stream para filtrar por id si no existe lanzo excepcion
         return getAll().stream()
                 .filter(a -> a.getId() == id)
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
     /**
@@ -132,6 +132,19 @@ public class AsignaturaRepository implements JSONRepository<Integer,Asignatura> 
 
         // Guarda los cambios en el archivo JSON
         write(jsonArray);
+    }
+
+    /**
+     * Método para buscar una asignatura por código
+     * @param codigo para buscar y devolver la asignatura
+     * @return Optional<Asignatura> el DTO si lo encuentra o Optional.empty() si no
+     * @throws JsonNotFoundException si no se encuentra el archivo JSON
+     */
+    public Optional<Asignatura> findByCodigo(int codigo) throws JsonNotFoundException {
+        //Uso stream para filtrar por código si no existe lanzo excepción
+        return getAll().stream()
+                .filter(a -> a.getCodigo() == codigo)
+                .findFirst();
     }
 
 }

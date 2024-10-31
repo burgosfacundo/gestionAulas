@@ -9,6 +9,7 @@ import org.example.model.Profesor;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repositorio de profesor
@@ -73,16 +74,15 @@ public class ProfesorRepository implements JSONRepository<Integer, Profesor>{
     /**
      * Método para buscar un profesor por ID
      * @param id para buscar y devolver el profesor
-     * @return Profesor con el ID del parámetro
+     * @return Optional<Profesor> el profesor si lo encuentra u Optional.empty() si no
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
     @Override
-    public Profesor findById(Integer id) throws JsonNotFoundException {
+    public Optional<Profesor> findById(Integer id) throws JsonNotFoundException {
         //Uso stream para filtrar por id si no existe lanzo excepción
         return getAll().stream()
                 .filter(p -> p.getId() == id)
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
     /**
@@ -137,13 +137,12 @@ public class ProfesorRepository implements JSONRepository<Integer, Profesor>{
     /**
      * Método para buscar profesor por matrícula
      * @param matricula para buscar el profesor
-     * @return Profesor con esa matrícula
+     * @return Optional<Profesor> el profesor si lo encuentra u Optional.empty() si no
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
-    public Profesor findByMatricula(String matricula) throws JsonNotFoundException {
+    public Optional<Profesor> findByMatricula(String matricula) throws JsonNotFoundException {
         return getAll().stream()
                 .filter(p -> p.getMatricula().equals(matricula))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 }

@@ -9,6 +9,7 @@ import org.example.model.dto.ReservaDTO;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repositorio de reservas
@@ -73,18 +74,17 @@ public class ReservaRepository implements JSONRepository<Integer, ReservaDTO> {
     /**
      * Método para buscar una reserva por ID
      * @param id para buscar y devolver la reserva
-     * @return ReservaDTO con el ID del parámetro
+     * @return Optional<ReservaDTO> el DTO si lo encuentra u Optional.empty() si no
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
     @Override
-    public ReservaDTO findById(Integer id) throws JsonNotFoundException {
+    public Optional<ReservaDTO> findById(Integer id) throws JsonNotFoundException {
         //Usamos stream para filtrar por id
         //Devuelve la reserva si existe
         //Devuelve null si no existe
         return getAll().stream()
                 .filter(dto -> dto.id() == id)
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
 

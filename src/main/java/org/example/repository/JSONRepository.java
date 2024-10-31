@@ -10,6 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Interfaz genérica para comunicarse con el JSON
@@ -41,7 +42,7 @@ public interface JSONRepository <ID,T>{
     }
     void save(T t) throws JsonNotFoundException;
     List<T> getAll() throws JsonNotFoundException;
-    T findById(ID id) throws JsonNotFoundException;
+    Optional<T> findById(ID id) throws JsonNotFoundException;
     void deleteById(ID id) throws JsonNotFoundException;
     void modify(T t) throws JsonNotFoundException;
 }

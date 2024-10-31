@@ -8,6 +8,7 @@ import org.example.model.dto.InscripcionDTO;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repositorio de inscripciones
@@ -54,7 +55,7 @@ public class InscripcionRepository implements JSONRepository<Integer, Inscripcio
 
     /**
      * Método que devuelve la lista de inscripciones que tenemos en el JSON
-     * @return List<InscripcionDTO> lista de los dto de inscripciones en el JSON
+     * @return List<InscripcionDTO> lista de los DTO de inscripciones en el JSON
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
     @Override
@@ -73,18 +74,17 @@ public class InscripcionRepository implements JSONRepository<Integer, Inscripcio
     /**
      * Método para buscar una inscripción por ID
      * @param id para buscar y devolver la inscripción
-     * @return InscripcionDTO con el id del parámetro
+     * @return Optional<InscripcionDTO> el DTO si lo encuentra u Optional.empty() si no
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
     @Override
-    public InscripcionDTO findById(Integer id) throws JsonNotFoundException {
+    public Optional<InscripcionDTO> findById(Integer id) throws JsonNotFoundException {
         //Usamos stream para filtrar por id
         //Devuelve la Inscripción si existe
         //Devuelve null si no existe
         return getAll().stream()
                 .filter(dto -> dto.id() == id)
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
 

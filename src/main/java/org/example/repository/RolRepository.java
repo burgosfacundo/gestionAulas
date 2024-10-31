@@ -9,6 +9,7 @@ import org.example.model.Rol;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -74,16 +75,15 @@ public class RolRepository implements JSONRepository<Integer, Rol>{
     /**
      * Método para buscar un rol por id
      * @param id para buscar y devolver el rol
-     * @return Rol con el ID del parámetro
+     * @return Optional<Rol> el rol si lo encuentra u Optional.empty() si no
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
     @Override
-    public Rol findById(Integer id) throws JsonNotFoundException {
+    public Optional<Rol> findById(Integer id) throws JsonNotFoundException {
         //Uso stream para filtrar por id si no existe lanzo excepción
         return getAll().stream()
                 .filter(r -> r.getId() == id)
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
     /**
@@ -137,13 +137,12 @@ public class RolRepository implements JSONRepository<Integer, Rol>{
     /**
      * Método para buscar rol por nombre
      * @param nombre para buscar el rol
-     * @return Rol con ese nombre
+     * @return Optional<Rol> el rol si lo encuentra u Optional.empty() si no
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
-    public Rol findByNombre(String nombre) throws JsonNotFoundException {
+    public Optional<Rol> findByNombre(String nombre) throws JsonNotFoundException {
         return getAll().stream()
                 .filter(r -> r.getNombre().equals(nombre))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 }

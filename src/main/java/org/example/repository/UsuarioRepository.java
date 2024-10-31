@@ -7,6 +7,7 @@ import org.example.exception.JsonNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -72,18 +73,17 @@ public class UsuarioRepository implements JSONRepository<Integer, UsuarioDTO> {
     /**
      * Método para buscar un usuario por id
      * @param id para buscar y devolver el usuario
-     * @return UsuarioDTO con el ID del parámetro
+     * @return Optional<UsuarioDTO> el DTO si lo encuentra u Optional.empty() si no
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
     @Override
-    public UsuarioDTO findById(Integer id) throws JsonNotFoundException {
+    public Optional<UsuarioDTO> findById(Integer id) throws JsonNotFoundException {
         //Usamos stream para filtrar por id
         //Devuelve el Usuario si existe
         //Devuelve null si no existe
         return getAll().stream()
                 .filter(dto -> dto.id() == id)
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
 
@@ -141,17 +141,16 @@ public class UsuarioRepository implements JSONRepository<Integer, UsuarioDTO> {
     /**
      * Método para buscar un usuario por username
      * @param username para buscar y devolver el usuario
-     * @return UsuarioDTO con el username del parámetro
+     * @return Optional<UsuarioDTO> el DTO si lo encuentra u Optional.empty() si no
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
-    public UsuarioDTO findByUsername(String username) throws JsonNotFoundException {
+    public Optional<UsuarioDTO> findByUsername(String username) throws JsonNotFoundException {
         //Usamos stream para filtrar por username
         //Devuelve el Usuario si existe
         //Devuelve null si no existe
         return getAll().stream()
                 .filter(dto -> dto.username().equals(username))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 }
 
