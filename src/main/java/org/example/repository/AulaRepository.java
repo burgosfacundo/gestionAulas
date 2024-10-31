@@ -128,6 +128,7 @@ public class AulaRepository implements JSONRepository<Integer,Aula> {
         exist.setCapacidad(aula.getCapacidad());
         exist.setTieneProyector(aula.isTieneProyector());
         exist.setTieneTV(aula.isTieneTV());
+        exist.setComputadoras(aula.getComputadoras());
 
         // Crea el array JSON actualizado
         var jsonArray = new JsonArray();

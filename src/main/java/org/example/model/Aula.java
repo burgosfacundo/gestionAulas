@@ -6,17 +6,19 @@ public class Aula {
     private int id;
     private int numero;
     private int capacidad;
-    boolean tieneProyector;
-    boolean tieneTV;
+    private boolean tieneProyector;
+    private boolean tieneTV;
+    private int computadoras;
 
 
     /// CONSTRUCTOR:
-    public Aula(int id,int numero, int capacidad, boolean tieneProyector, boolean tieneTV) {
+    public Aula(int id,int numero, int capacidad, boolean tieneProyector, boolean tieneTV,int computadoras) {
         this.id = id;
         this.numero = numero;
         this.capacidad = capacidad;
         this.tieneProyector = tieneProyector;
         this.tieneTV = tieneTV;
+        this.computadoras = computadoras;
     }
 
 
@@ -43,9 +45,12 @@ public class Aula {
     public boolean isTieneTV() { return tieneTV; }
     public void setTieneTV(boolean tieneTV) { this.tieneTV = tieneTV; }
 
-    @Override
-    public String toString() {
-        return STR."Aula{id=\{id}, numero=\{numero}, capacidad=\{capacidad}, tieneProyector=\{tieneProyector}, tieneTV=\{tieneTV}\{'}'}";
+    public int getComputadoras() {
+        return computadoras;
+    }
+
+    public void setComputadoras(int computadoras) {
+        this.computadoras = computadoras;
     }
 
     @Override
