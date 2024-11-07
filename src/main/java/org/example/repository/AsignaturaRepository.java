@@ -9,6 +9,7 @@ import org.example.model.Asignatura;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -83,7 +84,7 @@ public class AsignaturaRepository implements JSONRepository<Integer,Asignatura> 
         //Devuelve la asignatura si existe
         //Devuelve optional.empty() sino
         return getAll().stream()
-                .filter(a -> a.getId() == id)
+                .filter(a -> Objects.equals(a.getId(), id))
                 .findFirst();
     }
 
@@ -98,7 +99,7 @@ public class AsignaturaRepository implements JSONRepository<Integer,Asignatura> 
         var asignaturas = getAll();
 
         //Borro al que tenga el id
-        asignaturas.removeIf(a -> a.getId() == id);
+        asignaturas.removeIf(a -> Objects.equals(a.getId(), id));
 
         // Convertir cada asignatura a JsonObject usando el método de toJson personalizado
         var jsonArray = new JsonArray();
@@ -118,7 +119,7 @@ public class AsignaturaRepository implements JSONRepository<Integer,Asignatura> 
 
         // Busca la asignatura por ID y actualiza sus campos
         var exist = asignaturas.stream()
-                .filter(a -> a.getId() == asignatura.getId())
+                .filter(a -> Objects.equals(a.getId(), asignatura.getId()))
                 .findFirst()
                 .orElseThrow(() -> new JsonNotFoundException(STR."No se encontró el archivo JSON: \{ruta}"));
 

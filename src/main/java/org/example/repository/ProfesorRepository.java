@@ -9,6 +9,7 @@ import org.example.model.Profesor;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -83,7 +84,7 @@ public class ProfesorRepository implements JSONRepository<Integer, Profesor>{
         //Devuelve el profesor si existe
         //Devuelve optional.empty() sino
         return getAll().stream()
-                .filter(p -> p.getId() == id)
+                .filter(p -> Objects.equals(p.getId(), id))
                 .findFirst();
     }
 
@@ -98,7 +99,7 @@ public class ProfesorRepository implements JSONRepository<Integer, Profesor>{
         var profesores = getAll();
 
         //Borro al que tenga el id
-        profesores.removeIf(p -> p.getId() == id);
+        profesores.removeIf(p -> Objects.equals(p.getId(), id));
 
         // Convertir cada profesor a JsonObject usando el método toJson personalizado
         var jsonArray = new JsonArray();
@@ -118,7 +119,7 @@ public class ProfesorRepository implements JSONRepository<Integer, Profesor>{
 
         // Busca el profesor por ID y actualiza sus campos
         var exist = profesores.stream()
-                .filter(p -> p.getId() == profesor.getId())
+                .filter(p -> Objects.equals(p.getId(), profesor.getId()))
                 .findFirst()
                 .orElseThrow(() -> new JsonNotFoundException(STR."No se encontró el archivo JSON: \{ruta}"));
 
