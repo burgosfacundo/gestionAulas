@@ -3,30 +3,31 @@ package org.example.model;
 import com.google.gson.Gson;
 
 public class Aula {
-    private int id;
+    private Integer id;
     private int numero;
     private int capacidad;
     private boolean tieneProyector;
     private boolean tieneTV;
-    private int computadoras;
 
-
-    /// CONSTRUCTOR:
-    public Aula(int id,int numero, int capacidad, boolean tieneProyector, boolean tieneTV,int computadoras) {
+    /// CONSTRUCTORES:
+    public Aula(Integer id,int numero, int capacidad, boolean tieneProyector, boolean tieneTV) {
         this.id = id;
         this.numero = numero;
         this.capacidad = capacidad;
         this.tieneProyector = tieneProyector;
         this.tieneTV = tieneTV;
-        this.computadoras = computadoras;
+    }
+
+    public Aula(Integer id){
+        this.id = id;
     }
 
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -44,14 +45,6 @@ public class Aula {
 
     public boolean isTieneTV() { return tieneTV; }
     public void setTieneTV(boolean tieneTV) { this.tieneTV = tieneTV; }
-
-    public int getComputadoras() {
-        return computadoras;
-    }
-
-    public void setComputadoras(int computadoras) {
-        this.computadoras = computadoras;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -74,5 +67,16 @@ public class Aula {
     public String toJson() {
         Gson gson = new Gson();
         return gson.toJson(this);
+    }
+
+    /**
+     * Método para actualizar los campos del Aula
+     * @param aula con la nueva información
+     */
+    public void actualizar(Aula aula) {
+        this.numero = aula.getNumero();
+        this.capacidad = aula.getCapacidad();
+        this.tieneProyector = aula.isTieneProyector();
+        this.tieneTV = aula.isTieneTV();
     }
 }

@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "type": "Aula",
+    "numero": 101,
+    "capacidad": 30,
+    "tieneProyector": true,
+    "tieneTV": false
+  },
+  {
+    "id": 2,
+    "type": "Aula",
+    "numero": 102,
+    "capacidad": 25,
+    "tieneProyector": false,
+    "tieneTV": true
+  },
+  {
+    "id": 3,
+    "type": "Laboratorio",
+    "numero": 201,
+    "capacidad": 20,
+    "tieneProyector": true,
+    "tieneTV": false,
+    "computadoras": 15
+  },
+  {
+    "id": 4,
+    "type": "Laboratorio",
+    "numero": 202,
+    "capacidad": 35,
+    "tieneProyector": true,
+    "tieneTV": true,
+    "computadoras": 25
+  },
+  {
+    "id": 5,
+    "type": "Aula",
+    "numero": 103,
+    "capacidad": 40,
+    "tieneProyector": false,
+    "tieneTV": true
+  }
+]
