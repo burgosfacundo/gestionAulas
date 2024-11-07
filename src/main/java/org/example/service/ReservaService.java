@@ -128,7 +128,7 @@ public class ReservaService{
      */
     public void modificar(Reserva reserva) throws JsonNotFoundException, NotFoundException, BadRequestException, ConflictException {
         // Validamos que existe la reserva que se quiere modificar
-        var dto = repositorio.findById(reserva.getId())
+        repositorio.findById(reserva.getId())
                 .orElseThrow(()-> new NotFoundException(STR."No existe una reserva con el id: \{reserva.getId()}"));
 
         //Validamos y obtenemos la inscripción de la reserva

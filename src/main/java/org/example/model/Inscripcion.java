@@ -13,6 +13,7 @@ public class Inscripcion {
 
 
     public Inscripcion(Integer id, int cantidadAlumnos, int margenAlumnos, LocalDate fechaFinInscripcion, Asignatura asignatura, String comision, Profesor profesor) {
+        this.id = id;
         this.cantidadAlumnos = cantidadAlumnos;
         this.margenAlumnos = margenAlumnos;
         this.fechaFinInscripcion = fechaFinInscripcion;
