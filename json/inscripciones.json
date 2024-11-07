@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "idAsignatura": 1,
+    "idProfesor": 2,
+    "cantidadAlumnos": 30,
+    "margenAlumnos": 5,
+    "fechaFinInscripcion": "2024-11-30"
+  },
+  {
+    "id": 2,
+    "idAsignatura": 3,
+    "idProfesor": 2,
+    "cantidadAlumnos": 25,
+    "margenAlumnos": 4,
+    "fechaFinInscripcion": "2024-11-30"
+  },
+  {
+    "id": 3,
+    "idAsignatura": 2,
+    "idProfesor": 1,
+    "cantidadAlumnos": 20,
+    "margenAlumnos": 3,
+    "fechaFinInscripcion": "2024-12-15"
+  },
+  {
+    "id": 4,
+    "idAsignatura": 4,
+    "idProfesor": 3,
+    "cantidadAlumnos": 15,
+    "margenAlumnos": 2,
+    "fechaFinInscripcion": "2024-12-01"
+  },
+  {
+    "id": 5,
+    "idAsignatura": 5,
+    "idProfesor": 4,
+    "cantidadAlumnos": 18,
+    "margenAlumnos": 4,
+    "fechaFinInscripcion": "2024-11-28"
+  }
+]

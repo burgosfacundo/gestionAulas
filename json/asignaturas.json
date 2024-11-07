@@ -1,0 +1,27 @@
+[
+  {
+    "id": 1,
+    "nombre": "Matemática",
+    "requiereLaboratorio": false
+  },
+  {
+    "id": 2,
+    "nombre": "Física Experimental",
+    "requiereLaboratorio": true
+  },
+  {
+    "id": 3,
+    "nombre": "Programación Avanzada",
+    "requiereLaboratorio": true
+  },
+  {
+    "id": 4,
+    "nombre": "Historia",
+    "requiereLaboratorio": false
+  },
+  {
+    "id": 5,
+    "nombre": "Biología",
+    "requiereLaboratorio": true
+  }
+]

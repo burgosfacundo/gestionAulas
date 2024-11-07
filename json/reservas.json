@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "fechaInicio": "2024-03-01",
+    "fechaFin": "2024-06-30",
+    "bloque": "MORNING",
+    "idAula": 1,
+    "idInscripcion": 1,
+    "diasSemana": ["MONDAY", "WEDNESDAY"]
+  },
+  {
+    "id": 2,
+    "fechaInicio": "2024-03-01",
+    "fechaFin": "2024-06-30",
+    "bloque": "AFTERNOON",
+    "idAula": 2,
+    "idInscripcion": 2,
+    "diasSemana": ["TUESDAY", "THURSDAY"]
+  },
+  {
+    "id": 3,
+    "fechaInicio": "2024-03-01",
+    "fechaFin": "2024-06-30",
+    "bloque": "MORNING",
+    "idAula": 3,
+    "idInscripcion": 3,
+    "diasSemana": ["WEDNESDAY", "FRIDAY"]
+  },
+  {
+    "id": 4,
+    "fechaInicio": "2024-03-01",
+    "fechaFin": "2024-06-30",
+    "bloque": "EVENING",
+    "idAula": 4,
+    "idInscripcion": 4,
+    "diasSemana": ["MONDAY", "FRIDAY"]
+  },
+  {
+    "id": 5,
+    "fechaInicio": "2024-03-01",
+    "fechaFin": "2024-06-30",
+    "bloque": "MORNING",
+    "idAula": 5,
+    "idInscripcion": 5,
+    "diasSemana": ["THURSDAY"]
+  }
+]

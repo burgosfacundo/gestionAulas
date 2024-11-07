@@ -6,9 +6,27 @@
     "idRol": 1
   },
   {
-    "id": 1,
+    "id": 2,
     "username": "adrianAroca",
     "password": "1234",
+    "idRol": 2
+  },
+  {
+    "id": 3,
+    "username": "usuario3",
+    "password": "hashed_password3",
+    "idRol": 2
+  },
+  {
+    "id": 4,
+    "username": "usuario4",
+    "password": "hashed_password4",
+    "idRol":2
+  },
+  {
+    "id": 5,
+    "username": "usuario5",
+    "password": "hashed_password5",
     "idRol": 2
   }
 ]
