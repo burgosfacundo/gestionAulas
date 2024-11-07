@@ -4,23 +4,23 @@ import com.google.gson.Gson;
 
 // Clase que representa la entidad Rol
 public class Profesor {
-    private int id;
+    private Integer id;
     private String nombre;
     private String apellido;
     private String matricula;
 
-    public Profesor(int id,String nombre, String apellido, String matricula) {
+    public Profesor(Integer id,String nombre, String apellido, String matricula) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
         this.matricula = matricula;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id){this.id = id;}
+    public void setId(Integer id){this.id = id;}
 
     public String getNombre() {
         return nombre;

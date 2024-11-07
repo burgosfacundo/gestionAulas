@@ -7,20 +7,20 @@ import java.util.List;
 
 // Clase que representa la entidad Rol
 public class Rol {
-    private int id;
+    private Integer id;
     private String nombre;
     private List<Permisos> permisos;
 
-    public Rol(int id,String nombre, List<Permisos> permisos) {
+    public Rol(Integer id,String nombre, List<Permisos> permisos) {
         this.id = id;
         this.nombre = nombre;
         this.permisos = permisos;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
-    public void setId(int id){ this.id = id;}
+    public void setId(Integer id){ this.id = id;}
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
     public List<Permisos> getPermisos() { return permisos; }

@@ -1,13 +1,9 @@
-package model;
-
-import com.google.gson.Gson;
-import org.example.model.Asignatura;
-import org.example.model.Profesor;
+package org.example.model;
 
 import java.time.LocalDate;
 
 public class Inscripcion {
-    private int id;
+    private Integer id;
     private int cantidadAlumnos;
     private int margenAlumnos;
     private LocalDate fechaFinInscripcion;
@@ -16,8 +12,7 @@ public class Inscripcion {
     private Profesor profesor;
 
 
-    public Inscripcion(int id, int cantidadAlumnos, int margenAlumnos, LocalDate fechaFinInscripcion, Asignatura asignatura, String comision, Profesor profesor) {
-        this.id = id;
+    public Inscripcion(Integer id, int cantidadAlumnos, int margenAlumnos, LocalDate fechaFinInscripcion, Asignatura asignatura, String comision, Profesor profesor) {
         this.cantidadAlumnos = cantidadAlumnos;
         this.margenAlumnos = margenAlumnos;
         this.fechaFinInscripcion = fechaFinInscripcion;
@@ -26,11 +21,15 @@ public class Inscripcion {
         this.profesor = profesor;
     }
 
+    public Inscripcion(Integer id){
+        this.id = id;
+    }
+
     /// GETTERS AND SETTERS:
 
 
-    public int getId() {return id;}
-    public void setId(int id) {this.id = id;}
+    public Integer getId() {return id;}
+    public void setId(Integer id) {this.id = id;}
 
     public int getCantidadAlumnos() { return cantidadAlumnos; }
     public void setCantidadAlumnos(int cantidadAlumnos) { this.cantidadAlumnos = cantidadAlumnos; }
@@ -58,14 +57,5 @@ public class Inscripcion {
     @Override
     public String toString() {
         return STR."Inscripcion{id=\{id}, cantidadAlumnos=\{cantidadAlumnos}, margenAlumnos=\{margenAlumnos}, fechaFinInscripcion=\{fechaFinInscripcion}, asignatura=\{asignatura}, comision='\{comision}\{'\''}, profesor=\{profesor}\{'}'}";
-    }
-
-    /**
-     * Método para convertir un inscripcion a JSON
-     * @return String que representa la cadena JSON de esta clase
-     */
-    public String toJson() {
-        Gson gson = new Gson();
-        return gson.toJson(this);
     }
 }

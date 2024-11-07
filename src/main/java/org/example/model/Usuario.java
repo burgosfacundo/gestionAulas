@@ -3,22 +3,22 @@ package org.example.model;
 
 // Clase que representa la entidad Usuario
 public class Usuario {
-    private int id;
+    private Integer id;
     private String username;
     private String password;
     private Rol rol;
 
-    public Usuario(int id,String username, String password, Rol rol) {
+    public Usuario(Integer id,String username, String password, Rol rol) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.rol = rol;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
-    public void setId(int id){ this.id = id;}
+    public void setId(Integer id){ this.id = id;}
     public String getUsername() {
         return username;
     }

@@ -3,24 +3,24 @@ package org.example.model;
 import com.google.gson.Gson;
 
 public class Asignatura {
-    private int id;
+    private Integer id;
     private String nombre;
     private int codigo;
     boolean requiereLaboratorio;
 
 
     /// CONSTRUCTOR:
-    public Asignatura(int id,String nombre, int codigo, boolean requiereLaboratorio) {
+    public Asignatura(Integer id,String nombre, int codigo, boolean requiereLaboratorio) {
         this.id = id;
         this.nombre = nombre;
         this.codigo = codigo;
         this.requiereLaboratorio = requiereLaboratorio;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
