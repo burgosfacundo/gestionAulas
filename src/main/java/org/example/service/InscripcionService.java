@@ -1,16 +1,17 @@
 package org.example.service;
 
 
-import model.Inscripcion;
 import org.example.exception.BadRequestException;
 import org.example.exception.JsonNotFoundException;
 import org.example.exception.NotFoundException;
 import org.example.model.Asignatura;
+import org.example.model.Inscripcion;
 import org.example.model.Profesor;
 import org.example.model.dto.InscripcionDTO;
 import org.example.repository.AsignaturaRepository;
 import org.example.repository.InscripcionRepository;
 import org.example.repository.ProfesorRepository;
+import org.example.utils.Mapper;
 
 
 import java.util.ArrayList;
@@ -21,10 +22,10 @@ import java.util.List;
  * Clase que se encarga de comunicarse con el repositorio
  * y aplicar la lógica de negocio para manipular inscripciones
  */
-public class InscripcionService implements Service<Integer,Inscripcion> {
-    InscripcionRepository repositorio = new InscripcionRepository();
-    AsignaturaRepository asignaturaRepository = new AsignaturaRepository();
-    ProfesorRepository profesorRepository = new ProfesorRepository();
+public class InscripcionService{
+    private final InscripcionRepository repositorio = new InscripcionRepository();
+    private final AsignaturaRepository asignaturaRepository = new AsignaturaRepository();
+    private final ProfesorRepository profesorRepository = new ProfesorRepository();
 
 
     /**
@@ -32,16 +33,16 @@ public class InscripcionService implements Service<Integer,Inscripcion> {
      * @return List<Inscripcion>
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
-    @Override
-    public List<Inscripcion> listar() throws JsonNotFoundException {
+    public List<Inscripcion> listar() throws JsonNotFoundException, NotFoundException {
         List<Inscripcion> inscripciones = new ArrayList<>();
         var dtoList = repositorio.getAll();
         for (InscripcionDTO dto : dtoList){
-            var optionalAsignatura = asignaturaRepository.findById(dto.idAsignatura());
-            var optionalProfesor = profesorRepository.findById(dto.idProfesor());
-            if (optionalProfesor.isPresent() && optionalAsignatura.isPresent()){
-                inscripciones.add(toInscripcion(dto,optionalAsignatura.get(),optionalProfesor.get()));
-            }
+            // Validamos que la asignatura exista
+            var asignatura = validarAsignaturaExistente(dto.idAsignatura());
+            // Validamos que el profesor exista
+            var profesor = validarProfesorExistente(dto.idProfesor());
+            // Mapeamos y guardamos en inscripciones
+            inscripciones.add(Mapper.toInscripcion(dto,asignatura,profesor));
         }
         return inscripciones;
     }
@@ -54,8 +55,7 @@ public class InscripcionService implements Service<Integer,Inscripcion> {
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      * @throws BadRequestException si existe una inscripción con ese profesor,asignatura y comisión
      */
-    @Override
-    public Inscripcion guardar(Inscripcion inscripcion) throws JsonNotFoundException, BadRequestException {
+    public Inscripcion guardar(Inscripcion inscripcion) throws JsonNotFoundException, BadRequestException, NotFoundException {
         var idAsignatura = inscripcion.getAsignatura().getId();
         var idProfesor = inscripcion.getProfesor().getId();
         //Verificamos que no existe una inscripción con esas características, sino lanzamos excepción
@@ -65,18 +65,12 @@ public class InscripcionService implements Service<Integer,Inscripcion> {
         }
 
         //Tomamos el ID de Asignatura y verificamos que existe, si no lanzamos excepción
-        var optionalAsignatura = asignaturaRepository.findById(idAsignatura);
-        if (optionalAsignatura.isEmpty()){
-            throw new BadRequestException(STR."No existe una asignatura con el id: \{idAsignatura}");
-        }
+        validarAsignaturaExistente(idAsignatura);
 
         //Tomamos el ID de Profesor y verificamos que existe, si no lanzamos excepción
-        var optionalProfesor = profesorRepository.findById(idProfesor);
-        if (optionalProfesor.isEmpty()){
-            throw new BadRequestException(STR."No existe un profesor con el id: \{idProfesor}");
-        }
+        validarProfesorExistente(idProfesor);
 
-        repositorio.save(toDTO(inscripcion));
+        repositorio.save(Mapper.inscripcionToDTO(inscripcion));
         return inscripcion;
     }
 
@@ -87,14 +81,11 @@ public class InscripcionService implements Service<Integer,Inscripcion> {
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      * @throws NotFoundException si no se encuentra una inscripción con ese ID
      */
-    @Override
     public void eliminar(Integer id) throws JsonNotFoundException, NotFoundException {
         //Verificamos que existe una inscripción con ese ID, si no lanzamos excepción
-        var optional = repositorio.findById(id);
-        if (optional.isEmpty()){
-            throw new NotFoundException(STR."No existe una inscripción con el id: \{id}");
-        }
+        validarInscripcionExistente(id);
 
+        //Borramos la inscripción por ID
         repositorio.deleteById(id);
     }
 
@@ -105,25 +96,17 @@ public class InscripcionService implements Service<Integer,Inscripcion> {
      * @throws JsonNotFoundException Sí ocurre un error con el archivo JSON
      * @throws NotFoundException Si no se encuentra la inscripción con ese ID
      */
-    @Override
     public Inscripcion obtener(Integer id) throws JsonNotFoundException, NotFoundException {
-        var optional = repositorio.findById(id);
-        if (optional.isEmpty()){
-            throw new NotFoundException(STR."No existe una inscripción con el id: \{id}");
-        }
-         var dto = optional.get();
+        //Validamos que exista la inscripción
+        var dto = validarInscripcionExistente(id);
 
-        var optionalAsignatura = asignaturaRepository.findById(dto.idAsignatura());
-        if (optionalAsignatura.isEmpty()){
-            throw new NotFoundException(STR."No existe una asignatura con el id: \{dto.idAsignatura()}");
-        }
+        //Validamos que exista la asignatura
+        var asignatura = validarAsignaturaExistente(dto.idAsignatura());
 
-        var optionalProfesor = profesorRepository.findById(dto.idProfesor());
-        if (optionalProfesor.isEmpty()){
-            throw new NotFoundException(STR."No existe un profesor con el id: \{dto.idProfesor()}");
-        }
+        //Validamos que exista el profesor
+        var profesor = validarProfesorExistente(dto.idProfesor());
 
-        return toInscripcion(dto,optionalAsignatura.get(),optionalProfesor.get());
+        return Mapper.toInscripcion(dto,asignatura,profesor);
     }
 
     /**
@@ -132,61 +115,56 @@ public class InscripcionService implements Service<Integer,Inscripcion> {
      * @throws JsonNotFoundException si ocurre un error con el archivo JSON
      * @throws NotFoundException Si no encuentra inscripción o asignatura o profesor
      */
-    @Override
     public void modificar(Inscripcion inscripcion) throws JsonNotFoundException, NotFoundException {
-        var optional = repositorio.findById(inscripcion.getId());
-        if(optional.isEmpty()){
-            throw new NotFoundException(STR."No existe una inscripción con el id: \{inscripcion.getId()}");
-        }
-        var dto = optional.get();
+        //Validamos que exista la inscripción
+        var dto = validarInscripcionExistente(inscripcion.getId());
 
-        var optionalAsignatura = asignaturaRepository.findById(dto.idAsignatura());
-        if (optionalAsignatura.isEmpty()){
-            throw new NotFoundException(STR."No existe una asignatura con el id: \{dto.idAsignatura()}");
-        }
+        //Validamos que exista la asignatura
+        validarAsignaturaExistente(dto.idAsignatura());
 
-        var optionalProfesor = profesorRepository.findById(dto.idProfesor());
-        if (optionalProfesor.isEmpty()){
-            throw new NotFoundException(STR."No existe un profesor con el id: \{dto.idProfesor()}");
-        }
+        //Validamos que exista el profesor
+        validarProfesorExistente(dto.idProfesor());
 
-        repositorio.modify(toDTO(inscripcion));
+        //Mapeamos y modificamos la inscripción
+        repositorio.modify(Mapper.inscripcionToDTO(inscripcion));
     }
 
 
+
+    //Validaciones
     /**
-     * Método para mapear un dto a Inscripción
-     * @param dto que queremos mapear
-     * @return Inscripción mapeado desde dto
+     * Método para validar la existencia de una inscripción por ID
+     * @param id de la inscripción que se quiere verificar
+     * @return InscripcionDTO si existe
+     * @throws NotFoundException Si no se encuentra la inscripción con ese ID
+     * @throws JsonNotFoundException Sí ocurre un error con el archivo JSON
      */
-    private Inscripcion toInscripcion(InscripcionDTO dto, Asignatura asignatura, Profesor profesor){
-        //Retornamos la inscripción mapeando desde DTO, incluyendo su asignatura y profesor
-        return new Inscripcion(
-                dto.id(),
-                dto.cantidadAlumnos(),
-                dto.margenAlumnos(),
-                dto.fechaFinInscripcion(),
-                asignatura,
-                dto.comision(),
-                profesor
-        );
+    private InscripcionDTO validarInscripcionExistente(Integer id) throws NotFoundException, JsonNotFoundException {
+        return repositorio.findById(id)
+                .orElseThrow(()-> new NotFoundException(STR."No existe una inscripción con el id: \{id}"));
     }
 
     /**
-     * Método para mapear una Inscripción a dto
-     * @param inscripcion que queremos mapear
-     * @return InscripciónDTO mapeado desde Inscripción
+     * Método para validar la existencia de un Profesor
+     * @param idProfesor del profesor que se quiere verificar
+     * @return Profesor si existe
+     * @throws NotFoundException Si no se encuentra el profesor con ese ID
+     * @throws JsonNotFoundException Sí ocurre un error con el archivo JSON
      */
-    private InscripcionDTO toDTO(Inscripcion inscripcion) {
-        //Retornamos el DTO mapeado desde InscripciÓn
-        return new InscripcionDTO(
-                inscripcion.getId(),
-                inscripcion.getCantidadAlumnos(),
-                inscripcion.getMargenAlumnos(),
-                inscripcion.getFechaFinInscripcion(),
-                inscripcion.getAsignatura().getId(),
-                inscripcion.getComision(),
-                inscripcion.getProfesor().getId()
-        );
+    private Profesor validarProfesorExistente(Integer idProfesor) throws NotFoundException, JsonNotFoundException {
+        return profesorRepository.findById(idProfesor)
+                .orElseThrow(() -> new NotFoundException(STR."No existe un profesor con el id: \{idProfesor}"));
+    }
+
+    /**
+     * Método para validar la existencia de una Asignatura por ID
+     * @param idAsignatura de la asignatura que se quiere verificar
+     * @return Asignatura si existe
+     * @throws NotFoundException Si no se encuentra la asignatura con ese ID
+     * @throws JsonNotFoundException Sí ocurre un error con el archivo JSON
+     */
+    private Asignatura validarAsignaturaExistente(Integer idAsignatura) throws NotFoundException, JsonNotFoundException {
+        return asignaturaRepository.findById(idAsignatura)
+                .orElseThrow(()-> new NotFoundException(STR."No existe una asignatura con el id: \{idAsignatura}"));
     }
 }

@@ -9,6 +9,8 @@ import org.example.exception.NotFoundException;
 import org.example.model.Usuario;
 import org.example.repository.RolRepository;
 import org.example.repository.UsuarioRepository;
+import org.example.utils.Mapper;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +20,7 @@ import java.util.List;
  * Clase que se encarga de comunicarse con el repositorio
  * y aplicar la lógica de negocio para manipular usuarios
  */
-public class UsuarioService implements Service<Integer,Usuario>{
+public class UsuarioService{
     private final UsuarioRepository repositorioUsuario = new UsuarioRepository();
     private final RolRepository repositorioRol = new RolRepository();
 
@@ -28,13 +30,12 @@ public class UsuarioService implements Service<Integer,Usuario>{
      * @return List<Usuario>
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
-    @Override
     public List<Usuario> listar() throws JsonNotFoundException {
         List<Usuario> usuarios = new ArrayList<>();
         var dtoList = repositorioUsuario.getAll();
         for (UsuarioDTO dto : dtoList){
             var rolOptional = repositorioRol.findById(dto.idRol());
-            rolOptional.ifPresent(rol -> usuarios.add(toUsuario(dto, rol)));
+            rolOptional.ifPresent(rol -> usuarios.add(Mapper.toUsuario(dto, rol)));
         }
         return usuarios;
     }
@@ -45,11 +46,9 @@ public class UsuarioService implements Service<Integer,Usuario>{
      * @param usuario que queremos save
      * @return Usuario que se guarda
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
-     * @throws NotFoundException si el usuario tiene un id de rol que no existe
      * @throws BadRequestException si existe un usuario con ese username
      */
-    @Override
-    public Usuario guardar(Usuario usuario) throws JsonNotFoundException, BadRequestException {
+    public Usuario guardar(Usuario usuario) throws JsonNotFoundException, NotFoundException, BadRequestException {
         //Verificamos que no existe un usuario con ese username, sino lanzamos excepción
         var optional = repositorioUsuario.findByUsername(usuario.getUsername());
         if (optional.isPresent()){
@@ -57,13 +56,13 @@ public class UsuarioService implements Service<Integer,Usuario>{
         }
 
         //Tomamos el ID del rol y verificamos que existe, si no lanzamos excepción
-        var idRol = usuario.getRol().getId();
-        var optionalRol = repositorioRol.findById(idRol);
-        if (optionalRol.isEmpty()){
-            throw new BadRequestException(STR."No existe un rol con el id: \{idRol}");
-        }
+        validarRolExistente(usuario.getRol().getId());
 
-        repositorioUsuario.save(toDTO(usuario));
+        // Codifica la contraseña usando bcrypt
+        usuario.setPassword(BCrypt.hashpw(usuario.getPassword(), BCrypt.gensalt()));
+
+
+        repositorioUsuario.save(Mapper.usuarioToDto(usuario));
         return usuario;
     }
 
@@ -74,13 +73,9 @@ public class UsuarioService implements Service<Integer,Usuario>{
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      * @throws NotFoundException si no se encuentra un usuario con ese id
      */
-    @Override
     public void eliminar(Integer id) throws JsonNotFoundException, NotFoundException {
         //Verificamos que existe un usuario con ese ID, si no lanzamos excepción
-        var optional = repositorioUsuario.findById(id);
-        if (optional.isEmpty()){
-            throw new NotFoundException(STR."No existe un usuario con el id: \{id}");
-        }
+        validarUsuarioExistente(id);
 
         repositorioUsuario.deleteById(id);
     }
@@ -92,21 +87,15 @@ public class UsuarioService implements Service<Integer,Usuario>{
      * @throws JsonNotFoundException si ocurre un error con el archivo JSON
      * @throws NotFoundException si no encuentra el usuario con ese ID
      */
-    @Override
     public Usuario obtener(Integer id) throws JsonNotFoundException, NotFoundException {
-        var optional = repositorioUsuario.findById(id);
-        if (optional.isEmpty()){
-            throw new NotFoundException(STR."No existe un usuario con el id: \{id}");
-        }
-        var dto = optional.get();
+        //Validamos que exista el usuario
+        var dto = validarUsuarioExistente(id);
 
-        var optionalRol = repositorioRol.findById(dto.idRol());
-        if (optionalRol.isEmpty()){
-            throw new NotFoundException(STR."No existe un rol con el id: \{id}");
-        }
-        var rol = optionalRol.get();
+        //Validamos que exista el rol del usuario
+        var rol = validarRolExistente(dto.idRol());
 
-        return toUsuario(dto,rol);
+        //Mapeamos y retornamos el usuario con su rol
+        return Mapper.toUsuario(dto,rol);
     }
 
     /**
@@ -115,48 +104,41 @@ public class UsuarioService implements Service<Integer,Usuario>{
      * @throws JsonNotFoundException si ocurre un error con el archivo JSON
      * @throws NotFoundException si no encuentra el usuario que se quiere modificar
      */
-    @Override
     public void modificar(Usuario usuario) throws JsonNotFoundException, NotFoundException {
-        var dto = repositorioUsuario.findById(usuario.getId());
-        if(dto.isEmpty()){
-            throw new NotFoundException(STR."No existe un usuario con el id: \{usuario.getId()}");
-        }
-        var rol = repositorioRol.findById(usuario.getRol().getId());
+        //Validamos que exista el usuario
+        validarUsuarioExistente(usuario.getId());
 
-        if(rol.isEmpty()){
-            throw new NotFoundException("No existe ese rol");
-        }
-        
-        repositorioUsuario.save(toDTO(usuario));
+        //Validamos que exista su rol
+        validarRolExistente(usuario.getRol().getId());
+
+        //Mapeamos y modificamos el usuario
+        repositorioUsuario.modify(Mapper.usuarioToDto(usuario));
+    }
+
+
+    // Validaciones
+
+    /**
+     * Método para validar que exista un rol con ese ID
+     * @param idRol del rol a validar
+     * @return Rol si existe el rol
+     * @throws NotFoundException si no existe rol con ese ID
+     * @throws JsonNotFoundException sí existe un problema con el archivo JSON
+     */
+    private Rol validarRolExistente(Integer idRol) throws NotFoundException, JsonNotFoundException {
+        return repositorioRol.findById(idRol)
+                .orElseThrow(()-> new NotFoundException(STR."No existe un rol con el id: \{idRol}"));
     }
 
     /**
-     * Método para mapear un dto a Usuario
-     * @param dto que queremos mapear
-     * @return Usuario mapeado desde dto
+     * Método para validar que exista un usuario con ese ID
+     * @param idUsuario del usuario a validar
+     * @return UsuarioDTO si existe el usuario
+     * @throws NotFoundException si no existe usuario con ese ID
+     * @throws JsonNotFoundException sí existe un problema con el archivo JSON
      */
-    private Usuario toUsuario(UsuarioDTO dto, Rol rol){
-        //Retornamos el usuario mapeado desde dto, incluyendo su rol
-        return new Usuario(
-                dto.id(),
-                dto.username(),
-                dto.password(),
-                rol
-        );
-    }
-
-    /**
-     * Método para mapear un Usuario a dto
-     * @param usuario que queremos mapear
-     * @return UsuarioDTO mapeado desde Usuario
-     */
-    private UsuarioDTO toDTO(Usuario usuario) {
-        //Retornamos el dto mapeado desde Usuario
-        return new UsuarioDTO(
-                usuario.getId(),
-                usuario.getUsername(),
-                usuario.getPassword(),
-                usuario.getRol().getId()
-        );
+    private UsuarioDTO validarUsuarioExistente(Integer idUsuario) throws NotFoundException, JsonNotFoundException {
+        return repositorioUsuario.findById(idUsuario)
+                .orElseThrow(()-> new NotFoundException(STR."No existe un usuario con el id: \{idUsuario}"));
     }
 }

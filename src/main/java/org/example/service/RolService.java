@@ -12,7 +12,7 @@ import java.util.List;
  * Clase que se encarga de comunicarse con el repositorio
  * y aplicar la lógica de negocio para manipular roles
  */
-public class RolService implements Service<Integer,Rol>{
+public class RolService{
     private final RolRepository repositorio = new RolRepository();
 
     /**
@@ -20,7 +20,6 @@ public class RolService implements Service<Integer,Rol>{
      * @return List<Rol>
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
-    @Override
     public List<Rol> listar() throws JsonNotFoundException {
         return repositorio.getAll();
     }
@@ -33,7 +32,6 @@ public class RolService implements Service<Integer,Rol>{
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      * @throws BadRequestException si existe un rol con ese nombre
      */
-    @Override
     public Rol guardar(Rol rol) throws JsonNotFoundException, BadRequestException {
         // Verificamos que no existe ese rol y si existe lanzamos la excepción
         var optional = repositorio.findByNombre(rol.getNombre());
@@ -51,14 +49,11 @@ public class RolService implements Service<Integer,Rol>{
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      * @throws NotFoundException si no se encuentra un rol con ese ID
      */
-    @Override
     public void eliminar(Integer id) throws JsonNotFoundException, NotFoundException {
         // Verificamos que existe un rol con ese ID y si no lanzamos la excepción
-        var optional = repositorio.findById(id);
-        if (optional.isEmpty()){
-            throw new NotFoundException(STR."No existe un rol con el id: \{id}");
-        }
+        validarRolExistente(id);
 
+        //Borramos el rol con ese ID
         repositorio.deleteById(id);
     }
 
@@ -69,13 +64,9 @@ public class RolService implements Service<Integer,Rol>{
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      * @throws NotFoundException si no se encuentra un rol con ese ID
      */
-    @Override
     public Rol obtener(Integer id) throws JsonNotFoundException, NotFoundException {
-        var optional = repositorio.findById(id);
-        if (optional.isEmpty()){
-            throw new NotFoundException(STR."No existe un rol con el id: \{id}");
-        }
-        return optional.get();
+        // Validamos y retornamos el rol
+        return validarRolExistente(id);
     }
 
     /**
@@ -84,15 +75,26 @@ public class RolService implements Service<Integer,Rol>{
      * @throws JsonNotFoundException si no encuentra el archivo JSON
      * @throws NotFoundException si no encuentra el rol
      */
-    @Override
     public void modificar(Rol rol) throws JsonNotFoundException, NotFoundException {
         //Verificamos que el rol con ese ID exista
-        var optional = repositorio.findById(rol.getId());
-        if (optional.isEmpty()){
-            throw new NotFoundException(STR."No existe un rol con el id: \{rol.getId()}");
-        }
+        validarRolExistente(rol.getId());
 
         //Lo modificamos
         repositorio.modify(rol);
+    }
+
+
+    // Validaciones
+
+    /**
+     * Método para validar que exista un rol con ese ID
+     * @param idRol del rol a validar
+     * @return Rol si existe el rol
+     * @throws NotFoundException si no existe rol con ese ID
+     * @throws JsonNotFoundException sí existe un problema con el archivo JSON
+     */
+    private Rol validarRolExistente(Integer idRol) throws NotFoundException, JsonNotFoundException {
+        return repositorio.findById(idRol)
+                .orElseThrow(()-> new NotFoundException(STR."No existe un rol con el id: \{idRol}"));
     }
 }

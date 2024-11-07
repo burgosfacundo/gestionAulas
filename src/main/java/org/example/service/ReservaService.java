@@ -1,13 +1,15 @@
 package org.example.service;
 
+import org.example.enums.EstadoSolicitud;
 import org.example.exception.BadRequestException;
+import org.example.exception.ConflictException;
 import org.example.exception.JsonNotFoundException;
 import org.example.exception.NotFoundException;
-import org.example.model.Aula;
-import org.example.model.Reserva;
+import org.example.model.*;
 import org.example.model.dto.ReservaDTO;
 import org.example.repository.*;
-
+import org.example.utils.Mapper;
+import org.example.utils.Utils;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -18,13 +20,14 @@ import java.util.List;
  * Clase que se encarga de comunicarse con el repositorio
  * y aplicar la lógica de negocio para manipular inscripciones
  */
-public class ReservaService implements Service<Integer,Reserva> {
-    ReservaRepository repositorio = new ReservaRepository();
-    AulaRepository aulaRepository = new AulaRepository();
-    AulaService aulaService = new AulaService();
-    InscripcionService inscripcionService = new InscripcionService();
-    InscripcionRepository inscripcionRepository = new InscripcionRepository();
-    AsignaturaRepository asignaturaRepository = new AsignaturaRepository();
+public class ReservaService{
+    private final ReservaRepository repositorio = new ReservaRepository();
+    private final AulaRepository aulaRepository = new AulaRepository();
+    private final AulaService aulaService = new AulaService();
+    private final InscripcionService inscripcionService = new InscripcionService();
+    private final InscripcionRepository inscripcionRepository = new InscripcionRepository();
+    private final AsignaturaRepository asignaturaRepository = new AsignaturaRepository();
+    private final SolicitudCambioAulaRepository solicitudRepository = new SolicitudCambioAulaRepository();
 
 
     /**
@@ -32,19 +35,18 @@ public class ReservaService implements Service<Integer,Reserva> {
      * @return List<Reserva>
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
-    @Override
-    public List<Reserva> listar() throws JsonNotFoundException {
+    public List<Reserva> listar() throws JsonNotFoundException, NotFoundException {
         List<Reserva> reservas = new ArrayList<>();
+        //Obtenemos todas las reservas del JSON
         var dtoList = repositorio.getAll();
+        //Recorremos
         for (ReservaDTO dto : dtoList){
-            var optionalAula = aulaRepository.findById(dto.idAula());
-            try {
-                var inscripcion = inscripcionService.obtener(dto.idInscripcion());
-                optionalAula.ifPresent(aula -> reservas.add(toReserva(dto, aula, inscripcion)));
-            }catch (NotFoundException e){
-                throw new JsonNotFoundException("Ocurrio un error con el json de inscripciones");
-            }
-
+            // Validamos que el aula exista
+            var aula = validarAulaExistenteById(dto.idAula());
+            // Validamos que la inscripción exista
+            var inscripcion = validarInscripcionExistente(dto.idInscripcion());
+            // Mapeamos y guardamos en reservas
+            reservas.add(Mapper.toReserva(dto, aula, inscripcion));
         }
         return reservas;
     }
@@ -55,54 +57,32 @@ public class ReservaService implements Service<Integer,Reserva> {
      * @param reserva que queremos guardar
      * @return Reserva que se guarda
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
-     * @throws NotFoundException si la reserva tiene un ID de Aula o de Inscripción que no existe
      * @throws BadRequestException si existe un problema con los datos de reserva
      */
-    @Override
-    public Reserva guardar(Reserva reserva) throws JsonNotFoundException, BadRequestException {
-        var numeroAula = reserva.getAula().getNumero();
+    public Reserva guardar(Reserva reserva) throws JsonNotFoundException, BadRequestException, ConflictException, NotFoundException {
+        var idAula = reserva.getAula().getId();
         var idInscripcion = reserva.getInscripcion().getId();
 
-        var optionalInscripcion = inscripcionRepository.findById(idInscripcion);
-        if (optionalInscripcion.isEmpty()){
-            throw new BadRequestException(STR."La inscripcion \{idInscripcion} no existe");
-        }
+        //Validamos y obtenemos la inscripción de la reserva
+        var inscripcion = validarInscripcionExistente(idInscripcion);
 
-        var inscripcion = optionalInscripcion.get();
+        //Validamos y obtenemos el aula de la reserva
+        var aula = validarAulaExistenteById(idAula);
 
-        var asignatura = asignaturaRepository.findById(inscripcion.idAsignatura());
+        // Validamos si el aula está disponible en el rango y bloque horario especificado
+        validarDisponibilidadAula(reserva);
 
-        var optionalAula = aulaRepository.findByNumero(numeroAula);
-        if (optionalAula.isEmpty()){
-            throw new BadRequestException(STR."El aula: \{numeroAula} no existe");
-        }
+        // Validamos la capacidad del aula y la cantidad de alumnos en la inscripción
+        validarCapacidadAula(aula,inscripcion);
 
-        var aula = optionalAula.get();
+        // Validación de que el aula sea un laboratorio si la asignatura lo requiere
+        validarRequiereLaboratorio(aula,inscripcion.getAsignatura().getId());
 
-        var aulasDisponibles = aulaService.listarAulasDisponibles(reserva.getFechaInicio(),
-                                                                                reserva.getFechaFin(),
-                                                                                reserva.getBloque(),
-                                                                                reserva.getDiasSemana());
+        // Validamos si existen solicitudes de cambio pendientes que generen conflicto con la reserva
+        validarSolicitudesPendientes(reserva);
 
-        if (!aulasDisponibles.contains(aula)){
-            throw new BadRequestException(STR."El aula \{numeroAula} no esta disponible.");
-        }
-
-        if (inscripcion.fechaFinInscripcion().isAfter(LocalDate.now())){
-            if (aula.getCapacidad() < (inscripcion.margenAlumnos()+inscripcion.cantidadAlumnos())){
-                throw new BadRequestException(STR."El aula \{numeroAula} no alcanza para la cantidad de alumnos");
-            }
-        }else {
-            if (aula.getCapacidad() < inscripcion.cantidadAlumnos()){
-                throw new BadRequestException(STR."El aula \{numeroAula} no alcanza para la cantidad de alumnos");
-            }
-        }
-
-        if (asignatura.get().isRequiereLaboratorio() && (aula.getComputadoras() == 0)){
-            throw new BadRequestException(STR."El aula \{numeroAula} no es un laboratorio, no sirve para \{asignatura.get().getNombre()}");
-        }
-
-        repositorio.save(toDTO(reserva));
+        // Guardamos la reserva si pasa todas las validaciones
+        repositorio.save(Mapper.reservaToDTO(reserva));
         return reserva;
     }
 
@@ -113,13 +93,9 @@ public class ReservaService implements Service<Integer,Reserva> {
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      * @throws NotFoundException si no se encuentra una reserva con ese ID
      */
-    @Override
     public void eliminar(Integer id) throws JsonNotFoundException, NotFoundException {
         //Verificamos que existe una reserva con ese ID, si no lanzamos excepción
-        var optional = repositorio.findById(id);
-        if (optional.isEmpty()){
-            throw new NotFoundException(STR."No existe una reserva con el id: \{id}");
-        }
+        validarReservaExistente(id);
         repositorio.deleteById(id);
     }
 
@@ -130,22 +106,18 @@ public class ReservaService implements Service<Integer,Reserva> {
      * @throws JsonNotFoundException Sí ocurre un error con el archivo JSON
      * @throws NotFoundException Si no se encuentra la reserva con ese ID
      */
-    @Override
     public Reserva obtener(Integer id) throws JsonNotFoundException, NotFoundException {
-        var optional = repositorio.findById(id);
-        if (optional.isEmpty()){
-            throw new NotFoundException(STR."No existe una reserva con el id: \{id}");
-        }
-        var dto = optional.get();
+        // Validamos que existe una reserva con ese ID, si no lanzamos excepción
+        var dto = validarReservaExistente(id);
 
-        var optionalAula = aulaRepository.findById(dto.idAula());
-        if (optionalAula.isEmpty()){
-            throw new NotFoundException(STR."No existe un aula con el id: \{dto.idAula()}");
-        }
+        // Validamos que exista el aula
+        var aula = validarAulaExistenteById(dto.idAula());
 
-        var inscripcion = inscripcionService.obtener(dto.idInscripcion());
+        // Validamos que exista la inscripción
+        var inscripcion = validarInscripcionExistente(dto.idInscripcion());
 
-        return toReserva(dto,optionalAula.get(),inscripcion);
+        // Mapeamos a reserva y retornamos la reserva
+        return Mapper.toReserva(dto,aula,inscripcion);
     }
 
     /**
@@ -154,62 +126,134 @@ public class ReservaService implements Service<Integer,Reserva> {
      * @throws JsonNotFoundException si ocurre un error con el archivo JSON
      * @throws NotFoundException Si no encuentra reserva o aula o inscripción
      */
-    @Override
-    public void modificar(Reserva reserva) throws JsonNotFoundException, NotFoundException {
-        var optional = repositorio.findById(reserva.getId());
-        if (optional.isEmpty()){
-            throw new NotFoundException(STR."No existe una reserva con el id: \{reserva.getId()}");
-        }
-        var dto = optional.get();
+    public void modificar(Reserva reserva) throws JsonNotFoundException, NotFoundException, BadRequestException, ConflictException {
+        // Validamos que existe la reserva que se quiere modificar
+        var dto = repositorio.findById(reserva.getId())
+                .orElseThrow(()-> new NotFoundException(STR."No existe una reserva con el id: \{reserva.getId()}"));
 
-        var optionalAula = aulaRepository.findById(dto.idAula());
-        if (optionalAula.isEmpty()){
-            throw new NotFoundException(STR."No existe un aula con el id: \{dto.idAula()}");
-        }
+        //Validamos y obtenemos la inscripción de la reserva
+        var inscripcion = validarInscripcionExistente(reserva.getInscripcion().getId());
 
-        var optionalInscripcion = inscripcionRepository.findById(reserva.getInscripcion().getId());
-        if (optionalInscripcion.isEmpty()){
-            throw new NotFoundException(STR."No existe una inscripción con el id: \{dto.idAula()}");
-        }
+        //Validamos y obtenemos el aula de la reserva
+        var aula = validarAulaExistenteById(reserva.getAula().getId());
 
-        repositorio.modify(toDTO(reserva));
+        // Validamos si el aula está disponible en el rango y bloque horario especificado
+        validarDisponibilidadAula(reserva);
+
+        // Validamos la capacidad del aula y la cantidad de alumnos en la inscripción
+        validarCapacidadAula(aula,inscripcion);
+
+        // Validación de que el aula sea un laboratorio si la asignatura lo requiere
+        validarRequiereLaboratorio(aula,inscripcion.getAsignatura().getId());
+
+        // Validamos si existen solicitudes de cambio pendientes que generen conflicto con la reserva
+        validarSolicitudesPendientes(reserva);
+
+        // Modificamos la reserva si pasa todas las validaciones
+        repositorio.modify(Mapper.reservaToDTO(reserva));
+    }
+
+
+    // Validaciones
+    /**
+     * Método para validar la existencia de una reserva por ID
+     * @param id de la reserva que se quiere verificar
+     * @return ReservaDTO si existe
+     * @throws NotFoundException Si no se encuentra la reserva con ese ID
+     * @throws JsonNotFoundException Sí ocurre un error con el archivo JSON
+     */
+    private ReservaDTO validarReservaExistente(Integer id) throws NotFoundException, JsonNotFoundException {
+        return repositorio.findById(id)
+                .orElseThrow(()-> new NotFoundException(STR."No existe una reserva con el id: \{id}"));
+    }
+
+    /**
+     * Método para validar la existencia de un Aula por ID
+     * @param idAula del aula que se quiere verificar
+     * @return Aula si existe
+     * @throws NotFoundException Si no se encuentra el aula con ese ID
+     * @throws JsonNotFoundException Sí ocurre un error con el archivo JSON
+     */
+    private Aula validarAulaExistenteById(Integer idAula) throws NotFoundException, JsonNotFoundException {
+        return aulaRepository.findById(idAula)
+                .orElseThrow(() -> new NotFoundException(STR."No existe un aula con el id: \{idAula}"));
+    }
+
+    /**
+     * Método para validar la existencia de una Asignatura por ID
+     * @param idAsignatura de la asignatura que se quiere verificar
+     * @return Asignatura si existe
+     * @throws NotFoundException Si no se encuentra la asignatura con ese ID
+     * @throws JsonNotFoundException Sí ocurre un error con el archivo JSON
+     */
+    private Asignatura validarAsignaturaExistente(Integer idAsignatura) throws NotFoundException, JsonNotFoundException {
+        return asignaturaRepository.findById(idAsignatura)
+                .orElseThrow(()-> new NotFoundException(STR."No existe una asignatura con el id: \{idAsignatura}"));
     }
 
 
     /**
-     * Método para mapear un dto a Inscripción
-     * @param dto que queremos mapear
-     * @return Inscripción mapeado desde dto
+     * Método para validar la existencia de una inscripción
+     * @param idInscripcion de la inscripción que se quiere verificar
+     * @return Inscripción si existe
+     * @throws NotFoundException Si no se encuentra al inscripción con ese ID
+     * @throws JsonNotFoundException Sí ocurre un error con el archivo JSON
      */
-    private Reserva toReserva(ReservaDTO dto, Aula aula, model.Inscripcion inscripcion){
-        //Retornamos la inscripción mapeando desde DTO, incluyendo su asignatura y profesor
-        return new Reserva(
-                dto.id(),
-                dto.fechaInicio(),
-                dto.fechaFin(),
-                dto.bloque(),
-                aula,
-                inscripcion,
-                dto.diasSemana()
-        );
+    private Inscripcion validarInscripcionExistente(Integer idInscripcion) throws NotFoundException, JsonNotFoundException {
+        return inscripcionService.obtener(idInscripcion);
+    }
+
+
+    /**
+     * Método para validar la capacidad de un aula con respecto a la cantidad de alumnos de una Inscripción
+     * @param aula que se quiere validar
+     * @param inscripcion que se quiere validar
+     * @throws BadRequestException si no alcanza la capacidad del aula para la cantidad de alumnos de la inscripción
+     */
+    private void validarCapacidadAula(Aula aula, Inscripcion inscripcion) throws BadRequestException {
+        int alumnosRequeridos = inscripcion.getCantidadAlumnos() +
+                (inscripcion.getFechaFinInscripcion().isAfter(LocalDate.now()) ? inscripcion.getMargenAlumnos() : 0);
+        if (aula.getCapacidad() < alumnosRequeridos) {
+            throw new BadRequestException(STR."El aula \{aula.getNumero()} tiene capacidad para \{aula.getCapacidad()} alumnos, pero se requieren \{alumnosRequeridos}.");
+        }
     }
 
     /**
-     * Método para mapear una Reserva a dto
-     * @param reserva que queremos mapear
-     * @return ReservaDTO mapeado desde Reserva
+     * Método para validar la disponibilidad de un aula
+     * @param reserva la reserva que contiene el aula y el período que se valida
+     * @throws BadRequestException si no está disponible el aula en ese período
+     * @throws JsonNotFoundException sí ocurre un problema con el archivo JSON de aulas
      */
-    private ReservaDTO toDTO(Reserva reserva) {
-        //Retornamos el DTO mapeado desde Reserva
-        return new ReservaDTO(
-                reserva.getId(),
+    private void validarDisponibilidadAula(Reserva reserva) throws BadRequestException, JsonNotFoundException {
+        var aulasDisponibles = aulaService.listarAulasDisponibles(reserva.getFechaInicio(), reserva.getFechaFin(),
+                reserva.getBloque(), reserva.getDiasSemana());
+        if (!aulasDisponibles.contains(reserva.getAula())) {
+            throw new BadRequestException(STR."El aula \{reserva.getAula().getNumero()} no está disponible.");
+        }
+    }
+
+    /**
+     * Método para validar las solicitudes pendientes
+     * @param reserva que contiene la información de la reserva
+     * @throws ConflictException si existe alguna solicitud pendiente con los mismos parámetros que la reserva
+     * @throws JsonNotFoundException si ocurre un problema con el archivo JSON
+     */
+    private void validarSolicitudesPendientes(Reserva reserva) throws ConflictException, JsonNotFoundException {
+        var solicitudesPendientes = solicitudRepository.find(reserva.getAula().getId(),
                 reserva.getFechaInicio(),
                 reserva.getFechaFin(),
+                reserva.getDiasSemana(),
                 reserva.getBloque(),
-                reserva.getAula().getId(),
-                reserva.getInscripcion().getId(),
-                reserva.getDiasSemana()
-        );
+                EstadoSolicitud.PENDIENTE);
+        if (!solicitudesPendientes.isEmpty()) {
+            throw new ConflictException(STR."Hay solicitudes pendientes con coincidencia de fechas al Aula \{reserva.getAula().getNumero()} en el horario \{reserva.getBloque()} y los días \{Utils.obtenerDiasEnEspaniol(reserva.getDiasSemana())}");
+        }
     }
 
+    private void validarRequiereLaboratorio(Aula aula,Integer idAsignatura) throws JsonNotFoundException, NotFoundException, BadRequestException {
+        var asignatura = validarAsignaturaExistente(idAsignatura);
+        if (asignatura.isRequiereLaboratorio() && !(aula instanceof Laboratorio)){
+            throw new BadRequestException(STR."El aula \{aula.getNumero()} no es un laboratorio, no sirve para \{asignatura.getNombre()}");
+        }
+    }
 }
