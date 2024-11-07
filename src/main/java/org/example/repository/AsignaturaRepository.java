@@ -20,8 +20,8 @@ public class AsignaturaRepository implements JSONRepository<Integer,Asignatura> 
     private final String ruta = "asignaturas.json";
 
     /**
-     * Metodo para retornar la ruta al json
-     * que se quiere utilizar en el metodo default
+     * Método para retornar la ruta al json
+     * que se quiere utilizar en el método default
      * de la interfaz
      * @return la ruta al JSON
      */
@@ -31,7 +31,7 @@ public class AsignaturaRepository implements JSONRepository<Integer,Asignatura> 
     }
 
     /**
-     * Metodo que guarda una nueva asignatura en el JSON llamando al metodo write
+     * Método que guarda una nueva asignatura en el JSON llamando al método write
      * @param asignatura la nueva asignatura que se guarda en el JSON
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
@@ -55,7 +55,7 @@ public class AsignaturaRepository implements JSONRepository<Integer,Asignatura> 
 
 
     /**
-     * Metodo que devuelve la lista de asignaturas que tenemos en el JSON
+     * Método que devuelve la lista de asignaturas que tenemos en el JSON
      * @return List<Asignatura> lista de asignaturas en el JSON
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
@@ -72,21 +72,23 @@ public class AsignaturaRepository implements JSONRepository<Integer,Asignatura> 
 
 
     /**
-     * Metodo para buscar una asignatura por id
+     * Método para buscar una asignatura por ID
      * @param id para buscar y devolver la asignatura
      * @return Optional<Asignatura> el DTO si lo encuentra o Optional.empty() si no
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
     @Override
     public Optional<Asignatura> findById(Integer id) throws JsonNotFoundException {
-        //Uso stream para filtrar por id si no existe lanzo excepcion
+        //Usamos stream para filtrar por id
+        //Devuelve la asignatura si existe
+        //Devuelve optional.empty() sino
         return getAll().stream()
                 .filter(a -> a.getId() == id)
                 .findFirst();
     }
 
     /**
-     * Metodo para borrar una asignatura por id
+     * Método para borrar una asignatura por ID
      * @param id para buscar y borrar el asignatura
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
@@ -141,7 +143,9 @@ public class AsignaturaRepository implements JSONRepository<Integer,Asignatura> 
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
     public Optional<Asignatura> findByCodigo(int codigo) throws JsonNotFoundException {
-        //Uso stream para filtrar por código si no existe lanzo excepción
+        //Usamos stream para filtrar por código
+        //Devuelve la asignatura si existe
+        //Devuelve optional.empty() sino
         return getAll().stream()
                 .filter(a -> a.getCodigo() == codigo)
                 .findFirst();

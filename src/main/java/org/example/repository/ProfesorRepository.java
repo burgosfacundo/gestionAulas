@@ -79,7 +79,9 @@ public class ProfesorRepository implements JSONRepository<Integer, Profesor>{
      */
     @Override
     public Optional<Profesor> findById(Integer id) throws JsonNotFoundException {
-        //Uso stream para filtrar por id si no existe lanzo excepción
+        //Usamos stream para filtrar por ID
+        //Devuelve el profesor si existe
+        //Devuelve optional.empty() sino
         return getAll().stream()
                 .filter(p -> p.getId() == id)
                 .findFirst();
@@ -141,6 +143,9 @@ public class ProfesorRepository implements JSONRepository<Integer, Profesor>{
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
     public Optional<Profesor> findByMatricula(String matricula) throws JsonNotFoundException {
+        //Usamos stream para filtrar por matricula
+        //Devuelve el profesor si existe
+        //Devuelve optional.empty() sino
         return getAll().stream()
                 .filter(p -> p.getMatricula().equals(matricula))
                 .findFirst();

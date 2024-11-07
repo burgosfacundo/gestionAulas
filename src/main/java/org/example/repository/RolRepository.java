@@ -9,6 +9,7 @@ import org.example.model.Rol;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -41,7 +42,7 @@ public class RolRepository implements JSONRepository<Integer, Rol>{
         //Traigo lo que tengo en el json
         var roles = getAll();
 
-        //Verifico el ultimo id y genero el proximo
+        //Verifíco el último id y genero el próximo
         var lastId = roles.isEmpty() ? 0 : roles.getLast().getId();
         rol.setId(lastId + 1);
 
@@ -80,9 +81,11 @@ public class RolRepository implements JSONRepository<Integer, Rol>{
      */
     @Override
     public Optional<Rol> findById(Integer id) throws JsonNotFoundException {
-        //Uso stream para filtrar por id si no existe lanzo excepción
+        //Usamos stream para filtrar por ID
+        //Devuelve el rol si existe
+        //Devuelve optional.empty() sino
         return getAll().stream()
-                .filter(r -> r.getId() == id)
+                .filter(r -> Objects.equals(r.getId(), id))
                 .findFirst();
     }
 
@@ -97,7 +100,7 @@ public class RolRepository implements JSONRepository<Integer, Rol>{
         var roles = getAll();
 
         //Borro al que tenga el id
-        roles.removeIf(r -> r.getId() == id);
+        roles.removeIf(r -> Objects.equals(r.getId(), id));
 
         // Convertir cada rol a JsonObject usando el método toJson personalizado
         var jsonArray = new JsonArray();
@@ -117,7 +120,7 @@ public class RolRepository implements JSONRepository<Integer, Rol>{
 
         // Busca el rol por ID y actualiza sus campos
         var exist = roles.stream()
-                .filter(r -> r.getId() == rol.getId())
+                .filter(r -> Objects.equals(r.getId(), rol.getId()))
                 .findFirst()
                 .orElseThrow(() -> new JsonNotFoundException(STR."No se encontró el archivo JSON: \{ruta}"));
 
@@ -141,6 +144,9 @@ public class RolRepository implements JSONRepository<Integer, Rol>{
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
     public Optional<Rol> findByNombre(String nombre) throws JsonNotFoundException {
+        //Usamos stream para filtrar por nombre
+        //Devuelve el rol si existe
+        //Devuelve optional.empty() sino
         return getAll().stream()
                 .filter(r -> r.getNombre().equals(nombre))
                 .findFirst();

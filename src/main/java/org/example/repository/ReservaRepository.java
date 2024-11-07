@@ -81,7 +81,7 @@ public class ReservaRepository implements JSONRepository<Integer, ReservaDTO> {
     public Optional<ReservaDTO> findById(Integer id) throws JsonNotFoundException {
         //Usamos stream para filtrar por id
         //Devuelve la reserva si existe
-        //Devuelve null si no existe
+        //Devuelve optional.empty() sino
         return getAll().stream()
                 .filter(dto -> dto.id() == id)
                 .findFirst();

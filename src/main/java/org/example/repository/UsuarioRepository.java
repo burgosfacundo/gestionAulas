@@ -79,8 +79,8 @@ public class UsuarioRepository implements JSONRepository<Integer, UsuarioDTO> {
     @Override
     public Optional<UsuarioDTO> findById(Integer id) throws JsonNotFoundException {
         //Usamos stream para filtrar por id
-        //Devuelve el Usuario si existe
-        //Devuelve null si no existe
+        //Devuelve el usuario si existe
+        //Devuelve optional.empty() sino
         return getAll().stream()
                 .filter(dto -> dto.id() == id)
                 .findFirst();
@@ -146,8 +146,8 @@ public class UsuarioRepository implements JSONRepository<Integer, UsuarioDTO> {
      */
     public Optional<UsuarioDTO> findByUsername(String username) throws JsonNotFoundException {
         //Usamos stream para filtrar por username
-        //Devuelve el Usuario si existe
-        //Devuelve null si no existe
+        //Devuelve el usuario si existe
+        //Devuelve optional.empty() sino
         return getAll().stream()
                 .filter(dto -> dto.username().equals(username))
                 .findFirst();
