@@ -3,6 +3,7 @@ package org.example.model;
 import org.example.enums.BloqueHorario;
 import org.example.enums.EstadoSolicitud;
 import org.example.enums.TipoSolicitud;
+import org.example.utils.Utils;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -27,14 +28,31 @@ public class SolicitudCambioAula {
 
     // Constructor, getters y setters
     public SolicitudCambioAula(Integer id, Profesor profesor, Reserva reservaOriginal, Aula nuevaAula,
-                               EstadoSolicitud estado, TipoSolicitud tipoSolicitud,
+                               TipoSolicitud tipoSolicitud, LocalDate fechaInicio, LocalDate fechaFin,
+                               Map<DayOfWeek, Set<BloqueHorario>> diasYBloques,
+                               String comentarioProfesor) {
+        this.id = id;
+        this.profesor = profesor;
+        this.reservaOriginal = reservaOriginal;
+        this.nuevaAula = nuevaAula;
+        this.estado = EstadoSolicitud.PENDIENTE;
+        this.tipoSolicitud = tipoSolicitud;
+        this.fechaInicio = fechaInicio;
+        this.fechaFin = fechaFin;
+        this.diasYBloques = diasYBloques;
+        this.comentarioProfesor = comentarioProfesor;
+        this.fechaHoraSolicitud = LocalDateTime.now();
+    }
+
+    public SolicitudCambioAula(Integer id, Profesor profesor, Reserva reservaOriginal, Aula nuevaAula,
+                               EstadoSolicitud estadoSolicitud, TipoSolicitud tipoSolicitud,
                                LocalDate fechaInicio, LocalDate fechaFin, Map<DayOfWeek, Set<BloqueHorario>> diasYBloques,
                                String comentarioEstado, String comentarioProfesor, LocalDateTime fechaHoraSolicitud) {
         this.id = id;
         this.profesor = profesor;
         this.reservaOriginal = reservaOriginal;
         this.nuevaAula = nuevaAula;
-        this.estado = estado;
+        this.estado = estadoSolicitud;
         this.tipoSolicitud = tipoSolicitud;
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
@@ -143,11 +161,41 @@ public class SolicitudCambioAula {
     @Override
     public String toString() {
         return String.format(
-                "{\n\tID: %d\n\tProfesor: %s\n\tReserva Original: %s\n\tNueva Aula: %s\n\tEstado: %s\n\tTipo de Solicitud: %s\n\tFecha Inicio: %s\n\tFecha Fin: %s\n\tDías y Bloques: %s\n\tComentario Estado: '%s'\n\tComentario Profesor: '%s'\n\tFecha y Hora Solicitud: %s\n}",
-                id, profesor, reservaOriginal, nuevaAula, estado, tipoSolicitud, fechaInicio, fechaFin, diasYBloques, comentarioEstado, comentarioProfesor, fechaHoraSolicitud
-        );
+                """
+                        ╔═══════════════════════════════════════════════╗
+                        ║ Solicitud de Cambio de Aula (ID: %d)
+                        ╟───────────────────────────────────────────────╢
+                        ║ Profesor:
+                        %s
+                        ║ Reserva Original:
+                        %s
+                        ║ Nueva Aula:
+                        %s
+                        ║ Estado: %s
+                        ║ Tipo de Solicitud: %s
+                        ║ Fecha Inicio: %s
+                        ║ Fecha Fin: %s
+                        ║ Días y Bloques:
+                        %s
+                        ║ Comentario Estado: %s
+                        ║ Comentario Profesor: %s
+                        ║ Fecha y Hora Solicitud: %s
+                        ╚═══════════════════════════════════════════════╝
+                        """,
+                id,
+                Utils.indentString(profesor.toString(), 6),
+                Utils.indentString(reservaOriginal.toString(), 6),
+                Utils.indentString(nuevaAula.toString(), 6),
+                estado,
+                tipoSolicitud,
+                fechaInicio,
+                fechaFin,
+                Utils.indentString(Utils.formatDiasYBloques(diasYBloques), 6),
+                comentarioEstado.isEmpty() ? "Sin comentario" : comentarioEstado,
+                comentarioProfesor.isEmpty() ? "Sin comentario" : comentarioProfesor,
+                fechaHoraSolicitud
+        ).trim();
     }
-
 }
 
 

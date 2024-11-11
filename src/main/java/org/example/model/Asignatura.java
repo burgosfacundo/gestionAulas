@@ -36,9 +36,21 @@ public class Asignatura {
     @Override
     public String toString() {
         return String.format(
-                "{\n\tID: %d\n\tNombre: '%s'\n\tCódigo: %s\n\tRequiere Laboratorio: %b\n}",
-                id, nombre, codigo, requiereLaboratorio
-        );
+                """
+                ╔═══════════════════════════════════════════════╗
+                ║ Asignatura (ID: %d)
+                ╟───────────────────────────────────────────────╢
+                ║ Nombre: %s
+                ║ Código: %s
+                ║ Requiere Laboratorio: %s
+                ╚═══════════════════════════════════════════════╝
+                """,
+                id,
+                nombre,
+                codigo,
+                requiereLaboratorio ? "Sí" : "No"
+        ).trim();
     }
+
 
 }

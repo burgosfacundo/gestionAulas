@@ -1,6 +1,7 @@
 package org.example.model;
 
 import org.example.enums.Permisos;
+import org.example.utils.Utils;
 
 import java.util.List;
 
@@ -37,9 +38,20 @@ public class Rol {
     @Override
     public String toString() {
         return String.format(
-                "{\n\tID: %d\n\tNombre: '%s'\n\tPermisos: %s\n}",
-                id, nombre, permisos
-        );
+                """
+                ╔═══════════════════════════════════════════════╗
+                ║ Rol (ID: %d)
+                ╟───────────────────────────────────────────────╢
+                ║ Nombre: %s
+                ║ Permisos:
+                %s
+                ╚═══════════════════════════════════════════════╝
+                """,
+                id,
+                nombre,
+                Utils.indentString(Utils.formatListItems(this.permisos), 6)
+        ).trim();
     }
+
 
 }

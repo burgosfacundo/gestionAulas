@@ -48,9 +48,20 @@ public class Profesor {
     @Override
     public String toString() {
         return String.format(
-                "{\n\tID: %d\n\tNombre: '%s'\n\tApellido: '%s'\n\tMatrícula: '%s'\n}",
-                id, nombre, apellido, matricula
-        );
+                """
+                ╔═══════════════════════════════════════════════╗
+                ║ Profesor (ID: %d)
+                ╟───────────────────────────────────────────────╢
+                ║ Nombre: %s
+                ║ Apellido: %s
+                ║ Matrícula: %s
+                ╚═══════════════════════════════════════════════╝
+                """,
+                id,
+                nombre,
+                apellido,
+                matricula
+        ).trim();
     }
 
 

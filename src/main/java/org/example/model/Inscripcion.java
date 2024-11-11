@@ -1,5 +1,7 @@
 package org.example.model;
 
+import org.example.utils.Utils;
+
 import java.time.LocalDate;
 
 public class Inscripcion {
@@ -58,9 +60,29 @@ public class Inscripcion {
     @Override
     public String toString() {
         return String.format(
-                "{\n\tID: %d\n\tCantidad de Alumnos: %d\n\tMargen de Alumnos: %d\n\tFecha Fin Inscripción: %s\n\tAsignatura: %s\n\tComisión: '%s'\n\tProfesor: %s\n}",
-                id, cantidadAlumnos, margenAlumnos, fechaFinInscripcion, asignatura, comision, profesor
-        );
+                """
+                ╔═══════════════════════════════════════════════╗
+                ║ Inscripción (ID: %d)
+                ╟───────────────────────────────────────────────╢
+                ║ Cantidad de Alumnos: %d
+                ║ Margen de Alumnos: %d
+                ║ Fecha Fin Inscripción: %s
+                ║ Asignatura:
+                %s
+                ║ Comisión: %s
+                ║ Profesor:
+                %s
+                ╚═══════════════════════════════════════════════╝
+                """,
+                id,
+                cantidadAlumnos,
+                margenAlumnos,
+                fechaFinInscripcion,
+                Utils.indentString(asignatura.toString(), 6),
+                comision,
+                Utils.indentString(profesor.toString(), 6)
+        ).trim();
     }
+
 
 }

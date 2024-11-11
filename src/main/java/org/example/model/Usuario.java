@@ -1,6 +1,8 @@
 package org.example.model;
 
 
+import org.example.utils.Utils;
+
 // Clase que representa la entidad Usuario
 public class Usuario {
     private Integer id;
@@ -41,9 +43,22 @@ public class Usuario {
     @Override
     public String toString() {
         return String.format(
-                "{\n\tID: %d\n\tUsername: '%s'\n\tPassword: '%s'\n\tRol: %s\n}",
-                id, username, password, rol
-        );
+                """
+                ╔═══════════════════════════════════════════════╗
+                ║ Usuario (ID: %d)
+                ╟───────────────────────────────────────────────╢
+                ║ Username: %s
+                ║ Password: %s
+                ║ Rol:
+                %s
+                ╚═══════════════════════════════════════════════╝
+                """,
+                id,
+                username,
+                password,
+                Utils.indentString(rol.toString(), 6)
+        ).trim();
     }
+
 
 }

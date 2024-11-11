@@ -1,6 +1,8 @@
 package org.example.model;
 
 
+import java.util.Objects;
+
 public class Aula {
     private Integer id;
     private int numero;
@@ -49,14 +51,13 @@ public class Aula {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         Aula aula = (Aula) o;
-        return numero == aula.numero;
+        return Objects.equals(id, aula.id);
     }
 
     @Override
     public int hashCode() {
-        return numero;
+        return Objects.hash(id);
     }
 
     /**
@@ -74,20 +75,23 @@ public class Aula {
     public String toString() {
         return String.format(
                 """
-                
-                    Aula (ID: %d)
-                    Número: %d
-                    Capacidad: %d
-                    Tiene Proyector: %s
-                    Tiene TV: %s
+                ╔═══════════════════════════════════════════════╗
+                ║ Aula (ID: %d)
+                ╟───────────────────────────────────────────────╢
+                ║ Número: %d
+                ║ Capacidad: %d
+                ║ Tiene Proyector: %s
+                ║ Tiene TV: %s
+                ╚═══════════════════════════════════════════════╝
                 """,
                 id,
                 numero,
                 capacidad,
                 tieneProyector ? "Sí" : "No",
                 tieneTV ? "Sí" : "No"
-        );
+        ).trim();
     }
+
 
 
 }

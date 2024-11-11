@@ -36,22 +36,23 @@ public class Laboratorio extends Aula {
     public String toString() {
         return String.format(
                 """
-                
-                    Laboratorio (ID: %d)
-                    Número: %d
-                    Capacidad: %d
-                    Tiene Proyector: %s
-                    Tiene TV: %s
-                    Computadoras: %d
-                """,
+                        ╔═══════════════════════════════════════════════╗
+                        ║ Laboratorio (ID: %d)
+                        ╟───────────────────────────────────────────────╢
+                        ║ Número: %d
+                        ║ Capacidad: %d
+                        ║ Tiene Proyector: %s
+                        ║ Tiene TV: %s
+                        ║ Computadoras: %d
+                        ╚═══════════════════════════════════════════════╝
+                        """,
                 super.getId(),
                 super.getNumero(),
                 super.getCapacidad(),
                 super.isTieneProyector() ? "Sí" : "No",
                 super.isTieneTV() ? "Sí" : "No",
                 this.getComputadoras()
-        );
+            ).trim();
+
     }
-
-
 }

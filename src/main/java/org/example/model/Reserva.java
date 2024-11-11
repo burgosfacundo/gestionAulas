@@ -1,6 +1,7 @@
 package org.example.model;
 
 import org.example.enums.BloqueHorario;
+import org.example.utils.Utils;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -61,9 +62,29 @@ public class Reserva {
     @Override
     public String toString() {
         return String.format(
-                "{\n\tID: %d\n\tFecha Inicio: %s\n\tFecha Fin: %s\n\tAula: %s\n\tInscripción: %s\n\tDías y Bloques: %s\n}",
-                id, fechaInicio, fechaFin, aula, inscripcion, diasYBloques
+                """
+                ╔═══════════════════════════════════════════════╗
+                ║ Reserva (ID: %d)                             \s
+                ╟───────────────────────────────────────────────╢
+                ║ Fecha Inicio: %s
+                ║ Fecha Fin: %s
+                ║ Aula:
+                %s
+                ║ Inscripción:
+                %s
+                ║ Días y Bloques:
+                %s
+                ╚═══════════════════════════════════════════════╝
+                """,
+                id,
+                fechaInicio,
+                fechaFin,
+                Utils.indentString(aula.toString(), 6),
+                Utils.indentString(inscripcion.toString(), 6),
+                Utils.indentString(Utils.formatDiasYBloques(diasYBloques), 6)
         );
     }
+
+
 
 }
