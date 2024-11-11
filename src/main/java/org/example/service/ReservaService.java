@@ -1,5 +1,6 @@
 package org.example.service;
 
+import org.example.enums.BloqueHorario;
 import org.example.enums.EstadoSolicitud;
 import org.example.exception.BadRequestException;
 import org.example.exception.ConflictException;
@@ -11,9 +12,10 @@ import org.example.repository.*;
 import org.example.utils.Mapper;
 import org.example.utils.Utils;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -25,7 +27,6 @@ public class ReservaService{
     private final AulaRepository aulaRepository = new AulaRepository();
     private final AulaService aulaService = new AulaService();
     private final InscripcionService inscripcionService = new InscripcionService();
-    private final InscripcionRepository inscripcionRepository = new InscripcionRepository();
     private final AsignaturaRepository asignaturaRepository = new AsignaturaRepository();
     private final SolicitudCambioAulaRepository solicitudRepository = new SolicitudCambioAulaRepository();
 
@@ -225,8 +226,8 @@ public class ReservaService{
      * @throws JsonNotFoundException sí ocurre un problema con el archivo JSON de aulas
      */
     private void validarDisponibilidadAula(Reserva reserva) throws BadRequestException, JsonNotFoundException {
-        var aulasDisponibles = aulaService.listarAulasDisponibles(reserva.getFechaInicio(), reserva.getFechaFin(),
-                reserva.getBloque(), reserva.getDiasSemana());
+        var aulasDisponibles = aulaService.listarAulasDisponibles(reserva.getFechaInicio(), reserva.getFechaFin()
+                , reserva.getDiasYBloques());
         if (!aulasDisponibles.contains(reserva.getAula())) {
             throw new BadRequestException(STR."El aula \{reserva.getAula().getNumero()} no está disponible.");
         }
@@ -242,11 +243,33 @@ public class ReservaService{
         var solicitudesPendientes = solicitudRepository.find(reserva.getAula().getId(),
                 reserva.getFechaInicio(),
                 reserva.getFechaFin(),
-                reserva.getDiasSemana(),
-                reserva.getBloque(),
+                reserva.getDiasYBloques(),
                 EstadoSolicitud.PENDIENTE);
+
         if (!solicitudesPendientes.isEmpty()) {
-            throw new ConflictException(STR."Hay solicitudes pendientes con coincidencia de fechas al Aula \{reserva.getAula().getNumero()} en el horario \{reserva.getBloque()} y los días \{Utils.obtenerDiasEnEspaniol(reserva.getDiasSemana())}");
+            // Creamos un StringBuilder para armar el mensaje de conflicto
+            StringBuilder mensajeConflicto = new StringBuilder();
+            mensajeConflicto.append(STR."Hay solicitudes pendientes en el Aula \{reserva.getAula().getNumero()}.\n");
+
+            for (var solicitud : solicitudesPendientes) {
+                // Obtenemos los días y bloques horarios de la solicitud pendiente
+                Map<DayOfWeek, Set<BloqueHorario>> diasYBloquesSolicitud = solicitud.diasYBloques();
+
+                mensajeConflicto.append("Solicitud ID: ").append(solicitud.id())
+                        .append(" - Días y bloques en conflicto:\n");
+
+                // Iteramos sobre los días y bloques de la solicitud para mostrar los conflictos
+                diasYBloquesSolicitud.forEach((dia, bloques) -> {
+                    String bloquesStr = bloques.stream()
+                            .map(BloqueHorario::name)
+                            .collect(Collectors.joining(", "));
+
+                    mensajeConflicto.append("  Día: ").append(Utils.obtenerDiasEnEspaniol(Set.of(dia)))
+                            .append(" - Bloques: ").append(bloquesStr).append("\n");
+                });
+            }
+
+            throw new ConflictException(mensajeConflicto.toString());
         }
     }
 

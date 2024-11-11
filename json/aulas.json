@@ -1,44 +1,53 @@
 [
   {
     "id": 1,
-    "type": "Aula",
     "numero": 101,
-    "capacidad": 30,
-    "tieneProyector": true,
-    "tieneTV": false
+    "capacidad": 45,
+    "tieneProyector": false,
+    "tieneTV": true,
+    "type": "Aula"
   },
   {
     "id": 2,
-    "type": "Aula",
     "numero": 102,
-    "capacidad": 25,
-    "tieneProyector": false,
-    "tieneTV": true
+    "capacidad": 40,
+    "tieneProyector": true,
+    "tieneTV": true,
+    "type": "Aula"
   },
   {
     "id": 3,
-    "type": "Laboratorio",
     "numero": 201,
-    "capacidad": 20,
+    "capacidad": 50,
     "tieneProyector": true,
     "tieneTV": false,
-    "computadoras": 15
+    "type": "Laboratorio",
+    "computadoras": 30
   },
   {
     "id": 4,
-    "type": "Laboratorio",
     "numero": 202,
-    "capacidad": 35,
+    "capacidad": 55,
     "tieneProyector": true,
-    "tieneTV": true,
-    "computadoras": 25
+    "tieneTV": false,
+    "type": "Laboratorio",
+    "computadoras": 35
   },
   {
     "id": 5,
-    "type": "Aula",
     "numero": 103,
+    "capacidad": 45,
+    "tieneProyector": false,
+    "tieneTV": true,
+    "type": "Aula"
+  },
+  {
+    "id": 6,
+    "numero": 500,
     "capacidad": 40,
     "tieneProyector": false,
-    "tieneTV": true
+    "tieneTV": false,
+    "type": "Laboratorio",
+    "computadoras": 50
   }
 ]

@@ -60,7 +60,7 @@ public class AsignaturaService{
     /**
      * Método para obtener una asignatura por ID
      * @param id de la asignatura que queremos obtener
-     * @return Aula con ese ID
+     * @return Asignatura con ese ID
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      * @throws NotFoundException si no se encuentra una asignatura con ese ID
      */

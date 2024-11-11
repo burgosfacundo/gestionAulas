@@ -7,6 +7,7 @@ import org.example.enums.TipoSolicitud;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Set;
 
 public class SolicitudCambioAula {
@@ -18,8 +19,7 @@ public class SolicitudCambioAula {
     private TipoSolicitud tipoSolicitud;  // Tipo de cambio solicitado (temporal o cuatrimestral)
     private LocalDate fechaInicio;  // Fecha de inicio de la nueva reserva
     private LocalDate fechaFin;  // Fecha de fin de la nueva reserva
-    private Set<DayOfWeek> diasSemana;  // Días de la semana solicitados
-    private BloqueHorario bloqueHorario;  // Bloque horario solicitado
+    private Map<DayOfWeek, Set<BloqueHorario>> diasYBloques;  // Días de la semana y bloques solicitados
     private String comentarioEstado;  // Comentario del estado (motivo de rechazo, etc.)
     private String comentarioProfesor;  // Motivo del profesor para solicitar el cambio
     private LocalDateTime fechaHoraSolicitud;  // Fecha y hora en que se realizó la solicitud
@@ -28,9 +28,8 @@ public class SolicitudCambioAula {
     // Constructor, getters y setters
     public SolicitudCambioAula(Integer id, Profesor profesor, Reserva reservaOriginal, Aula nuevaAula,
                                EstadoSolicitud estado, TipoSolicitud tipoSolicitud,
-                               LocalDate fechaInicio, LocalDate fechaFin, Set<DayOfWeek> diasSemana,
-                               BloqueHorario bloqueHorario, String comentarioEstado,
-                               String comentarioProfesor, LocalDateTime fechaHoraSolicitud) {
+                               LocalDate fechaInicio, LocalDate fechaFin, Map<DayOfWeek, Set<BloqueHorario>> diasYBloques,
+                               String comentarioEstado, String comentarioProfesor, LocalDateTime fechaHoraSolicitud) {
         this.id = id;
         this.profesor = profesor;
         this.reservaOriginal = reservaOriginal;
@@ -39,8 +38,7 @@ public class SolicitudCambioAula {
         this.tipoSolicitud = tipoSolicitud;
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
-        this.diasSemana = diasSemana;
-        this.bloqueHorario = bloqueHorario;
+        this.diasYBloques = diasYBloques;
         this.comentarioEstado = comentarioEstado;
         this.comentarioProfesor = comentarioProfesor;
         this.fechaHoraSolicitud = fechaHoraSolicitud;
@@ -110,20 +108,12 @@ public class SolicitudCambioAula {
         this.fechaFin = fechaFin;
     }
 
-    public Set<DayOfWeek> getDiasSemana() {
-        return diasSemana;
+    public Map<DayOfWeek, Set<BloqueHorario>> getDiasYBloques() {
+        return diasYBloques;
     }
 
-    public void setDiasSemana(Set<DayOfWeek> diasSemana) {
-        this.diasSemana = diasSemana;
-    }
-
-    public BloqueHorario getBloqueHorario() {
-        return bloqueHorario;
-    }
-
-    public void setBloqueHorario(BloqueHorario bloqueHorario) {
-        this.bloqueHorario = bloqueHorario;
+    public void setDiasYBloques(Map<DayOfWeek, Set<BloqueHorario>> diasYBloques) {
+        this.diasYBloques = diasYBloques;
     }
 
     public String getComentarioEstado() {
@@ -152,22 +142,12 @@ public class SolicitudCambioAula {
 
     @Override
     public String toString() {
-        return "SolicitudCambioAula{" +
-                "id=" + id +
-                ", profesor=" + profesor +
-                ", reservaOriginal=" + reservaOriginal +
-                ", nuevaAula=" + nuevaAula +
-                ", estado=" + estado +
-                ", tipoSolicitud=" + tipoSolicitud +
-                ", fechaInicio=" + fechaInicio +
-                ", fechaFin=" + fechaFin +
-                ", diasSemana=" + diasSemana +
-                ", bloqueHorario=" + bloqueHorario +
-                ", comentarioEstado='" + comentarioEstado + '\'' +
-                ", comentarioProfesor='" + comentarioProfesor + '\'' +
-                ", fechaHoraSolicitud=" + fechaHoraSolicitud +
-                '}';
+        return String.format(
+                "{\n\tID: %d\n\tProfesor: %s\n\tReserva Original: %s\n\tNueva Aula: %s\n\tEstado: %s\n\tTipo de Solicitud: %s\n\tFecha Inicio: %s\n\tFecha Fin: %s\n\tDías y Bloques: %s\n\tComentario Estado: '%s'\n\tComentario Profesor: '%s'\n\tFecha y Hora Solicitud: %s\n}",
+                id, profesor, reservaOriginal, nuevaAula, estado, tipoSolicitud, fechaInicio, fechaFin, diasYBloques, comentarioEstado, comentarioProfesor, fechaHoraSolicitud
+        );
     }
+
 }
 
 

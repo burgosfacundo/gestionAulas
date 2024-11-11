@@ -4,26 +4,26 @@ import org.example.enums.BloqueHorario;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.Set;
 
 public class Reserva {
     private Integer id;
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
-    private BloqueHorario bloque;
     private Aula aula;
     private Inscripcion inscripcion;
-    Set<DayOfWeek> diasSemana;
+    private Map<DayOfWeek, Set<BloqueHorario>> diasYBloques;
 
 
-    public Reserva(Integer id, LocalDate fechaInicio, LocalDate fechaFin, BloqueHorario bloque, Aula aula, Inscripcion inscripcion, Set<DayOfWeek> diasSemana) {
+    public Reserva(Integer id, LocalDate fechaInicio, LocalDate fechaFin, Aula aula,
+                   Inscripcion inscripcion, Map<DayOfWeek, Set<BloqueHorario>> diasYBloques) {
         this.id = id;
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
-        this.bloque = bloque;
         this.aula = aula;
         this.inscripcion = inscripcion;
-        this.diasSemana = diasSemana;
+        this.diasYBloques = diasYBloques;
     }
 
     public Reserva(Integer id){
@@ -38,12 +38,12 @@ public class Reserva {
         this.id = id;
     }
 
-    public Set<DayOfWeek> getDiasSemana() {
-        return diasSemana;
+    public Map<DayOfWeek, Set<BloqueHorario>> getDiasYBloques() {
+        return diasYBloques;
     }
 
-    public void setDiasSemana(Set<DayOfWeek> diasSemana) {
-        this.diasSemana = diasSemana;
+    public void setDiasYBloques(Map<DayOfWeek, Set<BloqueHorario>> diasYBloques) {
+        this.diasYBloques = diasYBloques;
     }
 
     public LocalDate getFechaInicio() { return fechaInicio; }
@@ -51,9 +51,6 @@ public class Reserva {
 
     public LocalDate getFechaFin() { return fechaFin; }
     public void setFechaFin(LocalDate fechaFin) { this.fechaFin = fechaFin; }
-
-    public BloqueHorario getBloque() { return bloque; }
-    public void setBloque(BloqueHorario bloque) { this.bloque = bloque; }
 
     public Aula getAula() { return aula; }
     public void setAula(Aula aula) { this.aula = aula; }
@@ -63,6 +60,10 @@ public class Reserva {
 
     @Override
     public String toString() {
-        return STR."Reserva{id=\{id}, fechaInicio=\{fechaInicio}, fechaFin=\{fechaFin}, bloque=\{bloque}, aula=\{aula}, inscripcion=\{inscripcion}, diasSemana=\{diasSemana}\{'}'}";
+        return String.format(
+                "{\n\tID: %d\n\tFecha Inicio: %s\n\tFecha Fin: %s\n\tAula: %s\n\tInscripción: %s\n\tDías y Bloques: %s\n}",
+                id, fechaInicio, fechaFin, aula, inscripcion, diasYBloques
+        );
     }
+
 }

@@ -40,6 +40,10 @@ public class Usuario {
 
     @Override
     public String toString() {
-        return STR."Usuario{id=\{id}, username='\{username}\{'\''}, password='\{password}\{'\''}, rol=\{rol}\{'}'}";
+        return String.format(
+                "{\n\tID: %d\n\tUsername: '%s'\n\tPassword: '%s'\n\tRol: %s\n}",
+                id, username, password, rol
+        );
     }
+
 }

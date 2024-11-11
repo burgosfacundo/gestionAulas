@@ -1,47 +1,67 @@
 [
   {
     "id": 1,
-    "fechaInicio": "2024-03-01",
-    "fechaFin": "2024-06-30",
-    "bloque": "MORNING",
+    "fechaInicio": "2025-03-01",
+    "fechaFin": "2025-06-30",
     "idAula": 1,
     "idInscripcion": 1,
-    "diasSemana": ["MONDAY", "WEDNESDAY"]
+    "diasYBloques": {
+      "FRIDAY": [
+        "TARDE_PRIMER_BLOQUE",
+        "TARDE_SEGUNDO_BLOQUE"
+      ]
+    }
   },
   {
     "id": 2,
-    "fechaInicio": "2024-03-01",
-    "fechaFin": "2024-06-30",
-    "bloque": "AFTERNOON",
-    "idAula": 2,
+    "fechaInicio": "2025-03-01",
+    "fechaFin": "2025-06-30",
+    "idAula": 3,
     "idInscripcion": 2,
-    "diasSemana": ["TUESDAY", "THURSDAY"]
+    "diasYBloques": {
+      "MONDAY": [
+        "TARDE_PRIMER_BLOQUE",
+        "TARDE_SEGUNDO_BLOQUE"
+      ]
+    }
   },
   {
     "id": 3,
-    "fechaInicio": "2024-03-01",
-    "fechaFin": "2024-06-30",
-    "bloque": "MORNING",
-    "idAula": 3,
+    "fechaInicio": "2025-03-01",
+    "fechaFin": "2025-06-30",
+    "idAula": 4,
     "idInscripcion": 3,
-    "diasSemana": ["WEDNESDAY", "FRIDAY"]
+    "diasYBloques": {
+      "TUESDAY": [
+        "TARDE_PRIMER_BLOQUE",
+        "TARDE_SEGUNDO_BLOQUE"
+      ]
+    }
   },
   {
     "id": 4,
-    "fechaInicio": "2024-03-01",
-    "fechaFin": "2024-06-30",
-    "bloque": "EVENING",
-    "idAula": 4,
+    "fechaInicio": "2025-03-01",
+    "fechaFin": "2025-06-30",
+    "idAula": 5,
     "idInscripcion": 4,
-    "diasSemana": ["MONDAY", "FRIDAY"]
+    "diasYBloques": {
+      "WEDNESDAY": [
+        "TARDE_PRIMER_BLOQUE",
+        "TARDE_SEGUNDO_BLOQUE"
+      ]
+    }
   },
   {
     "id": 5,
-    "fechaInicio": "2024-03-01",
-    "fechaFin": "2024-06-30",
-    "bloque": "MORNING",
-    "idAula": 5,
-    "idInscripcion": 5,
-    "diasSemana": ["THURSDAY"]
+    "fechaInicio": "2025-03-01",
+    "fechaFin": "2025-06-30",
+    "idAula": 3,
+    "idInscripcion": 3,
+    "diasYBloques": {
+      "THURSDAY": [
+        "TARDE_PRIMER_BLOQUE",
+        "TARDE_SEGUNDO_BLOQUE"
+      ]
+    }
   }
 ]

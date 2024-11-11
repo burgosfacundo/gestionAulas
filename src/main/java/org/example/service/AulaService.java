@@ -13,6 +13,7 @@ import org.example.repository.ReservaRepository;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -146,27 +147,25 @@ public class AulaService{
     }
 
     /**
-     * Método para filtrar Aulas por fecha, período y días de la semana.
+     * Método para filtrar Aulas por fecha, período y días/bloques de la semana.
      * @param fechaInicio desde qué fecha debe estar disponible.
      * @param fechaFin hasta qué fecha debe estar disponible.
-     * @param bloqueHorario horario en el que se necesita el Aula.
-     * @param diasSemana conjunto con los días de la semana en los que se necesita el Aula.
+     * @param diasYBloques mapa con los días de la semana y sus respectivos bloques horarios.
      * @return List<Aula> lista de aulas que cumplen con las condiciones.
      * @throws JsonNotFoundException sí existe un problema con el archivo JSON.
      */
     public List<Aula> listarAulasDisponibles(LocalDate fechaInicio, LocalDate fechaFin,
-                                             BloqueHorario bloqueHorario, Set<DayOfWeek> diasSemana)
+                                             Map<DayOfWeek, Set<BloqueHorario>> diasYBloques)
             throws JsonNotFoundException {
 
         // Obtenemos todas las aulas y laboratorios del repositorio
         var aulas = listar();
 
-        // Filtramos las reservas existentes que coinciden en bloque horario, fechas y días de la semana
+        // Filtramos las reservas existentes que coinciden en los días y bloques horarios
         var idsAulasSolapadas = reservaRepository.getAll()
                 .stream()
-                .filter(r -> r.bloque() == bloqueHorario)
                 .filter(r -> seSolapanFechas(fechaInicio, fechaFin, r.fechaInicio(), r.fechaFin()))
-                .filter(r -> tieneDiasSolapados(r.diasSemana(), diasSemana)) // Nueva condición para días de la semana
+                .filter(r -> tieneSolapamientoEnDiasYBloques(r.diasYBloques(), diasYBloques))
                 .map(ReservaDTO::idAula)
                 .toList();
 
@@ -175,6 +174,7 @@ public class AulaService{
                 .filter(aula -> !idsAulasSolapadas.contains(aula.getId()))
                 .toList();
     }
+
 
     /**
      * Método que verifica si dos períodos de fechas se solapan.
@@ -189,19 +189,28 @@ public class AulaService{
     }
 
     /**
-     * Método que verifica si hay coincidencia en los días de la semana entre dos listas de días.
-     * @param diasReserva días de la semana reservados.
-     * @param diasSolicitados días de la semana solicitados.
-     * @return boolean si existe al menos un día común.
+     * Método que verifica si hay solapamiento en los días y bloques horarios entre dos mapas.
+     * @param diasYBloquesReserva días y bloques horarios de una reserva existente.
+     * @param diasYBloquesSolicitados días y bloques horarios solicitados para disponibilidad.
+     * @return boolean si existe al menos un día y bloque horario común.
      */
-    private boolean tieneDiasSolapados(Set<DayOfWeek> diasReserva, Set<DayOfWeek> diasSolicitados) {
-        for (DayOfWeek dia : diasSolicitados) {
-            if (diasReserva.contains(dia)) {
-                return true; // Se encontró un día en común
+    private boolean tieneSolapamientoEnDiasYBloques(Map<DayOfWeek, Set<BloqueHorario>> diasYBloquesReserva,
+                                                    Map<DayOfWeek, Set<BloqueHorario>> diasYBloquesSolicitados) {
+        for (var entry : diasYBloquesSolicitados.entrySet()) {
+            var diaSolicitado = entry.getKey();
+            var bloquesSolicitados = entry.getValue();
+
+            if (diasYBloquesReserva.containsKey(diaSolicitado)) {
+                var bloquesReservados = diasYBloquesReserva.get(diaSolicitado);
+                // Verificamos si hay al menos un bloque horario en común
+                if (bloquesReservados.stream().anyMatch(bloquesSolicitados::contains)) {
+                    return true;
+                }
             }
         }
-        return false; // No hay días en común
+        return false;
     }
+
 
 
     // Validaciones

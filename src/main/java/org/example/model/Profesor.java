@@ -1,6 +1,5 @@
 package org.example.model;
 
-import com.google.gson.Gson;
 
 // Clase que representa la entidad Rol
 public class Profesor {
@@ -48,15 +47,11 @@ public class Profesor {
 
     @Override
     public String toString() {
-        return STR."Profesor{id=\{id}, nombre='\{nombre}\{'\''}, apellido='\{apellido}\{'\''}, matricula='\{matricula}\{'\''}\{'}'}";
+        return String.format(
+                "{\n\tID: %d\n\tNombre: '%s'\n\tApellido: '%s'\n\tMatrícula: '%s'\n}",
+                id, nombre, apellido, matricula
+        );
     }
 
-    /**
-     * Método para convertir un profesor a JSON
-     * @return String que representa la cadena JSON de esta clase
-     */
-    public String toJson() {
-        Gson gson = new Gson();
-        return gson.toJson(this);
-    }
+
 }

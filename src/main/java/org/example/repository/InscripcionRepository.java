@@ -1,13 +1,18 @@
 package org.example.repository;
 
-import com.google.gson.JsonArray;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import org.example.adaptadores.AdaptadorLocalDate;
 import org.example.exception.JsonNotFoundException;
 import org.example.model.dto.InscripcionDTO;
 
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -16,7 +21,7 @@ import java.util.Optional;
  * Su responsabilidad es interactuar con el JSON
  */
 public class InscripcionRepository implements JSONRepository<Integer, InscripcionDTO> {
-    private final String ruta = "inscripciones.json";
+    private final String ruta = "./json/inscripciones.json";
 
     /**
      * Método para retornar la ruta al json
@@ -27,6 +32,29 @@ public class InscripcionRepository implements JSONRepository<Integer, Inscripcio
     @Override
     public String getRuta() {
         return this.ruta;
+    }
+
+    /**
+     * Método para obtener el gson que utiliza este repositorio
+     * @return Gson que se va a utilizar
+     */
+    @Override
+    public Gson getGson() {
+        return new GsonBuilder().setPrettyPrinting()
+                .registerTypeAdapter(LocalDate.class, new AdaptadorLocalDate()).create();
+    }
+
+    /**
+     * Método para escribir un archivo JSON
+     * @param list List<InscripcionDTO> que se quiere escribir
+     * @throws JsonNotFoundException si ocurre un problema con el archivo JSON
+     */
+    public void write(List<InscripcionDTO> list) throws JsonNotFoundException {
+        try (FileWriter writer = new FileWriter(getRuta())) {
+            getGson().toJson(list, writer);
+        } catch (IOException e) {
+            throw new JsonNotFoundException(STR."No se encontró el archivo JSON: \{getRuta()}");
+        }
     }
 
     /**
@@ -48,9 +76,7 @@ public class InscripcionRepository implements JSONRepository<Integer, Inscripcio
         dtos.add(dto);
 
         // Convertimos la lista a JSON y la escribimos en el archivo
-        var jsonArray = new JsonArray();
-        dtos.forEach(d -> jsonArray.add(gson.toJsonTree(d)));
-        write(jsonArray);
+        write(dtos);
     }
 
     /**
@@ -64,7 +90,7 @@ public class InscripcionRepository implements JSONRepository<Integer, Inscripcio
             //Usamos InscripcionDTO porque guardamos solo los id de otras entidades
             // que corresponde a la inscripción en este json
             var listType = new TypeToken<List<InscripcionDTO>>() {}.getType();
-            return gson.fromJson(reader, listType);
+            return getGson().fromJson(reader, listType);
         } catch (IOException e) {
             throw new JsonNotFoundException(STR."No se encontró el archivo JSON: \{ruta}");
         }
@@ -83,7 +109,7 @@ public class InscripcionRepository implements JSONRepository<Integer, Inscripcio
         //Devuelve la Inscripción si existe
         //Devuelve Optional.empty() si no existe
         return getAll().stream()
-                .filter(dto -> dto.id() == id)
+                .filter(dto -> Objects.equals(dto.id(), id))
                 .findFirst();
     }
 
@@ -97,12 +123,9 @@ public class InscripcionRepository implements JSONRepository<Integer, Inscripcio
     public void deleteById(Integer id) throws JsonNotFoundException {
         //Traemos todas las inscripciones y borramos el que tenga ese ID
         var inscripciones = getAll();
-        inscripciones.removeIf(dto -> dto.id() == id);
+        inscripciones.removeIf(dto -> Objects.equals(dto.id(), id));
 
-        //guardamos la lista sin la inscripción con ese ID
-        var jsonArray = new JsonArray();
-        inscripciones.forEach(dto -> jsonArray.add(gson.toJsonTree(dto)));
-        write(jsonArray);
+        write(inscripciones);
     }
 
     /**
@@ -118,7 +141,7 @@ public class InscripcionRepository implements JSONRepository<Integer, Inscripcio
         // Busca el índice de la inscripción que deseas modificar
         int index = -1;
         for (int i = 0; i < dtos.size(); i++) {
-            if (dtos.get(i).id() == dto.id()) {
+            if (Objects.equals(dtos.get(i).id(), dto.id())) {
                 index = i;
                 break;
             }
@@ -132,12 +155,8 @@ public class InscripcionRepository implements JSONRepository<Integer, Inscripcio
                 dto.fechaFinInscripcion(),dto.idAsignatura(),dto.comision(),dto.idProfesor());
         dtos.set(index, nuevoDTO);
 
-        // Crea el array JSON actualizado
-        var jsonArray = new JsonArray();
-        dtos.forEach(d -> jsonArray.add(gson.toJsonTree(d)));
-
         // Guarda los cambios en el archivo JSON
-        write(jsonArray);
+        write(dtos);
     }
 
 

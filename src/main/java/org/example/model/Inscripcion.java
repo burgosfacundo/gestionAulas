@@ -57,6 +57,10 @@ public class Inscripcion {
 
     @Override
     public String toString() {
-        return STR."Inscripcion{id=\{id}, cantidadAlumnos=\{cantidadAlumnos}, margenAlumnos=\{margenAlumnos}, fechaFinInscripcion=\{fechaFinInscripcion}, asignatura=\{asignatura}, comision='\{comision}\{'\''}, profesor=\{profesor}\{'}'}";
+        return String.format(
+                "{\n\tID: %d\n\tCantidad de Alumnos: %d\n\tMargen de Alumnos: %d\n\tFecha Fin Inscripción: %s\n\tAsignatura: %s\n\tComisión: '%s'\n\tProfesor: %s\n}",
+                id, cantidadAlumnos, margenAlumnos, fechaFinInscripcion, asignatura, comision, profesor
+        );
     }
+
 }

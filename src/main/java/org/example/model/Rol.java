@@ -1,6 +1,5 @@
 package org.example.model;
 
-import com.google.gson.Gson;
 import org.example.enums.Permisos;
 
 import java.util.List;
@@ -27,15 +26,6 @@ public class Rol {
     public void setPermisos(List<Permisos> permisos) { this.permisos = permisos; }
 
     /**
-     * Método para convertir un rol a JSON
-     * @return String que representa la cadena JSON de esta clase
-     */
-    public String toJson() {
-        Gson gson = new Gson();
-        return gson.toJson(this);
-    }
-
-    /**
      * Método para saber si el rol tiene un Permiso
      * @param permiso enum Permiso que hay que verificar en el Rol
      * @return boolean si tiene permiso o no
@@ -46,6 +36,10 @@ public class Rol {
 
     @Override
     public String toString() {
-        return STR."Rol{id=\{id}, nombre='\{nombre}\{'\''}, permisos=\{permisos}\{'}'}";
+        return String.format(
+                "{\n\tID: %d\n\tNombre: '%s'\n\tPermisos: %s\n}",
+                id, nombre, permisos
+        );
     }
+
 }

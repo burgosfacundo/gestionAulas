@@ -1,12 +1,12 @@
 package org.example.repository;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonParser;
+import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.example.exception.JsonNotFoundException;
 import org.example.model.Profesor;
 
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -32,6 +32,28 @@ public class ProfesorRepository implements JSONRepository<Integer, Profesor>{
     }
 
     /**
+     * Método para obtener el gson que utiliza este repositorio
+     * @return Gson que se va a utilizar
+     */
+    @Override
+    public Gson getGson() {
+        return new Gson();
+    }
+
+    /**
+     * Método para escribir un archivo JSON
+     * @param list List<Profesor> que se quiere escribir
+     * @throws JsonNotFoundException si ocurre un problema con el archivo JSON
+     */
+    public void write(List<Profesor> list) throws JsonNotFoundException {
+        try (FileWriter writer = new FileWriter(getRuta())) {
+            getGson().toJson(list, writer);
+        } catch (IOException e) {
+            throw new JsonNotFoundException(STR."No se encontró el archivo JSON: \{getRuta()}");
+        }
+    }
+
+    /**
      * Método que guarda un nuevo profesor en el JSON llamando al método write
      * @param profesor el nuevo profesor que se guarda en el JSON
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
@@ -48,10 +70,8 @@ public class ProfesorRepository implements JSONRepository<Integer, Profesor>{
         // Agregamos el nuevo profesor
         profesores.add(profesor);
 
-        // Convertir cada profesor a JsonObject usando el método toJson personalizado
-        var jsonArray = new JsonArray();
-        profesores.forEach(p -> jsonArray.add(JsonParser.parseString(p.toJson())));
-        write(jsonArray);
+        // Guarda los cambios en el archivo JSON
+        write(profesores);
     }
 
 
@@ -65,7 +85,7 @@ public class ProfesorRepository implements JSONRepository<Integer, Profesor>{
         try (FileReader reader = new FileReader(ruta)) {
             //Indico que el tipo va a ser una Lista de profesores
             var rolListType = new TypeToken<List<Profesor>>() {}.getType();
-            return gson.fromJson(reader, rolListType);
+            return getGson().fromJson(reader, rolListType);
         } catch (IOException e) {
             throw new JsonNotFoundException(STR."No se encontró el archivo JSON: \{ruta}");
         }
@@ -101,11 +121,10 @@ public class ProfesorRepository implements JSONRepository<Integer, Profesor>{
         //Borro al que tenga el id
         profesores.removeIf(p -> Objects.equals(p.getId(), id));
 
-        // Convertir cada profesor a JsonObject usando el método toJson personalizado
-        var jsonArray = new JsonArray();
-        profesores.forEach(p -> jsonArray.add(JsonParser.parseString(p.toJson())));
-        write(jsonArray);
+        // Guarda los cambios en el archivo JSON
+        write(profesores);
     }
+
 
     /**
      * Método para modificar el profesor
@@ -129,12 +148,8 @@ public class ProfesorRepository implements JSONRepository<Integer, Profesor>{
         exist.setApellido(profesor.getApellido());
         exist.setMatricula(profesor.getMatricula());
 
-        // Crea el array JSON actualizado
-        var jsonArray = new JsonArray();
-        profesores.forEach(p -> jsonArray.add(JsonParser.parseString(p.toJson())));
-
         // Guarda los cambios en el archivo JSON
-        write(jsonArray);
+        write(profesores);
     }
 
     /**

@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Utils {
-
     public static String obtenerDiasEnEspaniol(Set<DayOfWeek> diasSemana) {
         return diasSemana.stream()
                 .map(day -> day.getDisplayName(TextStyle.FULL, Locale.forLanguageTag("es")))

@@ -52,7 +52,7 @@ public class UsuarioService{
         //Verificamos que no existe un usuario con ese username, sino lanzamos excepción
         var optional = repositorioUsuario.findByUsername(usuario.getUsername());
         if (optional.isPresent()){
-            throw new BadRequestException(STR."Ya existe un usuario con el nombre de usuario: \{usuario}");
+            throw new BadRequestException(STR."Ya existe un usuario con el nombre de usuario: \{usuario.getUsername()}");
         }
 
         //Tomamos el ID del rol y verificamos que existe, si no lanzamos excepción
@@ -110,6 +110,9 @@ public class UsuarioService{
 
         //Validamos que exista su rol
         validarRolExistente(usuario.getRol().getId());
+
+        // Codifica la contraseña usando bcrypt
+        usuario.setPassword(BCrypt.hashpw(usuario.getPassword(), BCrypt.gensalt()));
 
         //Mapeamos y modificamos el usuario
         repositorioUsuario.modify(Mapper.usuarioToDto(usuario));

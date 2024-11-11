@@ -56,28 +56,22 @@ public class SolicitudCambioAulaService{
         var idProfesor = solicitud.getProfesor().getId();
         var idReserva = solicitud.getReservaOriginal().getId();
 
-        // Validamos que no existe una solicitud con esas características
+        // Validamos que no exista una solicitud con esas características
         var solicitudExistente = repositorio.find(idProfesor, idAula, idReserva, solicitud.getFechaInicio(),
-                solicitud.getFechaFin(), solicitud.getDiasSemana(), solicitud.getBloqueHorario());
+                solicitud.getFechaFin(), solicitud.getDiasYBloques());
         if (solicitudExistente.isPresent()) {
             throw new BadRequestException("Ya existe una solicitud con esas características");
         }
 
-        // Validamos que existe el aula, si no lanzamos excepción
         validarAulaExistente(idAula);
-
-        // Validamos que el aula esté disponible
         validarDisponibilidadAula(solicitud);
-
-        // Validamos que existe el profesor, si no lanzamos excepción
         validarProfesorExistente(idProfesor);
-
-        // Validamos que existe, si no lanzamos excepción
         validarReservaExistente(idReserva);
 
         repositorio.save(Mapper.solicitudToDTO(solicitud));
         return solicitud;
     }
+
 
 
     /**
@@ -163,7 +157,7 @@ public class SolicitudCambioAulaService{
         //Creamos un DTO con la solicitud aprobada
         SolicitudCambioAulaDTO nuevoDTO = new SolicitudCambioAulaDTO(dto.id(),dto.idProfesor(),dto.idReserva(),
                 dto.idAula(),EstadoSolicitud.APROBADA, dto.tipoSolicitud(),dto.fechaInicio(),dto.fechaFin(),
-                dto.diasSemana(),dto.bloqueHorario(),dto.comentarioEstado(),dto.comentarioProfesor(), dto.fechaHoraSolicitud());
+                dto.diasYBloques(),dto.comentarioEstado(),dto.comentarioProfesor(), dto.fechaHoraSolicitud());
 
         //La modificamos
         repositorio.modify(nuevoDTO);
@@ -172,13 +166,13 @@ public class SolicitudCambioAulaService{
 
         // Si la solicitud es temporal creamos una nueva reserva
         if (dto.tipoSolicitud().equals(TipoSolicitud.TEMPORAL)){
-            reservaService.guardar(new Reserva(null,dto.fechaInicio(),dto.fechaFin(),dto.bloqueHorario(),new Aula(dto.id()),
-                    reserva.getInscripcion(),dto.diasSemana()));
+            reservaService.guardar(new Reserva(null,dto.fechaInicio(),dto.fechaFin(),new Aula(dto.id()),
+                    reserva.getInscripcion(),dto.diasYBloques()));
 
             //Si no la reserva es Permanente y modificamos la original
-        }else {
-            reservaService.modificar(new Reserva(reserva.getId(),dto.fechaInicio(),dto.fechaFin(),dto.bloqueHorario(),new Aula(dto.id()),
-                    reserva.getInscripcion(),dto.diasSemana()));
+        }else if(dto.tipoSolicitud().equals(TipoSolicitud.PERMANENTE)){
+            reservaService.modificar(new Reserva(reserva.getId(),dto.fechaInicio(),dto.fechaFin(),new Aula(dto.id()),
+                    reserva.getInscripcion(),dto.diasYBloques()));
         }
     }
 
@@ -200,7 +194,7 @@ public class SolicitudCambioAulaService{
 
         SolicitudCambioAulaDTO nuevoDTO = new SolicitudCambioAulaDTO(dto.id(),dto.idProfesor(),dto.idReserva(),
                 dto.idAula(),EstadoSolicitud.RECHAZADA, dto.tipoSolicitud(),dto.fechaInicio(),dto.fechaFin(),
-                dto.diasSemana(),dto.bloqueHorario(),dto.comentarioEstado(),dto.comentarioProfesor(), dto.fechaHoraSolicitud());
+                dto.diasYBloques(),dto.comentarioEstado(),dto.comentarioProfesor(), dto.fechaHoraSolicitud());
 
         //La modificamos
         repositorio.modify(nuevoDTO);
@@ -266,7 +260,7 @@ public class SolicitudCambioAulaService{
      */
     private void validarDisponibilidadAula(SolicitudCambioAula solicitud) throws JsonNotFoundException, BadRequestException {
         //Traemos todas las aulas disponibles en ese período
-        var aulasDisponibles = aulaService.listarAulasDisponibles(solicitud.getFechaInicio(),solicitud.getFechaFin(),solicitud.getBloqueHorario(),solicitud.getDiasSemana());
+        var aulasDisponibles = aulaService.listarAulasDisponibles(solicitud.getFechaInicio(),solicitud.getFechaFin(),solicitud.getDiasYBloques());
         //Si no está dentro de las disponibles lanzamos excepción
         if (!aulasDisponibles.contains(solicitud.getNuevaAula())) {
             throw new BadRequestException(STR."El aula \{solicitud.getNuevaAula()} no está disponible.");

@@ -1,1 +1,20 @@
-[{"id":1,"nombre":"Adrian","apellido":"Aroca","matricula":"ABC123"},{"id":2,"nombre":"Priscila","apellido":"Tápparo","matricula":"DEF456"}]
+[
+  {
+    "id":1,
+    "nombre":"Adrian",
+    "apellido":"Aroca",
+    "matricula":"ABC123"
+  },
+  {
+    "id":2,
+    "nombre":"Priscila",
+    "apellido":"Tápparo",
+    "matricula":"DEF456"
+  },
+  {
+    "id": 3,
+    "nombre": "Maria Lourdes",
+    "apellido": "Ricciuto",
+    "matricula": "GHI789"
+  }
+]

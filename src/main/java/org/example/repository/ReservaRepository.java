@@ -1,14 +1,21 @@
 package org.example.repository;
 
 
-import com.google.gson.JsonArray;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import org.example.adaptadores.AdaptadorLocalDate;
+import org.example.adaptadores.AdaptadorLocalDateTime;
 import org.example.exception.JsonNotFoundException;
 import org.example.model.dto.ReservaDTO;
 
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -17,7 +24,7 @@ import java.util.Optional;
  * Su responsabilidad es interactuar con el JSON
  */
 public class ReservaRepository implements JSONRepository<Integer, ReservaDTO> {
-    private final String ruta = "reservas.json";
+    private final String ruta = "./json/reservas.json";
 
     /**
      * Método para retornar la ruta al json
@@ -28,6 +35,31 @@ public class ReservaRepository implements JSONRepository<Integer, ReservaDTO> {
     @Override
     public String getRuta() {
         return ruta;
+    }
+
+    /**
+     * Método para obtener el gson que utiliza este repositorio
+     * @return Gson que se va a utilizar
+     */
+    @Override
+    public Gson getGson() {
+        return new GsonBuilder().setPrettyPrinting()
+                .registerTypeAdapter(LocalDate.class, new AdaptadorLocalDate())
+                .registerTypeAdapter(LocalDateTime.class, new AdaptadorLocalDateTime())
+                .create();
+    }
+
+    /**
+     * Método para escribir un archivo JSON
+     * @param list List<ReservaDTO> que se quiere escribir
+     * @throws JsonNotFoundException si ocurre un problema con el archivo JSON
+     */
+    public void write(List<ReservaDTO> list) throws JsonNotFoundException {
+        try (FileWriter writer = new FileWriter(getRuta())) {
+            getGson().toJson(list, writer);
+        } catch (IOException e) {
+            throw new JsonNotFoundException(STR."No se encontró el archivo JSON: \{getRuta()}");
+        }
     }
 
     /**
@@ -42,16 +74,14 @@ public class ReservaRepository implements JSONRepository<Integer, ReservaDTO> {
 
         // Verificamos el último ID y generamos el próximo
         var lastId = dtos.isEmpty() ? 0 : dtos.getLast().id();
-        dto = new ReservaDTO(lastId + 1, dto.fechaInicio(), dto.fechaFin(), dto.bloque(),
-                                dto.idAula(),dto.idInscripcion(),dto.diasSemana());
+        dto = new ReservaDTO(lastId + 1, dto.fechaInicio(), dto.fechaFin(),
+                                dto.idAula(),dto.idInscripcion(),dto.diasYBloques());
 
         // Agregamos la nueva reserva
         dtos.add(dto);
 
-        // Convertimos la lista a JSON y la escribimos en el archivo
-        var jsonArray = new JsonArray();
-        dtos.forEach(i -> jsonArray.add(gson.toJsonTree(i)));
-        write(jsonArray);
+        // Guarda los cambios en el archivo JSON
+        write(dtos);
     }
 
     /**
@@ -64,7 +94,7 @@ public class ReservaRepository implements JSONRepository<Integer, ReservaDTO> {
         try (FileReader reader = new FileReader(ruta)) {
             //Usamos ReservaDTO porque guardamos solo el ID de inscripción y aula que corresponde al usuario en este json
             var listType = new TypeToken<List<ReservaDTO>>() {}.getType();
-            return gson.fromJson(reader, listType);
+            return getGson().fromJson(reader, listType);
         } catch (IOException e) {
             throw new JsonNotFoundException(STR."No se encontró el archivo JSON: \{ruta}");
         }
@@ -83,7 +113,7 @@ public class ReservaRepository implements JSONRepository<Integer, ReservaDTO> {
         //Devuelve la reserva si existe
         //Devuelve optional.empty() sino
         return getAll().stream()
-                .filter(dto -> dto.id() == id)
+                .filter(dto -> Objects.equals(dto.id(), id))
                 .findFirst();
     }
 
@@ -97,12 +127,10 @@ public class ReservaRepository implements JSONRepository<Integer, ReservaDTO> {
     public void deleteById(Integer id) throws JsonNotFoundException {
         //Traemos todas las reservas y borramos el que tenga ese ID
         var reservas = getAll();
-        reservas.removeIf(dto -> dto.id() == id);
+        reservas.removeIf(dto -> Objects.equals(dto.id(), id));
 
-        //guardamos la lista sin la reserva con ese ID
-        var jsonArray = new JsonArray();
-        reservas.forEach(dto -> jsonArray.add(gson.toJsonTree(dto)));
-        write(jsonArray);
+        // Guarda los cambios en el archivo JSON
+        write(reservas);
     }
 
     /**
@@ -118,7 +146,7 @@ public class ReservaRepository implements JSONRepository<Integer, ReservaDTO> {
         // Busca el índice de la reserva que deseas modificar
         int index = -1;
         for (int i = 0; i < dtos.size(); i++) {
-            if (dtos.get(i).id() == dto.id()) {
+            if (Objects.equals(dtos.get(i).id(), dto.id())) {
                 index = i;
                 break;
             }
@@ -128,15 +156,11 @@ public class ReservaRepository implements JSONRepository<Integer, ReservaDTO> {
             throw new JsonNotFoundException(STR."No se encontró el archivo JSON: \{ruta}");
         }
         // Reemplaza el objeto en la lista con una nueva instancia actualizada
-        var nuevoDTO = new ReservaDTO(dto.id(), dto.fechaInicio(),dto.fechaFin(),dto.bloque(),dto.idAula(),
-                dto.idInscripcion(),dto.diasSemana());
+        var nuevoDTO = new ReservaDTO(dto.id(), dto.fechaInicio(),dto.fechaFin(),dto.idAula(),
+                dto.idInscripcion(),dto.diasYBloques());
         dtos.set(index, nuevoDTO);
 
-        // Crea el array JSON actualizado
-        var jsonArray = new JsonArray();
-        dtos.forEach(d -> jsonArray.add(gson.toJsonTree(d)));
-
         // Guarda los cambios en el archivo JSON
-        write(jsonArray);
+        write(dtos);
     }
 }

@@ -2,31 +2,19 @@
   {
     "id": 1,
     "username": "admin",
-    "password": "admin",
+    "password": "$2a$10$OM8dWsUv2N9kWi16C7oJBOIsigTaXOu4FJ5sWigYzrdei8Aw1Bk3W",
     "idRol": 1
   },
   {
     "id": 2,
     "username": "adrianAroca",
-    "password": "1234",
+    "password": "$2a$10$xBdAEizDQYlV17ChZ/ZZK..xoXSwzflGOErGp7EwT/HYMFgKr2ryu",
     "idRol": 2
   },
   {
     "id": 3,
-    "username": "usuario3",
-    "password": "hashed_password3",
-    "idRol": 2
-  },
-  {
-    "id": 4,
-    "username": "usuario4",
-    "password": "hashed_password4",
-    "idRol":2
-  },
-  {
-    "id": 5,
-    "username": "usuario5",
-    "password": "hashed_password5",
+    "username": "pri",
+    "password": "$2a$10$m6f27FmDUUSVzVowHUOXqux55cQ1W1MoRKnlKKHocSjnvzsQXZ7C.",
     "idRol": 2
   }
 ]

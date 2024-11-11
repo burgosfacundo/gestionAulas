@@ -8,6 +8,7 @@ import org.example.model.Aula;
 
 
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -20,9 +21,8 @@ import java.util.Optional;
  * Su responsabilidad es interactuar con el JSON
  */
 public class AulaRepository implements JSONRepository<Integer, Aula> {
-    private final String ruta = "aulas.json";
-    // Utilizamos Gson configurado con RuntimeTypeAdapterFactory para Aula y Laboratorio
-    private final Gson gson = GsonConfig.createGsonAulaLaboratorio();
+    private final String ruta = "./json/aulas.json";
+
 
     /**
      * Método para retornar la ruta al json
@@ -34,6 +34,31 @@ public class AulaRepository implements JSONRepository<Integer, Aula> {
     public String getRuta() {
         return this.ruta;
     }
+
+    @Override
+    public Gson getGson() {
+        // Utilizamos Gson configurado con RuntimeTypeAdapterFactory para Aula y Laboratorio
+        return GsonConfig.createGsonAulaLaboratorio();
+    }
+
+    @Override
+    public void write(List<Aula> list) throws JsonNotFoundException {
+        try (FileWriter writer = new FileWriter(getRuta())) {
+            Gson gsonEspecializado = getGson();
+            JsonArray jsonArray = new JsonArray();
+
+            // Serializamos cada elemento explícitamente utilizando el TypeAdapter
+            for (Aula aula : list) {
+                JsonElement jsonElement = gsonEspecializado.toJsonTree(aula, Aula.class);
+                jsonArray.add(jsonElement);
+            }
+
+            gsonEspecializado.toJson(jsonArray, writer);
+        } catch (IOException e) {
+            throw new JsonNotFoundException(STR."No se encontró el archivo JSON: \{getRuta()}");
+        }
+    }
+
 
     /**
      * Método que guarda una nueva aula o laboratorio en el JSON llamando al método write
@@ -51,10 +76,8 @@ public class AulaRepository implements JSONRepository<Integer, Aula> {
         // Agregamos la nueva aula o laboratorio
         aulas.add(aula);
 
-        // Convertir cada aula a JsonObject usando el método toJson personalizado
-        var jsonArray = new JsonArray();
-        aulas.forEach(a -> jsonArray.add(JsonParser.parseString(a.toJson())));
-        write(jsonArray);
+        // Guarda los cambios en el archivo JSON
+        write(aulas);
     }
 
     /**
@@ -67,7 +90,7 @@ public class AulaRepository implements JSONRepository<Integer, Aula> {
         try (FileReader reader = new FileReader(ruta)) {
             // Gson deserializará automáticamente a Aula o Laboratorio usando RuntimeTypeAdapterFactory
             var listType = new TypeToken<List<Aula>>() {}.getType();
-            return gson.fromJson(reader, listType);
+            return getGson().fromJson(reader, listType);
         } catch (IOException e) {
             throw new JsonNotFoundException(STR."No se encontró el archivo JSON: \{ruta}");
         }
@@ -101,11 +124,8 @@ public class AulaRepository implements JSONRepository<Integer, Aula> {
         // Borra el aula o laboratorio con el ID dado
         aulas.removeIf(aula -> Objects.equals(aula.getId(), id));
 
-
-        // Convertir cada aula a JsonObject usando el método toJson personalizado
-        var jsonArray = new JsonArray();
-        aulas.forEach(a -> jsonArray.add(JsonParser.parseString(a.toJson())));
-        write(jsonArray);
+        // Guarda los cambios en el archivo JSON
+        write(aulas);
     }
 
     /**
@@ -125,12 +145,8 @@ public class AulaRepository implements JSONRepository<Integer, Aula> {
             return a;
         });
 
-        // Crea el array JSON actualizado
-        var jsonArray = new JsonArray();
-        aulas.forEach(a -> jsonArray.add(JsonParser.parseString(a.toJson())));
-
         // Guarda los cambios en el archivo JSON
-        write(jsonArray);
+        write(aulas);
     }
 
     /**

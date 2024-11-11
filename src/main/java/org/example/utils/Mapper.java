@@ -92,10 +92,9 @@ public class Mapper {
                 dto.id(),
                 dto.fechaInicio(),
                 dto.fechaFin(),
-                dto.bloque(),
                 aula,
                 inscripcion,
-                dto.diasSemana()
+                dto.diasYBloques()
         );
     }
 
@@ -110,10 +109,9 @@ public class Mapper {
                 reserva.getId(),
                 reserva.getFechaInicio(),
                 reserva.getFechaFin(),
-                reserva.getBloque(),
                 reserva.getAula().getId(),
                 reserva.getInscripcion().getId(),
-                reserva.getDiasSemana()
+                reserva.getDiasYBloques()
         );
     }
 
@@ -131,7 +129,7 @@ public class Mapper {
         //Retornamos la solicitud mapeando desde DTO, incluyendo su aula, profesor y reserva original
         return new SolicitudCambioAula(
                 dto.id(), profesor, reserva, aula, dto.estadoSolicitud(), dto.tipoSolicitud(),
-                dto.fechaInicio(), dto.fechaFin(), dto.diasSemana(), dto.bloqueHorario(),
+                dto.fechaInicio(), dto.fechaFin(), dto.diasYBloques(),
                 dto.comentarioEstado(), dto.comentarioProfesor(), dto.fechaHoraSolicitud()
         );
     }
@@ -146,10 +144,8 @@ public class Mapper {
         return new SolicitudCambioAulaDTO(
                 solicitud.getId(), solicitud.getProfesor().getId(), solicitud.getReservaOriginal().getId(),
                 solicitud.getNuevaAula().getId(), solicitud.getEstado(), solicitud.getTipoSolicitud(),
-                solicitud.getFechaInicio(), solicitud.getFechaFin(), solicitud.getDiasSemana(),
-                solicitud.getBloqueHorario(), solicitud.getComentarioEstado(), solicitud.getComentarioProfesor(),
-                solicitud.getFechaHoraSolicitud()
-
+                solicitud.getFechaInicio(), solicitud.getFechaFin(), solicitud.getDiasYBloques(),
+                solicitud.getComentarioEstado(), solicitud.getComentarioProfesor(), solicitud.getFechaHoraSolicitud()
         );
     }
 }

@@ -1,6 +1,5 @@
 package org.example.model;
 
-import com.google.gson.Gson;
 
 public class Aula {
     private Integer id;
@@ -61,15 +60,6 @@ public class Aula {
     }
 
     /**
-     * Método para convertir un aula a JSON
-     * @return String que representa la cadena JSON de esta clase
-     */
-    public String toJson() {
-        Gson gson = new Gson();
-        return gson.toJson(this);
-    }
-
-    /**
      * Método para actualizar los campos del Aula
      * @param aula con la nueva información
      */
@@ -79,4 +69,25 @@ public class Aula {
         this.tieneProyector = aula.isTieneProyector();
         this.tieneTV = aula.isTieneTV();
     }
+
+    @Override
+    public String toString() {
+        return String.format(
+                """
+                
+                    Aula (ID: %d)
+                    Número: %d
+                    Capacidad: %d
+                    Tiene Proyector: %s
+                    Tiene TV: %s
+                """,
+                id,
+                numero,
+                capacidad,
+                tieneProyector ? "Sí" : "No",
+                tieneTV ? "Sí" : "No"
+        );
+    }
+
+
 }

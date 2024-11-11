@@ -3,7 +3,7 @@ package org.example.model;
 public class Laboratorio extends Aula {
     private int computadoras;
 
-    public Laboratorio(int id, int numero, int capacidad, boolean tieneProyector, boolean tieneTV,int computadoras) {
+    public Laboratorio(Integer id, int numero, int capacidad, boolean tieneProyector, boolean tieneTV,int computadoras) {
         super(id, numero, capacidad, tieneProyector, tieneTV);
         this.computadoras = computadoras;
     }
@@ -31,4 +31,27 @@ public class Laboratorio extends Aula {
             this.computadoras = ((Laboratorio) aula ).getComputadoras();
         }
     }
+
+    @Override
+    public String toString() {
+        return String.format(
+                """
+                
+                    Laboratorio (ID: %d)
+                    Número: %d
+                    Capacidad: %d
+                    Tiene Proyector: %s
+                    Tiene TV: %s
+                    Computadoras: %d
+                """,
+                super.getId(),
+                super.getNumero(),
+                super.getCapacidad(),
+                super.isTieneProyector() ? "Sí" : "No",
+                super.isTieneTV() ? "Sí" : "No",
+                this.getComputadoras()
+        );
+    }
+
+
 }

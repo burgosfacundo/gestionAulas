@@ -1,12 +1,12 @@
 package org.example.repository;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonParser;
+import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.example.exception.JsonNotFoundException;
 import org.example.model.Rol;
 
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -33,6 +33,28 @@ public class RolRepository implements JSONRepository<Integer, Rol>{
     }
 
     /**
+     * Método para obtener el gson que utiliza este repositorio
+     * @return Gson que se va a utilizar
+     */
+    @Override
+    public Gson getGson() {
+        return new Gson();
+    }
+
+    /**
+     * Método para escribir un archivo JSON
+     * @param list List<Rol> que se quiere escribir
+     * @throws JsonNotFoundException si ocurre un problema con el archivo JSON
+     */
+    public void write(List<Rol> list) throws JsonNotFoundException {
+        try (FileWriter writer = new FileWriter(getRuta())) {
+            getGson().toJson(list, writer);
+        } catch (IOException e) {
+            throw new JsonNotFoundException(STR."No se encontró el archivo JSON: \{getRuta()}");
+        }
+    }
+
+    /**
      * Método que guarda un nuevo rol en el JSON llamando al método write
      * @param rol el nuevo rol que se guarda en el JSON
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
@@ -49,10 +71,8 @@ public class RolRepository implements JSONRepository<Integer, Rol>{
         // Agregamos el nuevo rol
         roles.add(rol);
 
-        // Convertir cada rol a JsonObject usando el método toJson personalizado
-        var jsonArray = new JsonArray();
-        roles.forEach(r -> jsonArray.add(JsonParser.parseString(r.toJson())));
-        write(jsonArray);
+        // Guarda los cambios en el archivo JSON
+        write(roles);
     }
 
 
@@ -66,7 +86,7 @@ public class RolRepository implements JSONRepository<Integer, Rol>{
         try (FileReader reader = new FileReader(ruta)) {
             //Indico que el tipo va a ser una Lista de Roles
             var rolListType = new TypeToken<List<Rol>>() {}.getType();
-            return gson.fromJson(reader, rolListType);
+            return getGson().fromJson(reader, rolListType);
         } catch (IOException e) {
             throw new JsonNotFoundException(STR."No se encontró el archivo JSON: \{ruta}");
         }
@@ -102,10 +122,8 @@ public class RolRepository implements JSONRepository<Integer, Rol>{
         //Borro al que tenga el id
         roles.removeIf(r -> Objects.equals(r.getId(), id));
 
-        // Convertir cada rol a JsonObject usando el método toJson personalizado
-        var jsonArray = new JsonArray();
-        roles.forEach(r -> jsonArray.add(JsonParser.parseString(r.toJson())));
-        write(jsonArray);
+        // Guarda los cambios en el archivo JSON
+        write(roles);
     }
 
     /**
@@ -129,12 +147,8 @@ public class RolRepository implements JSONRepository<Integer, Rol>{
         exist.setNombre(rol.getNombre());
         exist.setPermisos(rol.getPermisos());
 
-        // Crea el array JSON actualizado
-        var jsonArray = new JsonArray();
-        roles.forEach(r -> jsonArray.add(JsonParser.parseString(r.toJson())));
-
         // Guarda los cambios en el archivo JSON
-        write(jsonArray);
+        write(roles);
     }
 
     /**

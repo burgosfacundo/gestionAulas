@@ -1,12 +1,12 @@
 package org.example.repository;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonParser;
+import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.example.exception.JsonNotFoundException;
 import org.example.model.Asignatura;
 
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -18,7 +18,7 @@ import java.util.Optional;
  * Su responsabilidad es interactuar con el JSON
  */
 public class AsignaturaRepository implements JSONRepository<Integer,Asignatura> {
-    private final String ruta = "asignaturas.json";
+    private final String ruta = "./json/asignaturas.json";
 
     /**
      * Método para retornar la ruta al json
@@ -29,6 +29,29 @@ public class AsignaturaRepository implements JSONRepository<Integer,Asignatura> 
     @Override
     public String getRuta() {
         return this.ruta;
+    }
+
+
+    /**
+     * Método para obtener el gson que utiliza este repositorio
+     * @return Gson que se va a utilizar
+     */
+    @Override
+    public Gson getGson() {
+        return new Gson();
+    }
+
+    /**
+     * Método para escribir un archivo JSON
+     * @param list List<Asignatura> que se quiere escribir
+     * @throws JsonNotFoundException si ocurre un problema con el archivo JSON
+     */
+    public void write(List<Asignatura> list) throws JsonNotFoundException {
+        try (FileWriter writer = new FileWriter(getRuta())) {
+            getGson().toJson(list, writer);
+        } catch (IOException e) {
+            throw new JsonNotFoundException(STR."No se encontró el archivo JSON: \{getRuta()}");
+        }
     }
 
     /**
@@ -48,10 +71,8 @@ public class AsignaturaRepository implements JSONRepository<Integer,Asignatura> 
         // Agregamos la nueva asignatura
         asignaturas.add(asignatura);
 
-        // Convertir cada asignatura a JsonObject usando el método toJson personalizado
-        var jsonArray = new JsonArray();
-        asignaturas.forEach(p -> jsonArray.add(JsonParser.parseString(p.toJson())));
-        write(jsonArray);
+        // Guarda los cambios en el archivo JSON
+        write(asignaturas);
     }
 
 
@@ -65,7 +86,7 @@ public class AsignaturaRepository implements JSONRepository<Integer,Asignatura> 
         try (FileReader reader = new FileReader(ruta)) {
             //Indico que el tipo va a ser una Lista de asignaturas
             var rolListType = new TypeToken<List<Asignatura>>() {}.getType();
-            return gson.fromJson(reader, rolListType);
+            return getGson().fromJson(reader, rolListType);
         } catch (IOException e) {
             throw new JsonNotFoundException(STR."No se encontró el archivo JSON: \{ruta}");
         }
@@ -101,10 +122,8 @@ public class AsignaturaRepository implements JSONRepository<Integer,Asignatura> 
         //Borro al que tenga el id
         asignaturas.removeIf(a -> Objects.equals(a.getId(), id));
 
-        // Convertir cada asignatura a JsonObject usando el método de toJson personalizado
-        var jsonArray = new JsonArray();
-        asignaturas.forEach(a -> jsonArray.add(JsonParser.parseString(a.toJson())));
-        write(jsonArray);
+        // Guarda los cambios en el archivo JSON
+        write(asignaturas);
     }
 
     /**
@@ -129,12 +148,8 @@ public class AsignaturaRepository implements JSONRepository<Integer,Asignatura> 
         exist.setCodigo(asignatura.getCodigo());
         exist.setRequiereLaboratorio(asignatura.isRequiereLaboratorio());
 
-        // Crea el array JSON actualizado
-        var jsonArray = new JsonArray();
-        asignaturas.forEach(a -> jsonArray.add(JsonParser.parseString(a.toJson())));
-
         // Guarda los cambios en el archivo JSON
-        write(jsonArray);
+        write(asignaturas);
     }
 
     /**
