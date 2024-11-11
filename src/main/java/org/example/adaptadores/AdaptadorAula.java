@@ -35,7 +35,7 @@ public class AdaptadorAula extends TypeAdapter<Aula> {
     }
 
     @Override
-    public Aula read(JsonReader in) throws IOException {
+    public Aula read(JsonReader in) {
         JsonObject jsonObject = JsonParser.parseReader(in).getAsJsonObject();
 
         // Verificar el campo `type` para determinar el subtipo

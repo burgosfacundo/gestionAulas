@@ -13,6 +13,7 @@ import org.example.repository.ProfesorRepository;
 import org.example.repository.SolicitudCambioAulaRepository;
 import org.example.utils.Mapper;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,6 +66,7 @@ public class SolicitudCambioAulaService{
 
         validarAulaExistente(idAula);
         validarDisponibilidadAula(solicitud);
+        validarCapacidadAula(solicitud.getNuevaAula(),solicitud.getReservaOriginal().getInscripcion());
         validarProfesorExistente(idProfesor);
         validarReservaExistente(idReserva);
 
@@ -145,7 +147,7 @@ public class SolicitudCambioAulaService{
      * @throws BadRequestException si la solicitud no esta pendiente
      * @throws ConflictException si ocurre un problema de conflictos al guardar la nueva reserva
      */
-    public void aprobarSolicitud(Integer id) throws NotFoundException, JsonNotFoundException, BadRequestException, ConflictException {
+    public void aprobarSolicitud(Integer id,String comentario) throws NotFoundException, JsonNotFoundException, BadRequestException, ConflictException {
         // Validamos que existe una solicitud con ese ID
         var dto = validarSolicitudExistente(id);
 
@@ -154,24 +156,26 @@ public class SolicitudCambioAulaService{
             throw new BadRequestException(STR."La solicitud \{id} no esta pendiente");
         }
 
+        var reserva = reservaService.obtener(dto.idReserva());
+        var aula = aulaService.obtener(dto.idAula());
+
         //Creamos un DTO con la solicitud aprobada
         SolicitudCambioAulaDTO nuevoDTO = new SolicitudCambioAulaDTO(dto.id(),dto.idProfesor(),dto.idReserva(),
                 dto.idAula(),EstadoSolicitud.APROBADA, dto.tipoSolicitud(),dto.fechaInicio(),dto.fechaFin(),
-                dto.diasYBloques(),dto.comentarioEstado(),dto.comentarioProfesor(), dto.fechaHoraSolicitud());
+                dto.diasYBloques(),(comentario.isBlank()) ? "Aprobada" : comentario,
+                dto.comentarioProfesor(), dto.fechaHoraSolicitud());
 
         //La modificamos
         repositorio.modify(nuevoDTO);
 
-        var reserva = reservaService.obtener(dto.idReserva());
-
         // Si la solicitud es temporal creamos una nueva reserva
         if (dto.tipoSolicitud().equals(TipoSolicitud.TEMPORAL)){
-            reservaService.guardar(new Reserva(null,dto.fechaInicio(),dto.fechaFin(),new Aula(dto.id()),
+            reservaService.guardar(new Reserva(null,dto.fechaInicio(),dto.fechaFin(),aula,
                     reserva.getInscripcion(),dto.diasYBloques()));
 
             //Si no la reserva es Permanente y modificamos la original
         }else if(dto.tipoSolicitud().equals(TipoSolicitud.PERMANENTE)){
-            reservaService.modificar(new Reserva(reserva.getId(),dto.fechaInicio(),dto.fechaFin(),new Aula(dto.id()),
+            reservaService.modificar(new Reserva(reserva.getId(),dto.fechaInicio(),dto.fechaFin(),aula,
                     reserva.getInscripcion(),dto.diasYBloques()));
         }
     }
@@ -183,7 +187,7 @@ public class SolicitudCambioAulaService{
      * @throws JsonNotFoundException si ocurre un problema con el archivo JSON
      * @throws BadRequestException si la solicitud no esta pendiente
      */
-    public void rechazarSolicitud(Integer id) throws NotFoundException, JsonNotFoundException, BadRequestException {
+    public void rechazarSolicitud(Integer id,String comentario) throws NotFoundException, JsonNotFoundException, BadRequestException {
         // Validamos que existe una solicitud con ese ID
         var dto = validarSolicitudExistente(id);
 
@@ -194,7 +198,8 @@ public class SolicitudCambioAulaService{
 
         SolicitudCambioAulaDTO nuevoDTO = new SolicitudCambioAulaDTO(dto.id(),dto.idProfesor(),dto.idReserva(),
                 dto.idAula(),EstadoSolicitud.RECHAZADA, dto.tipoSolicitud(),dto.fechaInicio(),dto.fechaFin(),
-                dto.diasYBloques(),dto.comentarioEstado(),dto.comentarioProfesor(), dto.fechaHoraSolicitud());
+                dto.diasYBloques(),(comentario.isBlank()) ? "Rechazada" : comentario
+                ,dto.comentarioProfesor(), dto.fechaHoraSolicitud());
 
         //La modificamos
         repositorio.modify(nuevoDTO);
@@ -264,6 +269,20 @@ public class SolicitudCambioAulaService{
         //Si no está dentro de las disponibles lanzamos excepción
         if (!aulasDisponibles.contains(solicitud.getNuevaAula())) {
             throw new BadRequestException(STR."El aula \{solicitud.getNuevaAula()} no está disponible.");
+        }
+    }
+
+    /**
+     * Método para validar la capacidad de un aula con respecto a la cantidad de alumnos de una Inscripción
+     * @param aula que se quiere validar
+     * @param inscripcion que se quiere validar
+     * @throws BadRequestException si no alcanza la capacidad del aula para la cantidad de alumnos de la inscripción
+     */
+    private void validarCapacidadAula(Aula aula, Inscripcion inscripcion) throws BadRequestException {
+        int alumnosRequeridos = inscripcion.getCantidadAlumnos() +
+                (inscripcion.getFechaFinInscripcion().isAfter(LocalDate.now()) ? inscripcion.getMargenAlumnos() : 0);
+        if (aula.getCapacidad() < alumnosRequeridos) {
+            throw new BadRequestException(STR."El aula \{aula.getNumero()} tiene capacidad para \{aula.getCapacidad()} alumnos, pero se requieren \{alumnosRequeridos}.");
         }
     }
 }

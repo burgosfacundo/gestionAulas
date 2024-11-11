@@ -53,29 +53,29 @@ public class AulaService{
     }
 
     /**
-     * Método para eliminar un aula por número
-     * @param numero del aula que queremos eliminar
+     * Método para eliminar un aula por ID
+     * @param id del aula que queremos eliminar
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      * @throws NotFoundException si no se encuentra un aula con ese numero
      */
-    public void eliminar(Integer numero) throws JsonNotFoundException, NotFoundException {
-        // Verificamos que existe una asignatura con ese número y si no lanzamos la excepción
-        var aula = validarAulaExistenteByNumero(numero);
+    public void eliminar(Integer id) throws JsonNotFoundException, NotFoundException {
+        // Verificamos que existe una asignatura con ese ID y si no lanzamos la excepción
+        var aula = validarAulaExistenteById(id);
 
         // Borramos esa aula por ID
         repositorio.deleteById(aula.getId());
     }
 
     /**
-     * Método para obtener un aula por numero
-     * @param numero del aula que queremos obtener
-     * @return Aula con ese numero
+     * Método para obtener un aula por ID
+     * @param id del aula que queremos obtener
+     * @return Aula con ese ID
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      * @throws NotFoundException si no se encuentra un aula con ese ID
      */
-    public Aula obtener(Integer numero) throws JsonNotFoundException, NotFoundException {
-        // Validamos y retornamos el aula por número
-        return validarAulaExistenteByNumero(numero);
+    public Aula obtener(Integer id) throws JsonNotFoundException, NotFoundException {
+        // Validamos y retornamos el aula por ID
+        return validarAulaExistenteById(id);
     }
 
     /**
