@@ -4,6 +4,7 @@ import org.example.enums.Permisos;
 import org.example.utils.Utils;
 
 import java.util.List;
+import java.util.Objects;
 
 // Clase que representa la entidad Rol
 public class Rol {
@@ -36,6 +37,19 @@ public class Rol {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Rol rol = (Rol) o;
+        return Objects.equals(id, rol.id) && Objects.equals(nombre, rol.nombre);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, nombre);
+    }
+
+    @Override
     public String toString() {
         return String.format(
                 """
@@ -52,6 +66,4 @@ public class Rol {
                 Utils.indentString(Utils.formatListItems(this.permisos), 6)
         ).trim();
     }
-
-
 }

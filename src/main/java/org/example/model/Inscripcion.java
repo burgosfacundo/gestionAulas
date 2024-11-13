@@ -3,6 +3,7 @@ package org.example.model;
 import org.example.utils.Utils;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class Inscripcion {
     private Integer id;
@@ -58,6 +59,19 @@ public class Inscripcion {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Inscripcion that = (Inscripcion) o;
+        return Objects.equals(id, that.id) && Objects.equals(asignatura, that.asignatura) && Objects.equals(comision, that.comision) && Objects.equals(profesor, that.profesor);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, asignatura, comision, profesor);
+    }
+
+    @Override
     public String toString() {
         return String.format(
                 """
@@ -83,6 +97,4 @@ public class Inscripcion {
                 Utils.indentString(profesor.toString(), 6)
         ).trim();
     }
-
-
 }

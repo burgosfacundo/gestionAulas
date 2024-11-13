@@ -176,6 +176,9 @@ public class AulaService{
     }
 
 
+
+    // Validaciones
+
     /**
      * Método que verifica si dos períodos de fechas se solapan.
      * @param fechaInicio1 inicio del primer período.
@@ -211,20 +214,6 @@ public class AulaService{
         return false;
     }
 
-
-
-    // Validaciones
-    /**
-     * Método para validar la existencia de un Aula por número
-     * @param numeroAula del aula que se quiere verificar
-     * @return Aula si existe
-     * @throws NotFoundException Si no se encuentra el aula con ese número
-     * @throws JsonNotFoundException Sí ocurre un error con el archivo JSON
-     */
-    private Aula validarAulaExistenteByNumero(Integer numeroAula) throws NotFoundException, JsonNotFoundException {
-        return repositorio.findByNumero(numeroAula)
-                .orElseThrow(() -> new NotFoundException(STR."No existe un aula con el número: \{numeroAula}"));
-    }
 
     /**
      * Método para validar la existencia de un Aula por ID

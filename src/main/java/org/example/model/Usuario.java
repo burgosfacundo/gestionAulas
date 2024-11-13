@@ -3,6 +3,8 @@ package org.example.model;
 
 import org.example.utils.Utils;
 
+import java.util.Objects;
+
 // Clase que representa la entidad Usuario
 public class Usuario {
     private Integer id;
@@ -38,6 +40,19 @@ public class Usuario {
     }
     public void setRol(Rol rol) {
         this.rol = rol;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Usuario usuario = (Usuario) o;
+        return Objects.equals(id, usuario.id) && Objects.equals(username, usuario.username);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username);
     }
 
     @Override

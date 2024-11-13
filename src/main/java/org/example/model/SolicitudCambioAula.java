@@ -9,6 +9,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class SolicitudCambioAula {
@@ -156,6 +157,20 @@ public class SolicitudCambioAula {
 
     public void setFechaHoraSolicitud(LocalDateTime fechaHoraSolicitud) {
         this.fechaHoraSolicitud = fechaHoraSolicitud;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SolicitudCambioAula that = (SolicitudCambioAula) o;
+        return Objects.equals(id, that.id) && Objects.equals(profesor, that.profesor) && Objects.equals(reservaOriginal, that.reservaOriginal) && Objects.equals(nuevaAula, that.nuevaAula);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, profesor, reservaOriginal, nuevaAula);
     }
 
     @Override

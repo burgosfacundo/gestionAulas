@@ -36,23 +36,23 @@ public class Laboratorio extends Aula {
     public String toString() {
         return String.format(
                 """
-                        ╔═══════════════════════════════════════════════╗
-                        ║ Laboratorio (ID: %d)
-                        ╟───────────────────────────────────────────────╢
-                        ║ Número: %d
-                        ║ Capacidad: %d
-                        ║ Tiene Proyector: %s
-                        ║ Tiene TV: %s
-                        ║ Computadoras: %d
-                        ╚═══════════════════════════════════════════════╝
-                        """,
+                ╔═══════════════════════════════════════════════╗
+                ║ Laboratorio (ID: %d)
+                ╟───────────────────────────────────────────────╢
+                ║ Número: %d
+                ║ Capacidad: %d
+                ║ Cantidad de Computadoras: %d
+                ║ Tiene Proyector: %s
+                ║ Tiene TV: %s
+                ╚═══════════════════════════════════════════════╝
+                """,
                 super.getId(),
                 super.getNumero(),
                 super.getCapacidad(),
+                this.getCapacidad(),
                 super.isTieneProyector() ? "Sí" : "No",
-                super.isTieneTV() ? "Sí" : "No",
-                this.getComputadoras()
-            ).trim();
-
+                super.isTieneTV() ? "Sí" : "No"
+        ).trim();
     }
+
 }

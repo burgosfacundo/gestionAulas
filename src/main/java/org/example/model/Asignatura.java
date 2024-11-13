@@ -1,6 +1,8 @@
 package org.example.model;
 
 
+import java.util.Objects;
+
 public class Asignatura {
     private Integer id;
     private String nombre;
@@ -32,6 +34,18 @@ public class Asignatura {
     public boolean isRequiereLaboratorio() { return requiereLaboratorio; }
     public void setRequiereLaboratorio(boolean requiereLaboratorio) { this.requiereLaboratorio = requiereLaboratorio;}
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Asignatura that = (Asignatura) o;
+        return codigo == that.codigo && Objects.equals(id, that.id) && Objects.equals(nombre, that.nombre);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, nombre, codigo);
+    }
 
     @Override
     public String toString() {

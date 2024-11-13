@@ -1,6 +1,8 @@
 package org.example.model;
 
 
+import java.util.Objects;
+
 // Clase que representa la entidad Rol
 public class Profesor {
     private Integer id;
@@ -46,6 +48,19 @@ public class Profesor {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Profesor profesor = (Profesor) o;
+        return Objects.equals(id, profesor.id) && Objects.equals(matricula, profesor.matricula);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, matricula);
+    }
+
+    @Override
     public String toString() {
         return String.format(
                 """
@@ -63,6 +78,4 @@ public class Profesor {
                 matricula
         ).trim();
     }
-
-
 }

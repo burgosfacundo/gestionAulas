@@ -52,12 +52,12 @@ public class Aula {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Aula aula = (Aula) o;
-        return Objects.equals(id, aula.id);
+        return numero == aula.numero && Objects.equals(id, aula.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(id, numero);
     }
 
     /**
@@ -91,7 +91,5 @@ public class Aula {
                 tieneTV ? "Sí" : "No"
         ).trim();
     }
-
-
 
 }

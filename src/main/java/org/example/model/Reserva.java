@@ -6,6 +6,7 @@ import org.example.utils.Utils;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class Reserva {
@@ -60,6 +61,19 @@ public class Reserva {
     public void setInscripcion(Inscripcion inscripcion) { this.inscripcion = inscripcion; }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Reserva reserva = (Reserva) o;
+        return Objects.equals(id, reserva.id) && Objects.equals(aula, reserva.aula) && Objects.equals(inscripcion, reserva.inscripcion);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, aula, inscripcion);
+    }
+
+    @Override
     public String toString() {
         return String.format(
                 """
@@ -84,7 +98,4 @@ public class Reserva {
                 Utils.indentString(Utils.formatDiasYBloques(diasYBloques), 6)
         );
     }
-
-
-
 }
