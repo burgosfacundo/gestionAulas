@@ -5,6 +5,7 @@ import org.example.exception.BadRequestException;
 import org.example.exception.JsonNotFoundException;
 import org.example.exception.NotFoundException;
 import org.example.model.Aula;
+import org.example.model.Laboratorio;
 import org.example.model.dto.ReservaDTO;
 import org.example.repository.AulaRepository;
 import org.example.repository.ReservaRepository;
@@ -15,6 +16,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 /**
@@ -104,6 +106,18 @@ public class AulaService{
         return listar().stream()
                 .filter(aula -> aula.getCapacidad() >= capacidad)
                 .toList();
+    }
+
+    /**
+     * Metodo para filtrar los laboratorios
+     * @return List<Laboratorio> laboratorios encontrados
+     * @throws JsonNotFoundException
+     */
+    public List<Laboratorio> filtrarPorLaboratorio() throws JsonNotFoundException {
+        return listar().stream()
+                .filter(aula -> aula instanceof Laboratorio)
+                .map(aula -> (Laboratorio) aula)
+                .collect(Collectors.toList());
     }
 
     /**
