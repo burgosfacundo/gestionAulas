@@ -226,7 +226,7 @@ public class ReservaService{
      * @throws JsonNotFoundException sí ocurre un problema con el archivo JSON de aulas
      */
     private void validarDisponibilidadAula(Reserva reserva) throws BadRequestException, JsonNotFoundException {
-        var aulasDisponibles = aulaService.listarAulasDisponibles(reserva.getFechaInicio(), reserva.getFechaFin()
+        var aulasDisponibles = aulaService.listarEspaciosDisponibles(reserva.getFechaInicio(), reserva.getFechaFin()
                 , reserva.getDiasYBloques());
         if (!aulasDisponibles.contains(reserva.getAula())) {
             throw new BadRequestException(STR."El aula \{reserva.getAula().getNumero()} no está disponible.");

@@ -7,63 +7,94 @@ import org.example.security.Seguridad;
 
 import java.util.Scanner;
 
+import java.util.InputMismatchException;
+
 public class Menu {
 
-    MenuAdministrador menuAdministrador = new MenuAdministrador();
-    MenuProfesor menuProfesor = new MenuProfesor();
-    Seguridad seguridad = new Seguridad();
+    private final MenuAdministrador menuAdministrador = new MenuAdministrador();
+    private final MenuProfesor menuProfesor = new MenuProfesor();
+    private final Seguridad seguridad = new Seguridad();
 
-    public void iniciarMenu()
-    {
-        System.out.println("Bienvenido");
+    /**
+     * Método para iniciar el menu principal de la aplicación
+     */
+    public void iniciarMenu() {
+        System.out.println("Bienvenido al Sistema de Gestión de Aulas");
 
-        boolean salir=false;
+        boolean salir = false;
         Scanner scanner = new Scanner(System.in);
-        int opcion = 0;
-        Usuario usuario = null;
 
-        while(!salir)
-        {
-            System.out.println("Elija una opcion:");
-            System.out.println("1.Iniciar sesion.");
-            System.out.println("2.Salir.");
+        while (!salir) {
+            mostrarOpciones();
 
-            opcion = scanner.nextInt();
-            scanner.nextLine();
+            try {
+                int opcion = scanner.nextInt();
+                scanner.nextLine();
 
-            switch (opcion)
-            {
-                case 1:
-                    System.out.println("Ingrese su nombre de usuario:");
-                    String username = scanner.nextLine();
-                    System.out.println("Ingrese su contraseña:");
-                    String contrasenia = scanner.nextLine();
-
-                    try{
-                        usuario = seguridad.autenticar(username, contrasenia);
-                    }catch(AutenticacionException | JsonNotFoundException e)
-                    {
-                        System.out.println(e.getMessage());
+                switch (opcion) {
+                    case 1 -> iniciarSesion(scanner);
+                    case 2 -> {
+                        salir = true;
+                        System.out.println("Saliendo del sistema. ¡Hasta luego!");
                     }
-                    if(usuario != null) {
-                        if (usuario.getRol().getNombre().equalsIgnoreCase("Administrador")) {
-                            menuAdministrador.iniciarMenuAdmin(usuario);
-                        } else if (usuario.getRol().getNombre().equalsIgnoreCase("Profesor")) {
-                            menuProfesor.iniciarMenuProfesor(usuario);
-                        }else{
-                            System.out.println("Rol desconocido.");
-                        }
-                    }
-
-                    break;
-                case 2:
-                    salir = true;
-                    break;
-                default:
-                    System.out.println("Opcion invalida.");
-                    break;
+                    default -> System.out.println("Opción inválida.");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Error: Debe ingresar un número.");
+                scanner.nextLine();
             }
+        }
+
+        scanner.close();
+    }
+
+    /**
+     * Método para printear opciones del menu
+     */
+    private void mostrarOpciones() {
+        System.out.println("====================================");
+        System.out.println("Elija una opción:");
+        System.out.println("1. Iniciar sesión");
+        System.out.println("2. Salir");
+        System.out.println("====================================");
+    }
+
+    /**
+     * Método para manejar la autenticación de usuario
+     * y derivar al menu que le corresponde
+     */
+    private void iniciarSesion(Scanner scanner) {
+        Usuario usuario = autenticarUsuario(scanner);
+
+        if (usuario != null) {
+            String rol = usuario.getRol().getNombre().toLowerCase();
+            switch (rol) {
+                case "administrador" -> menuAdministrador.iniciarMenuAdmin(usuario);
+                case "profesor" -> menuProfesor.iniciarMenuProfesor(usuario);
+                default -> System.out.println("Error: Rol desconocido.");
+            }
+        } else {
+            System.out.println("Autenticación fallida. Intente nuevamente.");
         }
     }
 
+    /**
+     * Método para autenticar al Usuario
+     * @param scanner para recibir información de la consola
+     * @return Usuario autenticado o null
+     */
+    private Usuario autenticarUsuario(Scanner scanner) {
+        System.out.print("Ingrese su nombre de usuario: ");
+        String username = scanner.nextLine();
+        System.out.print("Ingrese su contraseña: ");
+        String contrasenia = scanner.nextLine();
+
+        try {
+            return seguridad.autenticar(username, contrasenia);
+        } catch (AutenticacionException | JsonNotFoundException e) {
+            System.out.println(STR."Error: \{e.getMessage()}");
+            return null;
+        }
+    }
 }
+

@@ -265,7 +265,7 @@ public class SolicitudCambioAulaService{
      */
     private void validarDisponibilidadAula(SolicitudCambioAula solicitud) throws JsonNotFoundException, BadRequestException {
         //Traemos todas las aulas disponibles en ese período
-        var aulasDisponibles = aulaService.listarAulasDisponibles(solicitud.getFechaInicio(),solicitud.getFechaFin(),solicitud.getDiasYBloques());
+        var aulasDisponibles = aulaService.listarEspaciosDisponibles(solicitud.getFechaInicio(),solicitud.getFechaFin(),solicitud.getDiasYBloques());
         //Si no está dentro de las disponibles lanzamos excepción
         if (!aulasDisponibles.contains(solicitud.getNuevaAula())) {
             throw new BadRequestException(STR."El aula \{solicitud.getNuevaAula()} no está disponible.");

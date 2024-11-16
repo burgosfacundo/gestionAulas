@@ -97,68 +97,86 @@ public class AulaService{
     //Filtros
 
     /**
-     * Método para filtrar Aulas por su capacidad(Si tiene la capacidad o más)
-     * @param capacidad que se necesita
-     * @return List<Aula> la lista de aulas que tienen esa capacidad
-     * @throws JsonNotFoundException Sí existe un problema con el archivo JSON
-     */
-    public List<Aula> filtrarPorCapacidad(int capacidad) throws JsonNotFoundException {
-        return listar().stream()
-                .filter(aula -> aula.getCapacidad() >= capacidad)
-                .toList();
-    }
-
-    /**
-     * Metodo para filtrar los laboratorios
+     * Método para filtrar los laboratorios
      * @return List<Laboratorio> laboratorios encontrados
-     * @throws JsonNotFoundException
+     * @throws JsonNotFoundException si ocurre un problema con el archivo JSON
      */
-    public List<Laboratorio> filtrarPorLaboratorio() throws JsonNotFoundException {
+    public List<Laboratorio> listarLaboratorios() throws JsonNotFoundException {
         return listar().stream()
                 .filter(aula -> aula instanceof Laboratorio)
-                .map(aula -> (Laboratorio) aula)
+                .map(aula -> (Laboratorio) aula)// Filtra si es instancia de Laboratorio
                 .collect(Collectors.toList());
     }
 
     /**
-     * Método para filtrar Aulas que tengan proyector
-     * @return List<Aula> lista de aulas que tienen proyector
-     * @throws JsonNotFoundException Sí hay un problema con el archivo JSON
+     * Método para filtrar solo las Aulas estándar, excluyendo los Laboratorios.
+     * @return List<Aula> lista de aulas estándar (sin incluir laboratorios)
+     * @throws JsonNotFoundException sí existe un problema con el archivo JSON
      */
-    public List<Aula> filtrarPorProyector() throws JsonNotFoundException {
+    public List<Aula> listarAulas() throws JsonNotFoundException {
         return listar().stream()
-                .filter(Aula::isTieneProyector)
-                .toList();
-    }
-
-    /**
-     * Método para filtrar Aulas que tengan TV
-     * @return List<Aula> lista de aulas que tienen TV
-     * @throws JsonNotFoundException Sí hay un problema con el archivo JSON
-     */
-    public List<Aula> filtrarPorTv() throws JsonNotFoundException {
-        return listar().stream()
-                .filter(Aula::isTieneTV)
+                .filter(aula -> !(aula instanceof Laboratorio)) // Filtra si no es instancia de Laboratorio
                 .toList();
     }
 
 
     /**
-     * Método que para filtrar Aulas por capacidad, proyector y TV
-     * @param capacidad la capacidad que se necesita
-     * @param tieneProyector sí debe tener o no proyector
-     * @param tieneTV sí debe tener o no TV
-     * @return List<Aula> lista de aulas que cumplan con las condiciones
-     * @throws JsonNotFoundException Sí existe un problema con el archivo JSON
+     * Método que para filtrar Aulas por capacidad, proyector y TV.
+     * Permite que cualquiera de los parámetros sea null, y solo aplicará el filtro correspondiente si no es null.
+     * @param capacidad la capacidad mínima requerida (puede ser null).
+     * @param tieneProyector sí debe tener o no proyector (puede ser null).
+     * @param tieneTV sí debe tener o no TV (puede ser null).
+     * @return List<Aula> lista de aulas que cumplan con las condiciones.
+     * @throws JsonNotFoundException Sí existe un problema con el archivo JSON.
      */
-    public List<Aula> filtrarPorCondiciones(int capacidad, boolean tieneProyector, boolean tieneTV) throws JsonNotFoundException {
+    public List<Aula> filtrarPorCondiciones(Integer capacidad, Boolean tieneProyector, Boolean tieneTV) throws JsonNotFoundException {
         List<Aula> lista = repositorio.getAll();
+
         return lista.stream()
-                .filter(aula -> aula.getCapacidad() >= capacidad)
-                .filter(aula -> aula.isTieneProyector() == tieneProyector)
-                .filter(aula -> aula.isTieneTV() == tieneTV)
+                .filter(aula -> capacidad == null || aula.getCapacidad() >= capacidad)
+                .filter(aula -> tieneProyector == null || aula.isTieneProyector() == tieneProyector)
+                .filter(aula -> tieneTV == null || aula.isTieneTV() == tieneTV)
                 .toList();
     }
+
+    /**
+     * Método para filtrar Aulas estándar por capacidad, proyector y TV.
+     * Permite que cualquiera de los parámetros sea null, y solo aplicará el filtro correspondiente si no es null.
+     * @param capacidad la capacidad mínima requerida (puede ser null).
+     * @param tieneProyector sí debe tener o no proyector (puede ser null).
+     * @param tieneTV sí debe tener o no TV (puede ser null).
+     * @return List<Aula> lista de aulas estándar que cumplan con las condiciones.
+     * @throws JsonNotFoundException Sí existe un problema con el archivo JSON.
+     */
+    public List<Aula> filtrarAulasPorCondiciones(Integer capacidad, Boolean tieneProyector, Boolean tieneTV) throws JsonNotFoundException {
+        return listarAulas().stream()
+                .filter(aula -> capacidad == null || aula.getCapacidad() >= capacidad)
+                .filter(aula -> tieneProyector == null || aula.isTieneProyector() == tieneProyector)
+                .filter(aula -> tieneTV == null || aula.isTieneTV() == tieneTV)
+                .toList();
+    }
+
+    /**
+     * Método para filtrar Laboratorios por capacidad, proyector y TV.
+     * Permite que cualquiera de los parámetros sea null, y solo aplicará el filtro correspondiente si no es null.
+     * @param capacidad la capacidad mínima requerida (puede ser null).
+     * @param tieneProyector sí debe tener o no proyector (puede ser null).
+     * @param tieneTV sí debe tener o no TV (puede ser null).
+     * @param computadoras las computadoras mínimas requeridas (puede ser null).
+     * @return List<Laboratorio> lista de laboratorios que cumplan con las condiciones.
+     * @throws JsonNotFoundException Sí existe un problema con el archivo JSON.
+     */
+    public List<Laboratorio> filtrarLaboratoriosPorCondiciones(Integer capacidad, Boolean tieneProyector, Boolean tieneTV,
+                                                               Integer computadoras) throws JsonNotFoundException {
+        return listarLaboratorios().stream()
+                .filter(laboratorio -> capacidad == null || laboratorio.getCapacidad() >= capacidad)
+                .filter(laboratorio -> tieneProyector == null || laboratorio.isTieneProyector() == tieneProyector)
+                .filter(laboratorio -> tieneTV == null || laboratorio.isTieneTV() == tieneTV)
+                .filter(laboratorio -> computadoras == null || laboratorio.getComputadoras() >= computadoras)
+                .toList();
+    }
+
+
 
     /**
      * Método para filtrar Aulas por fecha, período y días/bloques de la semana.
@@ -168,7 +186,7 @@ public class AulaService{
      * @return List<Aula> lista de aulas que cumplen con las condiciones.
      * @throws JsonNotFoundException sí existe un problema con el archivo JSON.
      */
-    public List<Aula> listarAulasDisponibles(LocalDate fechaInicio, LocalDate fechaFin,
+    public List<Aula> listarEspaciosDisponibles(LocalDate fechaInicio, LocalDate fechaFin,
                                              Map<DayOfWeek, Set<BloqueHorario>> diasYBloques)
             throws JsonNotFoundException {
 
@@ -188,6 +206,65 @@ public class AulaService{
                 .filter(aula -> !idsAulasSolapadas.contains(aula.getId()))
                 .toList();
     }
+
+
+    /**
+     * Método para filtrar solo Aulas disponibles por fecha, período y días/bloques de la semana.
+     * @param fechaInicio desde qué fecha debe estar disponible.
+     * @param fechaFin hasta qué fecha debe estar disponible.
+     * @param diasYBloques mapa con los días de la semana y sus respectivos bloques horarios.
+     * @return List<Aula> lista de aulas disponibles que cumplen con las condiciones.
+     * @throws JsonNotFoundException sí existe un problema con el archivo JSON.
+     */
+    public List<Aula> listarAulasDisponibles(LocalDate fechaInicio, LocalDate fechaFin,
+                                             Map<DayOfWeek, Set<BloqueHorario>> diasYBloques) throws JsonNotFoundException {
+
+        // Filtramos primero las Aulas
+        var aulas = listarAulas();
+
+        // Filtramos las reservas existentes que coinciden en los días y bloques horarios
+        var idsAulasSolapadas = reservaRepository.getAll()
+                .stream()
+                .filter(r -> seSolapanFechas(fechaInicio, fechaFin, r.fechaInicio(), r.fechaFin()))
+                .filter(r -> tieneSolapamientoEnDiasYBloques(r.diasYBloques(), diasYBloques))
+                .map(ReservaDTO::idAula)
+                .toList();
+
+        // Filtramos las Aulas disponibles que no están en las reservas solapadas
+        return aulas.stream()
+                .filter(aula -> !idsAulasSolapadas.contains(aula.getId()))
+                .toList();
+    }
+
+
+    /**
+     * Método para filtrar solo Laboratorios disponibles por fecha, período y días/bloques de la semana.
+     * @param fechaInicio desde qué fecha debe estar disponible.
+     * @param fechaFin hasta qué fecha debe estar disponible.
+     * @param diasYBloques mapa con los días de la semana y sus respectivos bloques horarios.
+     * @return List<Laboratorio> lista de laboratorios disponibles que cumplen con las condiciones.
+     * @throws JsonNotFoundException sí existe un problema con el archivo JSON.
+     */
+    public List<Laboratorio> listarLaboratoriosDisponibles(LocalDate fechaInicio, LocalDate fechaFin,
+                                                           Map<DayOfWeek, Set<BloqueHorario>> diasYBloques) throws JsonNotFoundException {
+
+        // Filtramos primero los Laboratorios
+        var laboratorios = listarLaboratorios();
+
+        // Filtramos las reservas existentes que coinciden en los días y bloques horarios
+        var idsLaboratoriosSolapados = reservaRepository.getAll()
+                .stream()
+                .filter(r -> seSolapanFechas(fechaInicio, fechaFin, r.fechaInicio(), r.fechaFin()))
+                .filter(r -> tieneSolapamientoEnDiasYBloques(r.diasYBloques(), diasYBloques))
+                .map(ReservaDTO::idAula)
+                .toList();
+
+        // Filtramos los Laboratorios disponibles que no están en las reservas solapadas
+        return laboratorios.stream()
+                .filter(laboratorio -> !idsLaboratoriosSolapados.contains(laboratorio.getId()))
+                .toList();
+    }
+
 
 
 
