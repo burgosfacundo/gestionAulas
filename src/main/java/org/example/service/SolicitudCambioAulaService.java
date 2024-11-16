@@ -16,6 +16,7 @@ import org.example.utils.Mapper;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SolicitudCambioAulaService{
     private final SolicitudCambioAulaRepository repositorio = new SolicitudCambioAulaRepository();
@@ -284,5 +285,25 @@ public class SolicitudCambioAulaService{
         if (aula.getCapacidad() < alumnosRequeridos) {
             throw new BadRequestException(STR."El aula \{aula.getNumero()} tiene capacidad para \{aula.getCapacidad()} alumnos, pero se requieren \{alumnosRequeridos}.");
         }
+    }
+
+    private List<SolicitudCambioAula> listarSolicitudesPorEstado(EstadoSolicitud estado)
+            throws JsonNotFoundException, NotFoundException {
+        return listar().stream()
+                .filter(s -> s.getEstado().equals(estado))
+                .collect(Collectors.toList());
+    }
+
+    private List<SolicitudCambioAula> listarSolicitudesPorEstadoYProfesor(EstadoSolicitud estado, Profesor profesor)
+            throws JsonNotFoundException, NotFoundException {
+        ProfesorService ps = new ProfesorService();
+        if(ps.listar().stream().noneMatch(p -> p.equals(profesor))){
+            throw new NotFoundException("El profesor no existe");
+        }
+
+        return listar().stream()
+                .filter(s -> s.getEstado().equals(estado))
+                .filter(s -> s.getProfesor().equals(profesor))
+                .collect(Collectors.toList());
     }
 }

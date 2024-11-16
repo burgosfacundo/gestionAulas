@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.lang.StringTemplate.STR;
+
 
 /**
  * Clase que se encarga de comunicarse con el repositorio
@@ -116,26 +118,6 @@ public class AulaService{
     public List<Aula> listarAulas() throws JsonNotFoundException {
         return listar().stream()
                 .filter(aula -> !(aula instanceof Laboratorio)) // Filtra si no es instancia de Laboratorio
-                .toList();
-    }
-
-
-    /**
-     * Método que para filtrar Aulas por capacidad, proyector y TV.
-     * Permite que cualquiera de los parámetros sea null, y solo aplicará el filtro correspondiente si no es null.
-     * @param capacidad la capacidad mínima requerida (puede ser null).
-     * @param tieneProyector sí debe tener o no proyector (puede ser null).
-     * @param tieneTV sí debe tener o no TV (puede ser null).
-     * @return List<Aula> lista de aulas que cumplan con las condiciones.
-     * @throws JsonNotFoundException Sí existe un problema con el archivo JSON.
-     */
-    public List<Aula> filtrarPorCondiciones(Integer capacidad, Boolean tieneProyector, Boolean tieneTV) throws JsonNotFoundException {
-        List<Aula> lista = repositorio.getAll();
-
-        return lista.stream()
-                .filter(aula -> capacidad == null || aula.getCapacidad() >= capacidad)
-                .filter(aula -> tieneProyector == null || aula.isTieneProyector() == tieneProyector)
-                .filter(aula -> tieneTV == null || aula.isTieneTV() == tieneTV)
                 .toList();
     }
 

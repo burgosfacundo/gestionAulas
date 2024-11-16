@@ -279,4 +279,55 @@ public class ReservaService{
             throw new BadRequestException(STR."El aula \{aula.getNumero()} no es un laboratorio, no sirve para \{asignatura.getNombre()}");
         }
     }
+
+    //filtros
+
+    private List<Reserva> listarReservasPorProfesor(int idProfe)
+            throws JsonNotFoundException, NotFoundException {
+        ProfesorService ps = new ProfesorService();
+        if(ps.listar().stream().noneMatch(p -> p.getId() == idProfe)){
+            throw new NotFoundException("El profesor no existe");
+        }
+
+        return listar().stream()
+                .filter(r -> r.getInscripcion().getProfesor().getId() == idProfe)
+                .collect(Collectors.toList());
+    }
+
+    private List<Reserva> listarReservasPorProfesor(Profesor profesor)
+            throws JsonNotFoundException, NotFoundException {
+        ProfesorService ps = new ProfesorService();
+        if(ps.listar().stream().noneMatch(p -> p.equals(profesor))){
+            throw new NotFoundException("El profesor no existe");
+        }
+
+        return listar().stream()
+                .filter(r -> r.getInscripcion().getProfesor().equals(profesor))
+                .collect(Collectors.toList());
+    }
+
+    private List<Reserva> listarReservasPorComision(String comision)
+            throws JsonNotFoundException, NotFoundException{
+        InscripcionService is = new InscripcionService();
+        if(is.listar().stream().noneMatch(i -> i.getComision().equals(comision))){
+            throw new NotFoundException("La comisión no existe.");
+        }
+
+        return listar().stream()
+                .filter(r -> r.getInscripcion().getComision().equals(comision))
+                .collect(Collectors.toList());
+    }
+
+    private List<Reserva> listarReservasPorAsignatura(Asignatura asignatura)
+        throws JsonNotFoundException, NotFoundException {
+        InscripcionService is = new InscripcionService();
+        if(is.listar().stream().noneMatch(i -> i.getAsignatura().equals(asignatura))){
+            throw new NotFoundException("La comisión no existe.");
+        }
+
+        return listar().stream()
+                .filter(r -> r.getInscripcion().getAsignatura().equals(asignatura))
+                .collect(Collectors.toList());
+    }
+
 }
