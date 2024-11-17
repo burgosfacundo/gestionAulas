@@ -118,7 +118,6 @@ public class UsuarioService{
         repositorioUsuario.modify(Mapper.usuarioToDto(usuario));
     }
 
-
     // Validaciones
 
     /**

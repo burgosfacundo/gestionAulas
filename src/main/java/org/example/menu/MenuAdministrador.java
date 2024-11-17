@@ -21,6 +21,7 @@ public class MenuAdministrador {
     private final ReservaService reservaService = new ReservaService();
     private final AsignaturaService asignaturaService = new AsignaturaService();
     private final InscripcionService inscripcionService = new InscripcionService();
+    private final UsuarioService usuarioService = new UsuarioService();
     private final SolicitudCambioAulaService solicitudCambioAulaService = new SolicitudCambioAulaService();
     private final ProfesorService profesorService = new ProfesorService();
     private final Scanner scanner = new Scanner(System.in);
@@ -38,7 +39,8 @@ public class MenuAdministrador {
             System.out.println("1. Gestionar espacios");
             System.out.println("2. Gestionar reservas");
             System.out.println("3. Gestionar solicitudes");
-            System.out.println("4. Salir");
+            System.out.println("4. Gestionar usuarios");
+            System.out.println("5. Salir");
 
             opcion = scanner.nextInt();
             scanner.nextLine();
@@ -47,7 +49,8 @@ public class MenuAdministrador {
                 case 1 -> menuEspacios(usuario);
                 case 2 -> menuReserva(usuario);
                 case 3 -> menuSolicitudes(usuario);
-                case 4 -> salir = true;
+                case 4 -> menuUsuarios(usuario);
+                case 5 -> salir = true;
                 default -> System.out.println("Opción inválida.");
             }
         }
@@ -668,7 +671,7 @@ public class MenuAdministrador {
             reserva.setInscripcion(new Inscripcion(idInscripcion));
 
             reservaService.guardar(reserva);
-            System.out.println("Espacio creado exitosamente.");
+            System.out.println("Reserva creada exitosamente.");
         } catch (JsonNotFoundException | BadRequestException | NotFoundException | ConflictException e) {
             System.out.println(e.getMessage());
         }
@@ -757,16 +760,16 @@ public class MenuAdministrador {
             try {
                 reservaService.listar().forEach(System.out::println);
 
-                // Solicitar el número del espacio a modificar
+                // Solicitar el número de la reserva a modificar
                 System.out.print("Ingrese el id de la reserva que desea modificar: ");
                 int numero = Integer.parseInt(scanner.nextLine());
 
-                // Obtener el espacio por número
+                // Obtener la reserva por id
                 Reserva reserva = reservaService.obtener(numero);
 
                 boolean continuar = true;
                 while (continuar) {
-                    // Mostrar información actual del espacio
+                    // Mostrar información actual de la reserva
                     System.out.println("\nInformación actual de la reserva:");
                     System.out.println(STR."1. Fecha de Inicio: \{reserva.getFechaInicio()}");
                     System.out.println(STR."2. Fecha de Fin: \{reserva.getFechaFin()}");
@@ -976,7 +979,7 @@ public class MenuAdministrador {
      * @param usuario que esta logueado para verificar perfil con permisos
      */
     private void revisarSolicitudes(Usuario usuario){
-        if (seguridad.verificarPermiso(usuario,Permisos.GESTIORNAR_CAMBIOS)){
+        if (seguridad.verificarPermiso(usuario,Permisos.GESTIONAR_CAMBIOS)){
             try {
                 solicitudCambioAulaService.listarSolicitudesPorEstado(EstadoSolicitud.PENDIENTE)
                         .forEach(System.out::println);
@@ -1008,6 +1011,221 @@ public class MenuAdministrador {
             }catch (NotFoundException | BadRequestException | JsonNotFoundException | ConflictException e){
                 System.out.println(e.getMessage());
             }
+        }
+    }
+
+
+    /**
+     * Método para el submenu usuarios
+     * @param usuario que esta logueado para verificar perfil con permisos
+     */
+    private void menuUsuarios(Usuario usuario){
+        boolean salir = false;
+        int opcion;
+
+        while (!salir) {
+            System.out.println("Elija una opción:");
+            System.out.println("1. Crear usuario");
+            System.out.println("2. Listar usuarios");
+            System.out.println("3. Modificar usuario");
+            System.out.println("4. Eliminar usuario");
+            System.out.println("5. Cambiar contraseña");
+            System.out.println("6. Salir.");
+
+            opcion = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (opcion) {
+                case 1 -> crearUsuario(usuario);
+                case 2 -> listarUsuarios(usuario);
+                case 3 -> modificarUsuario(usuario);
+                case 4 -> eliminarUsuario(usuario);
+                case 5 -> cambiarPassword(usuario);
+                case 6 -> salir = true;
+                default -> System.out.println("Opción inválida.");
+            }
+        }
+    }
+
+    /**
+     * Método para crear usuario del submenu usuarios
+     * @param usuario que esta logueado para verificar perfil con permisos
+     */
+    private void crearUsuario(Usuario usuario) {
+        if (!seguridad.verificarPermiso(usuario, Permisos.CREAR_USUARIO)) {
+            System.out.println("No posees el permiso para crear un usuario.");
+            return;
+        }
+
+        try{
+            // Pedir nombre de usuario
+            System.out.print("Ingrese el nombre de usuario: ");
+            var username = scanner.nextLine();
+
+            System.out.println("Ingrese la contraseña: ");
+            var contrasenia = scanner.nextLine();
+
+            System.out.println("""
+                            Ingrese el rol:
+                            1.Admin
+                            2.Profesor
+                            -\s""");
+            var rol = scanner.nextInt();
+            scanner.nextLine();
+
+            usuarioService.guardar(new Usuario(null,username,contrasenia,new Rol(rol)));
+            System.out.println("Usuario creado exitosamente.");
+        } catch (JsonNotFoundException | BadRequestException | NotFoundException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    /**
+     * Método para listar todos los usuarios
+     * @param usuario que esta logueado para verificar perfil con permisos
+     */
+    private void listarUsuarios(Usuario usuario) {
+        if (seguridad.verificarPermiso(usuario, Permisos.VER_USUARIOS)) {
+            try {
+                usuarioService.listar().forEach(System.out::println);
+            } catch (JsonNotFoundException e) {
+                System.out.println(e.getMessage());
+            }
+        } else {
+            System.out.println("No posees el permiso para ver los usuarios.");
+        }
+    }
+
+    /**
+     * Método para modificar usuarios del submenu usuarios
+     * @param usuario que esta logueado para verificar perfil con permisos
+     */
+    private void modificarUsuario(Usuario usuario) {
+        if (seguridad.verificarPermiso(usuario, Permisos.MODIFICAR_USUARIO)) {
+            try {
+                usuarioService.listar().forEach(System.out::println);
+
+                // Solicitar el número del usuario a modificar
+                System.out.print("Ingrese el id del usuario que desea modificar: ");
+                int id = scanner.nextInt();
+                scanner.nextLine();
+
+                // Obtener el espacio por número
+                var user= usuarioService.obtener(id);
+
+                boolean continuar = true;
+                while (continuar) {
+                    // Mostrar información actual del usuario
+                    System.out.println("\nInformación actual del usuario:");
+                    System.out.println(STR."1. Nombre de usuario: \{user.getUsername()}");
+                    System.out.println(STR."2. Contraseña: \{user.getPassword()}");
+                    System.out.println(STR."3. Rol: \{user.getRol().getNombre()}");
+                    System.out.println("4. Guardar cambios y salir");
+                    System.out.print("Seleccione el atributo que desea modificar (1-4): ");
+
+                    var opcion = scanner.nextInt();
+                    scanner.nextLine();
+
+                    switch (opcion) {
+                        case 1:
+                            // Pedir username
+                            System.out.print("Ingrese el nuevo nombre de usuario: ");
+                            var username = scanner.nextLine();
+                            user.setUsername(username);
+                            break;
+                        case 2:
+                            // Pedir password
+                            System.out.print("Ingrese la nueva contraseña: ");
+                            var password = scanner.nextLine();
+                            user.setPassword(password);
+                            break;
+                        case 3:
+                            // Pedir rol
+                            boolean sigo = true;
+                            int rol = 2;
+                            while (sigo) {
+                                System.out.print("""
+                                    Ingresa el nuevo rol:
+                                    1. Admin
+                                    2. Profesor
+                                    """);
+
+                                rol = scanner.nextInt();
+                                scanner.nextLine();
+
+                                if (rol == 1 || rol == 2) {
+                                    sigo = false;
+                                } else {
+                                    System.out.println("Opción inválida. Vuelve a intentarlo.");
+                                }
+                            }
+
+                            user.setRol(new Rol(rol));
+                            break;
+                        case 4:
+                            // Guardar cambios
+                            usuarioService.modificar(usuario);
+                            System.out.println("El usuario se ha modificado exitosamente.");
+                            continuar = false;
+                            break;
+                        default:
+                            System.out.println("Opción no válida.");
+                    }
+                }
+            } catch (JsonNotFoundException | NotFoundException e) {
+                System.out.println(e.getMessage());
+            }
+        } else {
+            System.out.println("No posees el permiso para modificar reservas.");
+        }
+    }
+
+    /**
+     * Método para eliminar un usuario del submenu usuarios
+     * @param usuario que esta logueado para verificar perfil con permisos
+     */
+    private void eliminarUsuario(Usuario usuario) {
+        if(seguridad.verificarPermiso(usuario, Permisos.ELIMINAR_USUARIO))
+        {
+            try {
+                usuarioService.listar().forEach(System.out::println);
+                System.out.println("Ingrese el id del usuario a eliminar");
+                int id = scanner.nextInt();
+                scanner.nextLine();
+                usuarioService.eliminar(id);
+                System.out.println("Usuario eliminado exitosamente");
+            }catch (JsonNotFoundException | NotFoundException e) {
+                System.out.println(e.getMessage());
+            }
+        }else {
+            System.out.println("No posees el permiso para eliminar usuarios.");
+        }
+    }
+
+    private void cambiarPassword(Usuario usuario){
+        if(seguridad.verificarPermiso(usuario, Permisos.CAMBIAR_PASSWORD))
+        {
+            try {
+                boolean passwordsCoinciden = false;
+                while (!passwordsCoinciden) {
+                    System.out.println("Ingresa la nueva contraseña: ");
+                    var password = scanner.nextLine();
+                    System.out.println("Ingresa nuevamente la contraseña: ");
+                    var validaPassword = scanner.nextLine();
+
+                    if (password.equals(validaPassword)) {
+                        usuario.setPassword(password);
+                        usuarioService.modificar(usuario);
+                        passwordsCoinciden = true;
+                    } else {
+                        System.out.println("Las contraseñas no coinciden. Intenta nuevamente.");
+                    }
+                }
+            }catch (JsonNotFoundException | NotFoundException e) {
+                System.out.println(e.getMessage());
+            }
+        }else {
+            System.out.println("No posees el permiso para eliminar usuarios.");
         }
     }
 }
