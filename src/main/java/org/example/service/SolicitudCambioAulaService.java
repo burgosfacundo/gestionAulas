@@ -287,23 +287,43 @@ public class SolicitudCambioAulaService{
         }
     }
 
-    private List<SolicitudCambioAula> listarSolicitudesPorEstado(EstadoSolicitud estado)
+    //Filtros
+
+    /**
+     * Método para listar solicitudes por estado
+     * @param estado de las solicitudes a listar
+     * @return List<SolicitudCambioAula> con ese estado
+     * @throws JsonNotFoundException si ocurre un problema con el archivo JSON
+     * @throws NotFoundException si no encuentra los datos internos de solicitud
+     */
+    public List<SolicitudCambioAula> listarSolicitudesPorEstado(EstadoSolicitud estado)
             throws JsonNotFoundException, NotFoundException {
         return listar().stream()
                 .filter(s -> s.getEstado().equals(estado))
                 .collect(Collectors.toList());
     }
 
-    private List<SolicitudCambioAula> listarSolicitudesPorEstadoYProfesor(EstadoSolicitud estado, Profesor profesor)
+
+    /**
+     * Método para listar solicitudes por estado y profesor
+     * @param estado de las solicitudes a listar
+     * @param idProfesor del profesor a filtrar
+     * @return List<SolicitudCambioAula> de ese profesor y con ese estado
+     * @throws JsonNotFoundException si ocurre un problema con el archivo JSON
+     * @throws NotFoundException si no encuentra al profesor con ese ID
+     */
+    public List<SolicitudCambioAula> listarSolicitudesPorEstadoYProfesor(EstadoSolicitud estado, Integer idProfesor)
             throws JsonNotFoundException, NotFoundException {
-        ProfesorService ps = new ProfesorService();
-        if(ps.listar().stream().noneMatch(p -> p.equals(profesor))){
-            throw new NotFoundException("El profesor no existe");
+
+        var optionalProfesor = profesorRepository.findById(idProfesor);
+
+        if(optionalProfesor.isEmpty()){
+            throw new NotFoundException(STR."El profesor con el id: \{idProfesor} no existe");
         }
 
         return listar().stream()
                 .filter(s -> s.getEstado().equals(estado))
-                .filter(s -> s.getProfesor().equals(profesor))
+                .filter(s -> s.getProfesor().getId().equals(idProfesor))
                 .collect(Collectors.toList());
     }
 }

@@ -122,6 +122,23 @@ public class AulaService{
     }
 
     /**
+     * Método para filtrar Espacios por capacidad, proyector y TV.
+     * Permite que cualquiera de los parámetros sea null, y solo aplicará el filtro correspondiente si no es null.
+     * @param capacidad la capacidad mínima requerida (puede ser null).
+     * @param tieneProyector sí debe tener o no proyector (puede ser null).
+     * @param tieneTV sí debe tener o no TV (puede ser null).
+     * @return List<Aula> lista de espacios que cumplan con las condiciones.
+     * @throws JsonNotFoundException Sí existe un problema con el archivo JSON.
+     */
+    public List<Aula> filtrarEspaciosPorCondiciones(Integer capacidad, Boolean tieneProyector, Boolean tieneTV) throws JsonNotFoundException {
+        return listar().stream()
+                .filter(aula -> capacidad == null || aula.getCapacidad() >= capacidad)
+                .filter(aula -> tieneProyector == null || aula.isTieneProyector() == tieneProyector)
+                .filter(aula -> tieneTV == null || aula.isTieneTV() == tieneTV)
+                .toList();
+    }
+
+    /**
      * Método para filtrar Aulas estándar por capacidad, proyector y TV.
      * Permite que cualquiera de los parámetros sea null, y solo aplicará el filtro correspondiente si no es null.
      * @param capacidad la capacidad mínima requerida (puede ser null).

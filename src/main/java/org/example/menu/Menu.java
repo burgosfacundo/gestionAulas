@@ -19,8 +19,6 @@ public class Menu {
      * Método para iniciar el menu principal de la aplicación
      */
     public void iniciarMenu() {
-        System.out.println("Bienvenido al Sistema de Gestión de Aulas");
-
         boolean salir = false;
         Scanner scanner = new Scanner(System.in);
 
@@ -52,12 +50,15 @@ public class Menu {
      * Método para printear opciones del menu
      */
     private void mostrarOpciones() {
+        System.out.println("\n====================================");
+        System.out.println("     Sistema de Gestión de Aulas");
         System.out.println("====================================");
-        System.out.println("Elija una opción:");
         System.out.println("1. Iniciar sesión");
         System.out.println("2. Salir");
         System.out.println("====================================");
+        System.out.print("Seleccione una opción: ");
     }
+
 
     /**
      * Método para manejar la autenticación de usuario
@@ -67,16 +68,25 @@ public class Menu {
         Usuario usuario = autenticarUsuario(scanner);
 
         if (usuario != null) {
-            String rol = usuario.getRol().getNombre().toLowerCase();
-            switch (rol) {
-                case "administrador" -> menuAdministrador.iniciarMenuAdmin(usuario);
-                case "profesor" -> menuProfesor.iniciarMenuProfesor(usuario);
-                default -> System.out.println("Error: Rol desconocido.");
-            }
+            redireccionarSegunRol(usuario);
         } else {
             System.out.println("Autenticación fallida. Intente nuevamente.");
         }
     }
+
+    /**
+     * Método para manejar la redirección al menú correspondiente según el rol del usuario
+     * @param usuario Usuario autenticado
+     */
+    private void redireccionarSegunRol(Usuario usuario) {
+        String rol = usuario.getRol().getNombre().toLowerCase();
+        switch (rol) {
+            case "administrador" -> menuAdministrador.iniciarMenuAdmin(usuario);
+            case "profesor" -> menuProfesor.iniciarMenuProfesor(usuario);
+            default -> System.out.println("Error: Rol desconocido.");
+        }
+    }
+
 
     /**
      * Método para autenticar al Usuario
@@ -84,17 +94,25 @@ public class Menu {
      * @return Usuario autenticado o null
      */
     private Usuario autenticarUsuario(Scanner scanner) {
-        System.out.print("Ingrese su nombre de usuario: ");
-        String username = scanner.nextLine();
-        System.out.print("Ingrese su contraseña: ");
-        String contrasenia = scanner.nextLine();
+        Usuario usuario = null;
+        boolean intentarDeNuevo = true;
 
-        try {
-            return seguridad.autenticar(username, contrasenia);
-        } catch (AutenticacionException | JsonNotFoundException e) {
-            System.out.println(STR."Error: \{e.getMessage()}");
-            return null;
+        while (usuario == null && intentarDeNuevo) {
+            System.out.print("Ingrese su nombre de usuario: ");
+            String username = scanner.nextLine();
+            System.out.print("Ingrese su contraseña: ");
+            String contrasenia = scanner.nextLine();
+
+            try {
+                usuario = seguridad.autenticar(username, contrasenia);
+            } catch (AutenticacionException | JsonNotFoundException e) {
+                System.out.println(STR."Error: \{e.getMessage()}");
+                System.out.print("¿Desea intentar nuevamente? (s/n): ");
+                String respuesta = scanner.nextLine();
+                intentarDeNuevo = respuesta.equalsIgnoreCase("s");
+            }
         }
+        return usuario;
     }
 }
 

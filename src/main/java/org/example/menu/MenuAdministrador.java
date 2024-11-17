@@ -19,6 +19,7 @@ public class MenuAdministrador {
     private final Seguridad seguridad = new Seguridad();
     private final AulaService aulaService = new AulaService();
     private final ReservaService reservaService = new ReservaService();
+    private final AsignaturaService asignaturaService = new AsignaturaService();
     private final InscripcionService inscripcionService = new InscripcionService();
     private final SolicitudCambioAulaService solicitudCambioAulaService = new SolicitudCambioAulaService();
     private final ProfesorService profesorService = new ProfesorService();
@@ -91,7 +92,7 @@ public class MenuAdministrador {
             System.out.println("No posees el permiso para crear un aula.");
             return;
         }
-        Aula aula = null;
+        Aula aula;
 
         System.out.println("Elija el tipo de Espacio:");
         System.out.println("1. Aula");
@@ -107,11 +108,12 @@ public class MenuAdministrador {
         int capacidad = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.print("¿El aula tiene proyector? (true/false): ");
-        boolean tieneProyector = scanner.nextBoolean();
+        System.out.print("¿El aula tiene proyector? (Si/No): ");
+        boolean tieneProyector = scanner.nextLine().equalsIgnoreCase("si");
 
-        System.out.print("¿El aula tiene televisor? (true/false): ");
-        boolean tieneTV = scanner.nextBoolean();
+        System.out.print("¿El aula tiene televisor? (Si/No): ");
+        boolean tieneTV = scanner.nextLine().equalsIgnoreCase("si");
+
 
         if (tipo == 2) {
             System.out.print("Ingrese la cantidad de computadoras: ");
@@ -176,12 +178,12 @@ public class MenuAdministrador {
                             aula.setCapacidad(Integer.parseInt(scanner.nextLine()));
                             break;
                         case 3:
-                            System.out.print("¿Tiene proyector? (true/false): ");
-                            aula.setTieneProyector(Boolean.parseBoolean(scanner.nextLine()));
+                            System.out.print("¿Tiene proyector? (Si/No): ");
+                            aula.setTieneProyector(scanner.nextLine().equalsIgnoreCase("si"));
                             break;
                         case 4:
-                            System.out.print("¿Tiene TV? (true/false): ");
-                            aula.setTieneTV(Boolean.parseBoolean(scanner.nextLine()));
+                            System.out.print("¿Tiene TV? (Si/No): ");
+                            aula.setTieneTV(scanner.nextLine().equalsIgnoreCase("si"));
                             break;
                         case 5:
                             // Guardar cambios
@@ -209,11 +211,11 @@ public class MenuAdministrador {
         if(seguridad.verificarPermiso(usuario, Permisos.ELIMINAR_ESPACIO))
         {
             try {
-                reservaService.listar().forEach(System.out::println);
+                aulaService.listar().forEach(System.out::println);
                 System.out.println("Ingrese el id del espacio a eliminar");
                 int id = scanner.nextInt();
                 scanner.nextLine();
-                reservaService.eliminar(id);
+                aulaService.eliminar(id);
                 System.out.println("Espacio eliminado exitosamente");
             }catch (JsonNotFoundException | NotFoundException e) {
                 System.out.println(e.getMessage());
@@ -318,24 +320,12 @@ public class MenuAdministrador {
     private void filtrarEspacios(Usuario usuario) {
         if (seguridad.verificarPermiso(usuario, Permisos.VER_ESPACIOS)) {
             try {
-                // Solicitar la capacidad
-                System.out.println("Ingrese la capacidad (-1 si no quiere aplicar este filtro): ");
-                var capacidadInput = scanner.nextInt();
-                scanner.nextLine();
-                var capacidad = capacidadInput == -1 ? null : capacidadInput;
-
-                // Solicitar si tiene proyector
-                System.out.println("¿Debe tener proyector? (true/false) (Escriba 'ninguno' si no quiere aplicar este filtro): ");
-                var proyectorInput = scanner.nextLine().trim().toLowerCase();
-                var tieneProyector = proyectorInput.equals("ninguno") ? null : Boolean.parseBoolean(proyectorInput);
-
-                // Solicitar si tiene TV
-                System.out.println("¿Debe tener TV? (true/false) (Escriba 'ninguno' si no quiere aplicar este filtro): ");
-                var tvInput = scanner.nextLine().trim().toLowerCase();
-                var tieneTV = tvInput.equals("ninguno") ? null : Boolean.parseBoolean(tvInput);
+                var capacidad = obtenerCapacidadEspacio();
+                var tieneProyector = obtenerProyectoEspacio();
+                var tieneTV = obtenerTvEspacio();
 
                 // Filtrar los espacios según los parámetros ingresados
-                var espaciosFiltrados = aulaService.filtrarPorCondiciones(capacidad, tieneProyector, tieneTV);
+                var espaciosFiltrados = aulaService.filtrarEspaciosPorCondiciones(capacidad, tieneProyector, tieneTV);
                 if (espaciosFiltrados.isEmpty()) {
                     System.out.println("No se encontraron espacios que coincidan con los criterios de búsqueda.");
                 } else {
@@ -358,21 +348,9 @@ public class MenuAdministrador {
     private void filtrarAulas(Usuario usuario) {
         if (seguridad.verificarPermiso(usuario, Permisos.VER_AULAS)) {
             try {
-                // Solicitar la capacidad
-                System.out.println("Ingrese la capacidad (-1 si no quiere aplicar este filtro): ");
-                var capacidadInput = scanner.nextInt();
-                scanner.nextLine();
-                var capacidad = capacidadInput == -1 ? null : capacidadInput;
-
-                // Solicitar si tiene proyector
-                System.out.println("¿Debe tener proyector? (true/false) (Escriba 'ninguno' si no quiere aplicar este filtro): ");
-                var proyectorInput = scanner.nextLine().trim().toLowerCase();
-                var tieneProyector = proyectorInput.equals("ninguno") ? null : Boolean.parseBoolean(proyectorInput);
-
-                // Solicitar si tiene TV
-                System.out.println("¿Debe tener TV? (true/false) (Escriba 'ninguno' si no quiere aplicar este filtro): ");
-                var tvInput = scanner.nextLine().trim().toLowerCase();
-                var tieneTV = tvInput.equals("ninguno") ? null : Boolean.parseBoolean(tvInput);
+                var capacidad = obtenerCapacidadEspacio();
+                var tieneProyector = obtenerProyectoEspacio();
+                var tieneTV = obtenerTvEspacio();
 
                 // Filtrar los espacios según los parámetros ingresados
                 var espaciosFiltrados = aulaService.filtrarAulasPorCondiciones(capacidad, tieneProyector, tieneTV);
@@ -398,27 +376,15 @@ public class MenuAdministrador {
     private void filtrarLaboratorios(Usuario usuario) {
         if (seguridad.verificarPermiso(usuario, Permisos.VER_LABORATORIOS)) {
             try {
-                // Solicitar la capacidad
-                System.out.println("Ingrese la capacidad (-1 si no quiere aplicar este filtro): ");
-                var capacidadInput = scanner.nextInt();
-                scanner.nextLine();
-                var capacidad = capacidadInput == -1 ? null : capacidadInput;
+               var capacidad = obtenerCapacidadEspacio();
+               var tieneProyector = obtenerProyectoEspacio();
+               var tieneTV = obtenerTvEspacio();
 
-                // Solicitar si tiene proyector
-                System.out.println("¿Debe tener proyector? (true/false) (Escriba 'ninguno' si no quiere aplicar este filtro): ");
-                var proyectorInput = scanner.nextLine().trim().toLowerCase();
-                var tieneProyector = proyectorInput.equals("ninguno") ? null : Boolean.parseBoolean(proyectorInput);
-
-                // Solicitar si tiene TV
-                System.out.println("¿Debe tener TV? (true/false) (Escriba 'ninguno' si no quiere aplicar este filtro): ");
-                var tvInput = scanner.nextLine().trim().toLowerCase();
-                var tieneTV = tvInput.equals("ninguno") ? null : Boolean.parseBoolean(tvInput);
-
-                // Solicitar la capacidad
+               // Solicitar las computadoras
                 System.out.println("Ingrese la cantidad de computadoras (-1 si no quiere aplicar este filtro): ");
                 var computadorasInput = scanner.nextInt();
                 scanner.nextLine();
-                var computadoras = capacidadInput == -1 ? null : computadorasInput;
+                var computadoras = computadorasInput == -1 ? null : computadorasInput;
 
                 // Filtrar los espacios según los parámetros ingresados
                 var espaciosFiltrados = aulaService
@@ -436,6 +402,42 @@ public class MenuAdministrador {
         } else {
             System.out.println("No posees el permiso para ver las aulas.");
         }
+    }
+
+    /**
+     * Método para preguntarle al usuario la capacidad de un espacio
+     * @return la cantidad del espacio
+     */
+    private Integer obtenerCapacidadEspacio(){
+        // Solicitar la capacidad
+        System.out.println("Ingrese la capacidad (-1 si no quiere aplicar este filtro): ");
+        var capacidadInput = scanner.nextInt();
+        scanner.nextLine();
+        return capacidadInput == -1 ? null : capacidadInput;
+    }
+
+    /**
+     * Método para preguntarle al usuario si un espacio tiene proyector
+     * @return si tiene o no proyector
+     */
+    private Boolean obtenerProyectoEspacio(){
+        // Solicitar si tiene proyector
+        System.out.println("¿Debe tener proyector? (Si/No) (Escriba 'ninguno' si no quiere aplicar este filtro): ");
+        var proyectorInput = scanner.nextLine().trim().toLowerCase();
+
+        return proyectorInput.equals("ninguno") ? null : proyectorInput.equalsIgnoreCase("si");
+
+    }
+    /**
+     * Método para preguntarle al usuario si un espacio tiene tv
+     * @return si tiene o no tv
+     */
+    private Boolean obtenerTvEspacio(){
+        // Solicitar si tiene TV
+        System.out.println("¿Debe tener TV? (Si/No) (Escriba 'ninguno' si no quiere aplicar este filtro): ");
+        var tvInput = scanner.nextLine().trim().toLowerCase();
+        return tvInput.equals("ninguno") ? null : tvInput.equalsIgnoreCase("si");
+
     }
 
     /**
@@ -457,36 +459,8 @@ public class MenuAdministrador {
                 String fechaFinStr = scanner.nextLine();
                 LocalDate fechaFin = LocalDate.parse(fechaFinStr);
 
-                // Seleccionar días de la semana
-                System.out.println("""
-                        Ingrese el dia de la semana
-                        1.Lunes
-                        2.Martes
-                        3.Miércoles
-                        4.Jueves
-                        5.Viernes
-                        6.Sábado
-                        7.Domingo
-                        - """);
-                int dia = scanner.nextInt();
-                scanner.nextLine();
 
-                // Seleccionar bloque horario
-                Set<BloqueHorario> bloques = new HashSet<>();
-                System.out.println("Seleccione los bloques horarios (separado por comas): ");
-                int i = 1;
-                for (BloqueHorario bloque : BloqueHorario.values()) {
-                    System.out.println(STR."\{i}. \{bloque}");
-                    i++;
-                }
-                String bloquesStr = scanner.nextLine();
-                for (String bloqueIndex : bloquesStr.split(",")) {
-                    int opcionBloque = Integer.parseInt(bloqueIndex.trim()) - 1;
-                    bloques.add(BloqueHorario.values()[opcionBloque]);
-                }
-
-                Map<DayOfWeek, Set<BloqueHorario>> diasYBloques = new HashMap<>();
-                diasYBloques.put(DayOfWeek.of(dia), bloques);
+                var diasYBloques = obtenerDiasYBloques();
 
                 // Llamar a la función y listar aulas disponibles
                 var espaciosDisponibles = aulaService.listarEspaciosDisponibles(fechaInicio, fechaFin, diasYBloques);
@@ -520,36 +494,8 @@ public class MenuAdministrador {
                 String fechaFinStr = scanner.nextLine();
                 LocalDate fechaFin = LocalDate.parse(fechaFinStr);
 
-                // Seleccionar días de la semana
-                System.out.println("""
-                        Ingrese el dia de la semana
-                        1.Lunes
-                        2.Martes
-                        3.Miércoles
-                        4.Jueves
-                        5.Viernes
-                        6.Sábado
-                        7.Domingo
-                        - """);
-                int dia = scanner.nextInt();
-                scanner.nextLine();
 
-                // Seleccionar bloque horario
-                Set<BloqueHorario> bloques = new HashSet<>();
-                System.out.println("Seleccione los bloques horarios (separado por comas): ");
-                int i = 1;
-                for (BloqueHorario bloque : BloqueHorario.values()) {
-                    System.out.println(STR."\{i}. \{bloque}");
-                    i++;
-                }
-                String bloquesStr = scanner.nextLine();
-                for (String bloqueIndex : bloquesStr.split(",")) {
-                    int opcionBloque = Integer.parseInt(bloqueIndex.trim()) - 1;
-                    bloques.add(BloqueHorario.values()[opcionBloque]);
-                }
-
-                Map<DayOfWeek, Set<BloqueHorario>> diasYBloques = new HashMap<>();
-                diasYBloques.put(DayOfWeek.of(dia), bloques);
+                var diasYBloques = obtenerDiasYBloques();
 
                 // Llamar a la función y listar aulas disponibles
                 List<Aula> aulasDisponibles = aulaService.listarAulasDisponibles(fechaInicio, fechaFin, diasYBloques);
@@ -583,37 +529,8 @@ public class MenuAdministrador {
                 String fechaFinStr = scanner.nextLine();
                 LocalDate fechaFin = LocalDate.parse(fechaFinStr);
 
-                // Seleccionar días de la semana
-                System.out.println("""
-                        Ingrese el dia de la semana
-                        1.Lunes
-                        2.Martes
-                        3.Miércoles
-                        4.Jueves
-                        5.Viernes
-                        6.Sábado
-                        7.Domingo
-                        - """);
-                int dia = scanner.nextInt();
-                scanner.nextLine();
 
-                // Seleccionar bloque horario
-                Set<BloqueHorario> bloques = new HashSet<>();
-                System.out.println("Seleccione los bloques horarios (separado por comas): ");
-                int i = 1;
-                for (BloqueHorario bloque : BloqueHorario.values()) {
-                    System.out.println(STR."\{i}. \{bloque}");
-                    i++;
-                }
-                String bloquesStr = scanner.nextLine();
-                for (String bloqueIndex : bloquesStr.split(",")) {
-                    int opcionBloque = Integer.parseInt(bloqueIndex.trim()) - 1;
-                    bloques.add(BloqueHorario.values()[opcionBloque]);
-                }
-
-                Map<DayOfWeek, Set<BloqueHorario>> diasYBloques = new HashMap<>();
-                diasYBloques.put(DayOfWeek.of(dia), bloques);
-
+                var diasYBloques = obtenerDiasYBloques();
                 // Llamar a la función y listar aulas disponibles
                 var laboratoriosDisponibles = aulaService.listarLaboratoriosDisponibles(fechaInicio, fechaFin, diasYBloques);
                 System.out.println("Laboratorios disponibles:");
@@ -627,6 +544,48 @@ public class MenuAdministrador {
         }
     }
 
+    /**
+     * Método para pedir los días seleccionados y bloques horarios.
+     * @return Map<DayOfWeek, Set<BloqueHorario>> que contiene los días seleccionados y los bloques horarios
+     */
+    private Map<DayOfWeek, Set<BloqueHorario>> obtenerDiasYBloques() {
+        Map<DayOfWeek, Set<BloqueHorario>> diasYBloques = new HashMap<>();
+
+        // Seleccionar días de la semana
+        Set<DayOfWeek> diasSeleccionados = new HashSet<>();
+        System.out.println("Ingrese los días de la semana (separados por comas): ");
+        System.out.println("1. Lunes");
+        System.out.println("2. Martes");
+        System.out.println("3. Miércoles");
+        System.out.println("4. Jueves");
+        System.out.println("5. Viernes");
+        System.out.println("6. Sábado");
+        System.out.println("7. Domingo");
+        String diasInput = scanner.nextLine();
+        for (String diaStr : diasInput.split(",")) {
+            int dia = Integer.parseInt(diaStr.trim()) - 1;
+            diasSeleccionados.add(DayOfWeek.of(dia + 1)); // DayOfWeek usa valores 1-7 para Lunes-Domingo
+        }
+
+        // Seleccionar bloques horarios
+        for (DayOfWeek dia : diasSeleccionados) {
+            Set<BloqueHorario> bloques = new HashSet<>();
+            System.out.println(STR."Seleccione los bloques horarios para \{dia} (separado por comas): ");
+            int i = 1;
+            for (BloqueHorario bloque : BloqueHorario.values()) {
+                System.out.println(STR."\{i}. \{bloque}");
+                i++;
+            }
+            String bloquesStr = scanner.nextLine();
+            for (String bloqueIndex : bloquesStr.split(",")) {
+                int opcionBloque = Integer.parseInt(bloqueIndex.trim()) - 1;
+                bloques.add(BloqueHorario.values()[opcionBloque]);
+            }
+            diasYBloques.put(dia, bloques);
+        }
+
+        return diasYBloques;
+    }
 
     /**
      * Método para submenu reserva
@@ -691,37 +650,7 @@ public class MenuAdministrador {
 
             reserva.setFechaFin(fechaFin);
 
-            // Seleccionar días de la semana
-            System.out.println("""
-                            Ingrese el dia de la semana
-                            1.Lunes
-                            2.Martes
-                            3.Miércoles
-                            4.Jueves
-                            5.Viernes
-                            6.Sábado
-                            7.Domingo
-                            - """);
-            int dia = scanner.nextInt();
-            scanner.nextLine();
-
-            // Seleccionar bloque horario
-            Set<BloqueHorario> bloques = new HashSet<>();
-            System.out.println("Seleccione los bloques horarios (separado por comas): ");
-            int i = 1;
-            for (BloqueHorario bloque : BloqueHorario.values()) {
-                System.out.println(STR."\{i}. \{bloque}");
-                i++;
-            }
-            String bloquesStr = scanner.nextLine();
-            for (String bloqueIndex : bloquesStr.split(",")) {
-                int opcionBloque = Integer.parseInt(bloqueIndex.trim()) - 1;
-                bloques.add(BloqueHorario.values()[opcionBloque]);
-            }
-
-            Map<DayOfWeek, Set<BloqueHorario>> diasYBloques = new HashMap<>();
-            diasYBloques.put(DayOfWeek.of(dia), bloques);
-
+            var diasYBloques = obtenerDiasYBloques();
             reserva.setDiasYBloques(diasYBloques);
 
             aulaService.listarEspaciosDisponibles(fechaInicio,fechaFin,diasYBloques).forEach(System.out::println);
@@ -766,15 +695,19 @@ public class MenuAdministrador {
      * @param usuario que esta logueado para verificar perfil con permisos
      */
     private void listarReservasXProfesor(Usuario usuario) {
-        /*if (seguridad.verificarPermiso(usuario, Permisos.VER_RESERVAS)) {
+        if (seguridad.verificarPermiso(usuario, Permisos.VER_RESERVAS)) {
             try {
-                reservaService.listarXProfesor().forEach(System.out::println);
+                profesorService.listar().forEach(System.out::println);
+                System.out.println("Ingresa el id del profesor: ");
+                var idProfesor = scanner.nextInt();
+                scanner.nextLine();
+                reservaService.listarReservasPorProfesor(idProfesor).forEach(System.out::println);
             } catch (NotFoundException | JsonNotFoundException e) {
                 System.out.println(e.getMessage());
             }
         } else {
             System.out.println("No posees el permiso para ver las reservas.");
-        }*/
+        }
     }
 
     /**
@@ -782,15 +715,17 @@ public class MenuAdministrador {
      * @param usuario que esta logueado para verificar perfil con permisos
      */
     private void listarReservasXComision(Usuario usuario) {
-        /*if (seguridad.verificarPermiso(usuario, Permisos.VER_RESERVAS)) {
+        if (seguridad.verificarPermiso(usuario, Permisos.VER_RESERVAS)) {
             try {
-                reservaService.listarXComision().forEach(System.out::println);
+                System.out.println("Ingresa la comision: ");
+                var comision = scanner.nextLine();
+                reservaService.listarReservasPorComision(comision).forEach(System.out::println);
             } catch (NotFoundException | JsonNotFoundException e) {
                 System.out.println(e.getMessage());
             }
         } else {
             System.out.println("No posees el permiso para ver las reservas.");
-        }*/
+        }
     }
 
     /**
@@ -798,15 +733,19 @@ public class MenuAdministrador {
      * @param usuario que esta logueado para verificar perfil con permisos
      */
     private void listarReservasXAsignatura(Usuario usuario) {
-        /*if (seguridad.verificarPermiso(usuario, Permisos.VER_RESERVAS)) {
+        if (seguridad.verificarPermiso(usuario, Permisos.VER_RESERVAS)) {
             try {
-                reservaService.listarXAsignatura().forEach(System.out::println);
+                asignaturaService.listar().forEach(System.out::println);
+                System.out.println("Ingresa el id de la asignatura: ");
+                var idAsignatura = scanner.nextInt();
+                scanner.nextLine();
+                reservaService.listarReservasPorAsignatura(idAsignatura).forEach(System.out::println);
             } catch (NotFoundException | JsonNotFoundException e) {
                 System.out.println(e.getMessage());
             }
         } else {
             System.out.println("No posees el permiso para ver las reservas.");
-        }*/
+        }
     }
 
     /**
@@ -855,37 +794,7 @@ public class MenuAdministrador {
                             reserva.setFechaFin(fechaFin);
                             break;
                         case 3:
-                            System.out.println("""
-                            Ingrese el dia de la semana
-                            1.Lunes
-                            2.Martes
-                            3.Miércoles
-                            4.Jueves
-                            5.Viernes
-                            6.Sábado
-                            7.Domingo
-                            - """);
-                            int dia = scanner.nextInt();
-                            scanner.nextLine();
-
-                            // Seleccionar bloque horario
-                            Set<BloqueHorario> bloques = new HashSet<>();
-                            System.out.println("Seleccione los bloques horarios (separado por comas): ");
-                            int i = 1;
-                            for (BloqueHorario bloque : BloqueHorario.values()) {
-                                System.out.println(STR."\{i}. \{bloque}");
-                                i++;
-                            }
-                            String bloquesStr = scanner.nextLine();
-                            for (String bloqueIndex : bloquesStr.split(",")) {
-                                int opcionBloque = Integer.parseInt(bloqueIndex.trim()) - 1;
-                                bloques.add(BloqueHorario.values()[opcionBloque]);
-                            }
-
-                            Map<DayOfWeek, Set<BloqueHorario>> diasYBloques = new HashMap<>();
-                            diasYBloques.put(DayOfWeek.of(dia), bloques);
-
-                            reserva.setDiasYBloques(diasYBloques);
+                            reserva.setDiasYBloques(obtenerDiasYBloques());
                             break;
                         case 4:
                             aulaService.listar().forEach(System.out::println);
@@ -902,6 +811,7 @@ public class MenuAdministrador {
                             scanner.nextLine();
 
                             reserva.setInscripcion(new Inscripcion(idInscripcion));
+                            break;
                         case 6:
                             // Guardar cambios
                             reservaService.modificar(reserva);
@@ -1022,15 +932,20 @@ public class MenuAdministrador {
      * @param usuario que esta logueado para verificar perfil con permisos
      */
     private void listarSolicitudesXEstado(Usuario usuario,EstadoSolicitud estadoSolicitud) {
-        /*if (seguridad.verificarPermiso(usuario, Permisos.VER_SOLICITUDES_CAMBIO)) {
+        if (seguridad.verificarPermiso(usuario, Permisos.VER_SOLICITUDES_CAMBIO)) {
             try {
-                solicitudCambioAulaService.listarXEstado(estadoSolicitud).forEach(System.out::println);
+                var solicitudes = solicitudCambioAulaService.listarSolicitudesPorEstado(estadoSolicitud);
+                if(solicitudes.isEmpty()){
+                    System.out.println(STR."No hay solicitudes \{estadoSolicitud.toString().toLowerCase()}s");
+                }else {
+                    solicitudes.forEach(System.out::println);
+                }
             } catch (NotFoundException | JsonNotFoundException e) {
                 System.out.println(e.getMessage());
             }
         } else {
             System.out.println("No posees el permiso para ver las solicitudes.");
-        }*/
+        }
     }
 
     /**
@@ -1038,19 +953,22 @@ public class MenuAdministrador {
      * @param usuario que esta logueado para verificar perfil con permisos
      */
     private void listarSolicitudesXProfesor(Usuario usuario) {
-        /*if (seguridad.verificarPermiso(usuario, Permisos.VER_SOLICITUDES_CAMBIO)) {
+        if (seguridad.verificarPermiso(usuario, Permisos.VER_SOLICITUDES_CAMBIO)) {
             try {
                 profesorService.listar().forEach(System.out::println);
+
                 System.out.println("Ingresa el id del profesor: ");
                 var idProfesor = scanner.nextInt();
                 scanner.nextLine();
-                solicitudCambioAulaService.listarXProfesor(idProfesor).forEach(System.out::println);
+
+                solicitudCambioAulaService.listarSolicitudesPorEstadoYProfesor(EstadoSolicitud.PENDIENTE,idProfesor)
+                        .forEach(System.out::println);
             } catch (NotFoundException | JsonNotFoundException e) {
                 System.out.println(e.getMessage());
             }
         } else {
             System.out.println("No posees el permiso para ver las solicitudes.");
-        }*/
+        }
     }
 
     /**
@@ -1058,12 +976,15 @@ public class MenuAdministrador {
      * @param usuario que esta logueado para verificar perfil con permisos
      */
     private void revisarSolicitudes(Usuario usuario){
-        /*if (seguridad.verificarPermiso(usuario,Permisos.GESTIORNAR_CAMBIOS)){
+        if (seguridad.verificarPermiso(usuario,Permisos.GESTIORNAR_CAMBIOS)){
             try {
-                solicitudCambioAulaService.listarXEstado(EstadoSolicitud.PENDIENTE).forEach(System.out::println);
+                solicitudCambioAulaService.listarSolicitudesPorEstado(EstadoSolicitud.PENDIENTE)
+                        .forEach(System.out::println);
+
                 System.out.println("Ingresa el id de la solicitud: ");
                 var idSolicitud = scanner.nextInt();
                 scanner.nextLine();
+
                 System.out.println("""
                         Elija una opción:
                         1.Rechazar
@@ -1087,6 +1008,6 @@ public class MenuAdministrador {
             }catch (NotFoundException | BadRequestException | JsonNotFoundException | ConflictException e){
                 System.out.println(e.getMessage());
             }
-        }*/
+        }
     }
 }

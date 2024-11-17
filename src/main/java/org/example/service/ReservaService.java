@@ -27,6 +27,7 @@ public class ReservaService{
     private final AulaRepository aulaRepository = new AulaRepository();
     private final AulaService aulaService = new AulaService();
     private final InscripcionService inscripcionService = new InscripcionService();
+    private final ProfesorRepository profesorRepository = new ProfesorRepository();
     private final AsignaturaRepository asignaturaRepository = new AsignaturaRepository();
     private final SolicitudCambioAulaRepository solicitudRepository = new SolicitudCambioAulaRepository();
 
@@ -282,11 +283,18 @@ public class ReservaService{
 
     //filtros
 
-    private List<Reserva> listarReservasPorProfesor(int idProfe)
+    /**
+     * Método para listar las reservas de un profesor
+     * @param idProfe del profesor
+     * @return List<Reserva> las reservas que tiene el profesor
+     * @throws JsonNotFoundException si ocurre un problema con el archivo JSON
+     * @throws NotFoundException si no existe el profesor con ese ID
+     */
+    public List<Reserva> listarReservasPorProfesor(int idProfe)
             throws JsonNotFoundException, NotFoundException {
-        ProfesorService ps = new ProfesorService();
-        if(ps.listar().stream().noneMatch(p -> p.getId() == idProfe)){
-            throw new NotFoundException("El profesor no existe");
+        var optionalProfesor = profesorRepository.findById(idProfe);
+        if(optionalProfesor.isEmpty()){
+            throw new NotFoundException(STR."El profesor con el id: \{idProfe} no existe");
         }
 
         return listar().stream()
@@ -294,23 +302,18 @@ public class ReservaService{
                 .collect(Collectors.toList());
     }
 
-    private List<Reserva> listarReservasPorProfesor(Profesor profesor)
-            throws JsonNotFoundException, NotFoundException {
-        ProfesorService ps = new ProfesorService();
-        if(ps.listar().stream().noneMatch(p -> p.equals(profesor))){
-            throw new NotFoundException("El profesor no existe");
-        }
 
-        return listar().stream()
-                .filter(r -> r.getInscripcion().getProfesor().equals(profesor))
-                .collect(Collectors.toList());
-    }
-
-    private List<Reserva> listarReservasPorComision(String comision)
+    /**
+     * Método para listar las reservas de una comisión
+     * @param comision para filtrar
+     * @return List<Reserva> las reservas que tiene esa comisión
+     * @throws JsonNotFoundException si ocurre un problema con el archivo JSON
+     * @throws NotFoundException si no existe el profesor con ese ID
+     */
+    public List<Reserva> listarReservasPorComision(String comision)
             throws JsonNotFoundException, NotFoundException{
-        InscripcionService is = new InscripcionService();
-        if(is.listar().stream().noneMatch(i -> i.getComision().equals(comision))){
-            throw new NotFoundException("La comisión no existe.");
+        if(inscripcionService.listar().stream().noneMatch(i -> i.getComision().equals(comision))){
+            throw new NotFoundException(STR."La comisión \{comision} no existe");
         }
 
         return listar().stream()
@@ -318,15 +321,19 @@ public class ReservaService{
                 .collect(Collectors.toList());
     }
 
-    private List<Reserva> listarReservasPorAsignatura(Asignatura asignatura)
+    /**
+     * Método para listar reservas de una asignatura
+     * @param idAsignatura de la asignatura
+     * @return List<Reserva> listar de reservas de esa asignatura
+     * @throws JsonNotFoundException si ocurre un problema con el archivo JSON
+     * @throws NotFoundException si no encuentra esa asignatura
+     */
+    public List<Reserva> listarReservasPorAsignatura(Integer idAsignatura)
         throws JsonNotFoundException, NotFoundException {
-        InscripcionService is = new InscripcionService();
-        if(is.listar().stream().noneMatch(i -> i.getAsignatura().equals(asignatura))){
-            throw new NotFoundException("La comisión no existe.");
-        }
+        validarAsignaturaExistente(idAsignatura);
 
         return listar().stream()
-                .filter(r -> r.getInscripcion().getAsignatura().equals(asignatura))
+                .filter(r -> r.getInscripcion().getAsignatura().getId().equals(idAsignatura))
                 .collect(Collectors.toList());
     }
 
