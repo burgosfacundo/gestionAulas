@@ -1202,6 +1202,10 @@ public class MenuAdministrador {
         }
     }
 
+    /**
+     * Método para cambiar contrasenia del submenu usuarios
+     * @param usuario que esta logueado para verificar perfil con permisos
+     */
     private void cambiarPassword(Usuario usuario){
         if(seguridad.verificarPermiso(usuario, Permisos.CAMBIAR_PASSWORD))
         {
@@ -1217,6 +1221,7 @@ public class MenuAdministrador {
                         usuario.setPassword(password);
                         usuarioService.modificar(usuario);
                         passwordsCoinciden = true;
+                        System.out.println("Contraseña modificada correctamente. ");
                     } else {
                         System.out.println("Las contraseñas no coinciden. Intenta nuevamente.");
                     }

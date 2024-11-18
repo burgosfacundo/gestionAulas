@@ -265,6 +265,31 @@ public class AulaService{
     }
 
 
+    // Metodo para listar aulas segun los datos obtenidos por el cambio solicitud profesor
+    public List<Aula> listarAulasDisponiblesPorSolicitud(Integer capacidad, Boolean tieneProyector, Boolean tieneTV, LocalDate fechaInicio, LocalDate fechaFin,
+                                                         Map<DayOfWeek, Set<BloqueHorario>> diasYBloques) throws JsonNotFoundException {
+
+
+        return listarAulasDisponibles(fechaInicio, fechaFin, diasYBloques).stream()
+                .filter(aula -> capacidad == null || aula.getCapacidad() >= capacidad)
+                .filter(aula -> tieneProyector == null || aula.isTieneProyector() == tieneProyector)
+                .filter(aula -> tieneTV == null || aula.isTieneTV() == tieneTV)
+                .toList();
+    }
+
+    // Metodo para listar aulas segun los datos obtenidos por el cambio solicitud profesor
+    public List<Laboratorio> listarLaboratoriosDisponiblesPorSolicitud(Integer computadoras, Integer capacidad, Boolean tieneProyector, Boolean tieneTV, LocalDate fechaInicio, LocalDate fechaFin,
+                                                         Map<DayOfWeek, Set<BloqueHorario>> diasYBloques) throws JsonNotFoundException {
+
+
+        return listarLaboratoriosDisponibles(fechaInicio, fechaFin, diasYBloques).stream()
+                .filter(aula -> capacidad == null || aula.getCapacidad() >= capacidad)
+                .filter(aula -> tieneProyector == null || aula.isTieneProyector() == tieneProyector)
+                .filter(aula -> tieneTV == null || aula.isTieneTV() == tieneTV)
+                .filter(aula -> computadoras == null || aula.getComputadoras() >= computadoras)
+                .toList();
+    }
+
 
 
     // Validaciones
