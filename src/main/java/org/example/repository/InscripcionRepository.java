@@ -10,6 +10,7 @@ import org.example.model.dto.InscripcionDTO;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -21,8 +22,8 @@ import java.util.Optional;
  * Su responsabilidad es interactuar con el JSON
  */
 public class InscripcionRepository implements JSONRepository<Integer, InscripcionDTO> {
-    private final String ruta = "./json/inscripciones.json";
-
+    String relativePath = "gestionAulas/json/inscripciones.json";
+    String ruta = Paths.get(System.getProperty("user.dir"), relativePath).toString();
     /**
      * Método para retornar la ruta al json
      * que se quiere utilizar en el método default

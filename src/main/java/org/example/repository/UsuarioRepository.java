@@ -1,12 +1,15 @@
 package org.example.repository;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import org.example.model.dto.UsuarioDTO;
 import org.example.exception.JsonNotFoundException;
 
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -19,8 +22,8 @@ import com.google.gson.reflect.TypeToken;
  * Su responsabilidad es interactuar con el JSON
  */
 public class UsuarioRepository implements JSONRepository<Integer, UsuarioDTO> {
-    private final String ruta = "./json/usuarios.json";
-
+    String relativePath = "gestionAulas/json/usuarios.json";
+    String ruta = Paths.get(System.getProperty("user.dir"), relativePath).toString();
     /**
      * Método para retornar la ruta al json
      * que se quiere utilizar en el método default

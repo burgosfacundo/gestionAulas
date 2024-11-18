@@ -5,9 +5,12 @@ import com.google.gson.reflect.TypeToken;
 import org.example.exception.JsonNotFoundException;
 import org.example.model.Rol;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -19,7 +22,8 @@ import java.util.Optional;
  * Su responsabilidad es interactuar con el JSON
  */
 public class RolRepository implements JSONRepository<Integer, Rol>{
-    private final String ruta = "./json/roles.json";
+    String relativePath = "gestionAulas/json/roles.json";
+    String ruta = Paths.get(System.getProperty("user.dir"), relativePath).toString();
 
     /**
      * Método para retornar la ruta al json

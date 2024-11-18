@@ -8,6 +8,7 @@ import org.example.model.Asignatura;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -18,7 +19,8 @@ import java.util.Optional;
  * Su responsabilidad es interactuar con el JSON
  */
 public class AsignaturaRepository implements JSONRepository<Integer,Asignatura> {
-    private final String ruta = "./json/asignaturas.json";
+    String relativePath = "gestionAulas/json/asignaturas.json";
+    String ruta = Paths.get(System.getProperty("user.dir"), relativePath).toString();
 
     /**
      * Método para retornar la ruta al json

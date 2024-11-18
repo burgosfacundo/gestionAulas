@@ -14,6 +14,7 @@ import org.example.model.dto.SolicitudCambioAulaDTO;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,8 +27,8 @@ import java.util.stream.Collectors;
  * Su responsabilidad es interactuar con el JSON
  */
 public class SolicitudCambioAulaRepository implements JSONRepository<Integer, SolicitudCambioAulaDTO>{
-    private final String ruta = "./json/solicitudes.json";
-
+    String relativePath = "gestionAulas/json/solicitudes.json";
+    String ruta = Paths.get(System.getProperty("user.dir"), relativePath).toString();
     /**
      * Método para retornar la ruta al json
      * que se quiere utilizar en el método default
