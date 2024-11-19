@@ -15,13 +15,14 @@ public class Mapper {
      * @param dto que queremos mapear
      * @return Usuario mapeado desde dto
      */
-    public static Usuario toUsuario(UsuarioDTO dto, Rol rol){
-        //Retornamos el usuario mapeado desde DTO, incluyendo su rol
+    public static Usuario toUsuario(UsuarioDTO dto, Rol rol,Profesor profesor){
+        //Retornamos el usuario mapeado desde DTO, incluyendo su rol y el profesor que representa
         return new Usuario(
                 dto.id(),
                 dto.username(),
                 dto.password(),
-                rol
+                rol,
+                profesor
         );
     }
 
@@ -36,7 +37,8 @@ public class Mapper {
                 usuario.getId(),
                 usuario.getUsername(),
                 usuario.getPassword(),
-                usuario.getRol().getId()
+                usuario.getRol().getId(),
+                usuario.getProfesor().getId()
         );
     }
 

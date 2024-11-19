@@ -2,12 +2,10 @@ package org.example.menu;
 
 import org.example.exception.AutenticacionException;
 import org.example.exception.JsonNotFoundException;
+import org.example.exception.NotFoundException;
 import org.example.model.Usuario;
 import org.example.security.Seguridad;
-
-import java.util.Scanner;
-
-import java.util.InputMismatchException;
+import org.example.utils.Utils;
 
 public class Menu {
 
@@ -20,52 +18,35 @@ public class Menu {
      */
     public void iniciarMenu() {
         boolean salir = false;
-        Scanner scanner = new Scanner(System.in);
 
         while (!salir) {
-            mostrarOpciones();
+            System.out.println("\n====================================");
+            System.out.println("     Sistema de Gestión de Aulas");
+            System.out.println("======================================");
+            System.out.println("1. Iniciar sesión");
+            System.out.println("2. Salir");
+            System.out.println("======================================");
 
-            try {
-                int opcion = scanner.nextInt();
-                scanner.nextLine();
+            int opcion = Utils.leerEntero("Seleccione una opción: ");
 
-                switch (opcion) {
-                    case 1 -> iniciarSesion(scanner);
-                    case 2 -> {
-                        salir = true;
-                        System.out.println("Saliendo del sistema. ¡Hasta luego!");
-                    }
-                    default -> System.out.println("Opción inválida.");
+            switch (opcion) {
+                case 1 -> iniciarSesion();
+                case 2 -> {
+                    salir = true;
+                    System.out.println("Saliendo del sistema. ¡Hasta luego!");
                 }
-            } catch (InputMismatchException e) {
-                System.out.println("Error: Debe ingresar un número.");
-                scanner.nextLine();
+                default -> System.out.println("Opción inválida.");
             }
         }
-
-        scanner.close();
+        Utils.cerrarScanner();
     }
-
-    /**
-     * Método para printear opciones del menu
-     */
-    private void mostrarOpciones() {
-        System.out.println("\n====================================");
-        System.out.println("     Sistema de Gestión de Aulas");
-        System.out.println("====================================");
-        System.out.println("1. Iniciar sesión");
-        System.out.println("2. Salir");
-        System.out.println("====================================");
-        System.out.print("Seleccione una opción: ");
-    }
-
 
     /**
      * Método para manejar la autenticación de usuario
      * y derivar al menu que le corresponde
      */
-    private void iniciarSesion(Scanner scanner) {
-        Usuario usuario = autenticarUsuario(scanner);
+    private void iniciarSesion() {
+        Usuario usuario = autenticarUsuario();
 
         if (usuario != null) {
             redireccionarSegunRol(usuario);
@@ -90,26 +71,22 @@ public class Menu {
 
     /**
      * Método para autenticar al Usuario
-     * @param scanner para recibir información de la consola
      * @return Usuario autenticado o null
      */
-    private Usuario autenticarUsuario(Scanner scanner) {
+    private Usuario autenticarUsuario() {
         Usuario usuario = null;
         boolean intentarDeNuevo = true;
 
         while (usuario == null && intentarDeNuevo) {
-            System.out.print("Ingrese su nombre de usuario: ");
-            String username = scanner.nextLine();
-            System.out.print("Ingrese su contraseña: ");
-            String contrasenia = scanner.nextLine();
+            String username = Utils.leerTexto("Ingrese su nombre de usuario: ");
+            String contrasenia = Utils.leerTexto("Ingrese su contraseña: ");
+
 
             try {
                 usuario = seguridad.autenticar(username, contrasenia);
-            } catch (AutenticacionException | JsonNotFoundException e) {
+            } catch (AutenticacionException | JsonNotFoundException | NotFoundException e) {
                 System.out.println(STR."Error: \{e.getMessage()}");
-                System.out.print("¿Desea intentar nuevamente? (s/n): ");
-                String respuesta = scanner.nextLine();
-                intentarDeNuevo = respuesta.equalsIgnoreCase("s");
+                intentarDeNuevo = Utils.leerConfirmacion("¿Desea intentar nuevamente?");
             }
         }
         return usuario;

@@ -1,6 +1,5 @@
 package org.example.menu;
 
-import org.example.enums.BloqueHorario;
 import org.example.enums.EstadoSolicitud;
 import org.example.enums.Permisos;
 import org.example.exception.BadRequestException;
@@ -10,8 +9,8 @@ import org.example.exception.NotFoundException;
 import org.example.model.*;
 import org.example.security.Seguridad;
 import org.example.service.*;
+import org.example.utils.Utils;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -32,7 +31,6 @@ public class MenuAdministrador {
      */
     public void iniciarMenuAdmin(Usuario usuario) {
         boolean salir = false;
-        int opcion;
 
         while (!salir) {
             System.out.println("\nElija una opción:");
@@ -42,8 +40,7 @@ public class MenuAdministrador {
             System.out.println("4. Gestionar usuarios");
             System.out.println("5. Salir");
 
-            opcion = scanner.nextInt();
-            scanner.nextLine();
+            int opcion = Utils.leerEntero("Seleccione una opción: ");
 
             switch (opcion) {
                 case 1 -> menuEspacios(usuario);
@@ -62,7 +59,6 @@ public class MenuAdministrador {
      */
     private void menuEspacios(Usuario usuario) {
         boolean salir = false;
-        int opcion;
 
         while (!salir) {
             System.out.println("\nElija una opción:");
@@ -72,8 +68,7 @@ public class MenuAdministrador {
             System.out.println("4. Eliminar espacio");
             System.out.println("5. Salir");
 
-            opcion = scanner.nextInt();
-            scanner.nextLine();
+            int opcion = Utils.leerEntero("Seleccione una opción: ");
 
             switch (opcion) {
                 case 1 -> crearEspacio(usuario);
@@ -95,32 +90,49 @@ public class MenuAdministrador {
             System.out.println("No posees el permiso para crear un aula.");
             return;
         }
+
         Aula aula;
+        int tipo;
+        do {
+            tipo = Utils.leerEntero("""
+                Elija el tipo de Espacio:
+                1. Aula
+                2. Laboratorio
+                -\s
+                """);
+            if (tipo != 1 && tipo != 2) {
+                System.out.println("Opción inválida, debe elegir 1 (Aula) o 2 (Laboratorio).");
+            }
+        } while (tipo != 1 && tipo != 2);
 
-        System.out.println("Elija el tipo de Espacio:");
-        System.out.println("1. Aula");
-        System.out.println("2. Laboratorio");
-        int tipo = scanner.nextInt();
-        scanner.nextLine();
+        int numero;
+        do {
+            numero = Utils.leerEntero("Ingrese el número de aula: ");
+            if (numero <= 0) {
+                System.out.println("El número de aula debe ser mayor que 0.");
+            }
+        } while (numero <= 0);
 
-        System.out.print("Ingrese el número de aula: ");
-        int numero = scanner.nextInt();
-        scanner.nextLine();
+        int capacidad;
+        do {
+            capacidad = Utils.leerEntero("Ingrese la capacidad del aula: ");
+            if (capacidad <= 0) {
+                System.out.println("La capacidad debe ser mayor que 0.");
+            }
+        } while (capacidad <= 0);
 
-        System.out.print("Ingrese la capacidad del aula: ");
-        int capacidad = scanner.nextInt();
-        scanner.nextLine();
+        boolean tieneProyector = Utils.leerConfirmacion("¿El aula tiene proyector?");
 
-        System.out.print("¿El aula tiene proyector? (Si/No): ");
-        boolean tieneProyector = scanner.nextLine().equalsIgnoreCase("si");
-
-        System.out.print("¿El aula tiene televisor? (Si/No): ");
-        boolean tieneTV = scanner.nextLine().equalsIgnoreCase("si");
-
+        boolean tieneTV = Utils.leerConfirmacion("¿El aula tiene televisor?");
 
         if (tipo == 2) {
-            System.out.print("Ingrese la cantidad de computadoras: ");
-            int computadoras = scanner.nextInt();
+            int computadoras;
+            do {
+                computadoras = Utils.leerEntero("Ingrese la cantidad de computadoras: ");
+                if (computadoras < 0) {
+                    System.out.println("La cantidad de computadoras no puede ser negativa.");
+                }
+            } while (computadoras < 0);
             aula = new Laboratorio(null, numero, capacidad, tieneProyector, tieneTV, computadoras);
         } else {
             aula = new Aula(null, numero, capacidad, tieneProyector, tieneTV);
@@ -134,6 +146,7 @@ public class MenuAdministrador {
         }
     }
 
+
     /**
      * Método para modificar espacio del submenu espacio
      * @param usuario que esta logueado para verificar perfil con permisos
@@ -144,8 +157,7 @@ public class MenuAdministrador {
                 aulaService.listar().forEach(System.out::println);
 
                 // Solicitar el número del espacio a modificar
-                System.out.print("Ingrese el id del espacio que desea modificar: ");
-                int numero = Integer.parseInt(scanner.nextLine());
+                int numero = Utils.leerEntero("Ingrese el id del espacio que desea modificar: ");
 
                 // Obtener el espacio por número
                 Aula aula = aulaService.obtener(numero);
@@ -166,27 +178,22 @@ public class MenuAdministrador {
                     }
 
                     System.out.println("5. Guardar cambios y salir");
-                    System.out.print("Seleccione el atributo que desea modificar (1-5): ");
 
 
-                    var opcion = Integer.parseInt(scanner.nextLine());
+                    var opcion = Utils.leerEntero("Seleccione el atributo que desea modificar (1-5): ");
 
                     switch (opcion) {
                         case 1:
-                            System.out.print("Ingrese el nuevo número: ");
-                            aula.setNumero(Integer.parseInt(scanner.nextLine()));
+                            aula.setNumero(Utils.leerEntero("Ingrese el nuevo número: "));
                             break;
                         case 2:
-                            System.out.print("Ingrese la nueva capacidad: ");
-                            aula.setCapacidad(Integer.parseInt(scanner.nextLine()));
+                            aula.setCapacidad(Utils.leerEntero("Ingrese la nueva capacidad: "));
                             break;
                         case 3:
-                            System.out.print("¿Tiene proyector? (Si/No): ");
-                            aula.setTieneProyector(scanner.nextLine().equalsIgnoreCase("si"));
+                            aula.setTieneProyector(Utils.leerConfirmacion("¿Tiene proyector?"));
                             break;
                         case 4:
-                            System.out.print("¿Tiene TV? (Si/No): ");
-                            aula.setTieneTV(scanner.nextLine().equalsIgnoreCase("si"));
+                            aula.setTieneTV(Utils.leerConfirmacion("¿Tiene TV?"));
                             break;
                         case 5:
                             // Guardar cambios
@@ -215,9 +222,7 @@ public class MenuAdministrador {
         {
             try {
                 aulaService.listar().forEach(System.out::println);
-                System.out.println("Ingrese el id del espacio a eliminar");
-                int id = scanner.nextInt();
-                scanner.nextLine();
+                int id = Utils.leerEntero("Ingrese el id del espacio a eliminar");
                 aulaService.eliminar(id);
                 System.out.println("Espacio eliminado exitosamente");
             }catch (JsonNotFoundException | NotFoundException e) {
@@ -234,7 +239,6 @@ public class MenuAdministrador {
      */
     private void menuListarEspacios(Usuario usuario) {
         boolean salir = false;
-        int opcion;
 
         while (!salir) {
             System.out.println("\nElija una opción de listado o filtro:");
@@ -247,10 +251,11 @@ public class MenuAdministrador {
             System.out.println("7. Listar espacios disponibles");
             System.out.println("8. Listar aulas disponibles");
             System.out.println("9. Listar laboratorios disponibles");
-            System.out.println("10. Salir");
+            System.out.println("10. Filtrar aulas disponibles");
+            System.out.println("11. Filtrar laboratorios disponibles");
+            System.out.println("12. Salir");
 
-            opcion = scanner.nextInt();
-            scanner.nextLine();
+            int opcion = Utils.leerEntero("Seleccione una opción: ");
 
             switch (opcion) {
                 case 1 -> listarEspacios(usuario);
@@ -262,7 +267,9 @@ public class MenuAdministrador {
                 case 7 -> listarEspaciosDisponibles(usuario);
                 case 8 -> listarAulasDisponibles(usuario);
                 case 9 -> listarLaboratoriosDisponibles(usuario);
-                case 10 -> salir = true;
+                case 10 -> filtrarAulasDisponibles(usuario);
+                case 11 -> filtrarLaboratoriosDisponibles(usuario);
+                case 12 -> salir = true;
                 default -> System.out.println("Opción inválida.");
             }
         }
@@ -323,9 +330,9 @@ public class MenuAdministrador {
     private void filtrarEspacios(Usuario usuario) {
         if (seguridad.verificarPermiso(usuario, Permisos.VER_ESPACIOS)) {
             try {
-                var capacidad = obtenerCapacidadEspacio();
-                var tieneProyector = obtenerProyectoEspacio();
-                var tieneTV = obtenerTvEspacio();
+                var capacidad = Utils.obtenerCapacidadEspacio();
+                var tieneProyector = Utils.obtenerProyectoEspacio();
+                var tieneTV = Utils.obtenerTvEspacio();
 
                 // Filtrar los espacios según los parámetros ingresados
                 var espaciosFiltrados = aulaService.filtrarEspaciosPorCondiciones(capacidad, tieneProyector, tieneTV);
@@ -351,9 +358,9 @@ public class MenuAdministrador {
     private void filtrarAulas(Usuario usuario) {
         if (seguridad.verificarPermiso(usuario, Permisos.VER_AULAS)) {
             try {
-                var capacidad = obtenerCapacidadEspacio();
-                var tieneProyector = obtenerProyectoEspacio();
-                var tieneTV = obtenerTvEspacio();
+                var capacidad = Utils.obtenerCapacidadEspacio();
+                var tieneProyector = Utils.obtenerProyectoEspacio();
+                var tieneTV = Utils.obtenerTvEspacio();
 
                 // Filtrar los espacios según los parámetros ingresados
                 var espaciosFiltrados = aulaService.filtrarAulasPorCondiciones(capacidad, tieneProyector, tieneTV);
@@ -379,23 +386,19 @@ public class MenuAdministrador {
     private void filtrarLaboratorios(Usuario usuario) {
         if (seguridad.verificarPermiso(usuario, Permisos.VER_LABORATORIOS)) {
             try {
-               var capacidad = obtenerCapacidadEspacio();
-               var tieneProyector = obtenerProyectoEspacio();
-               var tieneTV = obtenerTvEspacio();
+                var capacidad = Utils.obtenerCapacidadEspacio();
+                var tieneProyector = Utils.obtenerProyectoEspacio();
+                var tieneTV = Utils.obtenerTvEspacio();
 
-               // Solicitar las computadoras
-                System.out.println("Ingrese la cantidad de computadoras (-1 si no quiere aplicar este filtro): ");
-                var computadorasInput = scanner.nextInt();
-                scanner.nextLine();
-                var computadoras = computadorasInput == -1 ? null : computadorasInput;
+                var computadoras = Utils.obtenerCantidadComputadoras();
 
                 // Filtrar los espacios según los parámetros ingresados
                 var espaciosFiltrados = aulaService
                         .filtrarLaboratoriosPorCondiciones(capacidad, tieneProyector, tieneTV,computadoras);
                 if (espaciosFiltrados.isEmpty()) {
-                    System.out.println("No se encontraron aulas que coincidan con los criterios de búsqueda.");
+                    System.out.println("No se encontraron laboratorios que coincidan con los criterios de búsqueda.");
                 } else {
-                    System.out.println("Aulas encontrados:");
+                    System.out.println("Laboratorios encontrados:");
                     espaciosFiltrados.forEach(System.out::println);
                 }
 
@@ -403,44 +406,8 @@ public class MenuAdministrador {
                 System.out.println(STR."Error: \{e.getMessage()}");
             }
         } else {
-            System.out.println("No posees el permiso para ver las aulas.");
+            System.out.println("No posees el permiso para ver los laboratorios.");
         }
-    }
-
-    /**
-     * Método para preguntarle al usuario la capacidad de un espacio
-     * @return la cantidad del espacio
-     */
-    private Integer obtenerCapacidadEspacio(){
-        // Solicitar la capacidad
-        System.out.println("Ingrese la capacidad (-1 si no quiere aplicar este filtro): ");
-        var capacidadInput = scanner.nextInt();
-        scanner.nextLine();
-        return capacidadInput == -1 ? null : capacidadInput;
-    }
-
-    /**
-     * Método para preguntarle al usuario si un espacio tiene proyector
-     * @return si tiene o no proyector
-     */
-    private Boolean obtenerProyectoEspacio(){
-        // Solicitar si tiene proyector
-        System.out.println("¿Debe tener proyector? (Si/No) (Escriba 'ninguno' si no quiere aplicar este filtro): ");
-        var proyectorInput = scanner.nextLine().trim().toLowerCase();
-
-        return proyectorInput.equals("ninguno") ? null : proyectorInput.equalsIgnoreCase("si");
-
-    }
-    /**
-     * Método para preguntarle al usuario si un espacio tiene tv
-     * @return si tiene o no tv
-     */
-    private Boolean obtenerTvEspacio(){
-        // Solicitar si tiene TV
-        System.out.println("¿Debe tener TV? (Si/No) (Escriba 'ninguno' si no quiere aplicar este filtro): ");
-        var tvInput = scanner.nextLine().trim().toLowerCase();
-        return tvInput.equals("ninguno") ? null : tvInput.equalsIgnoreCase("si");
-
     }
 
     /**
@@ -453,19 +420,15 @@ public class MenuAdministrador {
             try
             {
                 // Pedir fecha de inicio
-                System.out.print("Ingrese la fecha de inicio (AAAA-MM-DD): ");
-                String fechaInicioStr = scanner.nextLine();
-                LocalDate fechaInicio = LocalDate.parse(fechaInicioStr);
+                LocalDate fechaInicio = Utils.leerFecha("Ingrese la fecha de inicio");
 
                 // Pedir fecha de fin
-                System.out.print("Ingrese la fecha de fin (AAAA-MM-DD): ");
-                String fechaFinStr = scanner.nextLine();
-                LocalDate fechaFin = LocalDate.parse(fechaFinStr);
+                LocalDate fechaFin = Utils.leerFecha("Ingrese la fecha de fin");
 
 
-                var diasYBloques = obtenerDiasYBloques();
+                var diasYBloques = Utils.leerDiasYBloques();
 
-                // Llamar a la función y listar aulas disponibles
+                // Llamar a la función y listar lab y aulas disponibles
                 var espaciosDisponibles = aulaService.listarEspaciosDisponibles(fechaInicio, fechaFin, diasYBloques);
                 System.out.println("Espacios disponibles:");
                 espaciosDisponibles.forEach(System.out::println);
@@ -487,18 +450,14 @@ public class MenuAdministrador {
         {
             try
             {
-                // Pedir fecha de inicio
-                System.out.print("Ingrese la fecha de inicio (AAAA-MM-DD): ");
-                String fechaInicioStr = scanner.nextLine();
-                LocalDate fechaInicio = LocalDate.parse(fechaInicioStr);
+                /// Pedir fecha de inicio
+                LocalDate fechaInicio = Utils.leerFecha("Ingrese la fecha de inicio");
 
                 // Pedir fecha de fin
-                System.out.print("Ingrese la fecha de fin (AAAA-MM-DD): ");
-                String fechaFinStr = scanner.nextLine();
-                LocalDate fechaFin = LocalDate.parse(fechaFinStr);
+                LocalDate fechaFin = Utils.leerFecha("Ingrese la fecha de fin");
 
 
-                var diasYBloques = obtenerDiasYBloques();
+                var diasYBloques =  Utils.leerDiasYBloques();
 
                 // Llamar a la función y listar aulas disponibles
                 List<Aula> aulasDisponibles = aulaService.listarAulasDisponibles(fechaInicio, fechaFin, diasYBloques);
@@ -523,18 +482,14 @@ public class MenuAdministrador {
             try
             {
                 // Pedir fecha de inicio
-                System.out.print("Ingrese la fecha de inicio (AAAA-MM-DD): ");
-                String fechaInicioStr = scanner.nextLine();
-                LocalDate fechaInicio = LocalDate.parse(fechaInicioStr);
+                LocalDate fechaInicio = Utils.leerFecha("Ingrese la fecha de inicio");
 
                 // Pedir fecha de fin
-                System.out.print("Ingrese la fecha de fin (AAAA-MM-DD): ");
-                String fechaFinStr = scanner.nextLine();
-                LocalDate fechaFin = LocalDate.parse(fechaFinStr);
+                LocalDate fechaFin = Utils.leerFecha("Ingrese la fecha de fin");
 
 
-                var diasYBloques = obtenerDiasYBloques();
-                // Llamar a la función y listar aulas disponibles
+                var diasYBloques = Utils.leerDiasYBloques();
+                // Llamar a la función y listar laboratorios disponibles
                 var laboratoriosDisponibles = aulaService.listarLaboratoriosDisponibles(fechaInicio, fechaFin, diasYBloques);
                 System.out.println("Laboratorios disponibles:");
                 laboratoriosDisponibles.forEach(System.out::println);
@@ -548,47 +503,80 @@ public class MenuAdministrador {
     }
 
     /**
-     * Método para pedir los días seleccionados y bloques horarios.
-     * @return Map<DayOfWeek, Set<BloqueHorario>> que contiene los días seleccionados y los bloques horarios
+     * Método para filtrar todas las aulas estándar disponibles
+     * @param usuario que esta logueado para verificar perfil con permisos
      */
-    private Map<DayOfWeek, Set<BloqueHorario>> obtenerDiasYBloques() {
-        Map<DayOfWeek, Set<BloqueHorario>> diasYBloques = new HashMap<>();
+    private void filtrarAulasDisponibles(Usuario usuario) {
+        if (seguridad.verificarPermiso(usuario, Permisos.VER_AULAS)) {
+            try {
+                var capacidad = Utils.obtenerCapacidadEspacio();
+                var tieneProyector = Utils.obtenerProyectoEspacio();
+                var tieneTV = Utils.obtenerTvEspacio();
 
-        // Seleccionar días de la semana
-        Set<DayOfWeek> diasSeleccionados = new HashSet<>();
-        System.out.println("Ingrese los días de la semana (separados por comas): ");
-        System.out.println("1. Lunes");
-        System.out.println("2. Martes");
-        System.out.println("3. Miércoles");
-        System.out.println("4. Jueves");
-        System.out.println("5. Viernes");
-        System.out.println("6. Sábado");
-        System.out.println("7. Domingo");
-        String diasInput = scanner.nextLine();
-        for (String diaStr : diasInput.split(",")) {
-            int dia = Integer.parseInt(diaStr.trim()) - 1;
-            diasSeleccionados.add(DayOfWeek.of(dia + 1)); // DayOfWeek usa valores 1-7 para Lunes-Domingo
-        }
+                LocalDate fechaInicio = Utils.leerFecha("Ingrese la fecha de inicio");
 
-        // Seleccionar bloques horarios
-        for (DayOfWeek dia : diasSeleccionados) {
-            Set<BloqueHorario> bloques = new HashSet<>();
-            System.out.println(STR."Seleccione los bloques horarios para \{dia} (separado por comas): ");
-            int i = 1;
-            for (BloqueHorario bloque : BloqueHorario.values()) {
-                System.out.println(STR."\{i}. \{bloque}");
-                i++;
+
+                LocalDate fechaFin = Utils.leerFecha("Ingrese la fecha de fin");
+
+                var diasYBloques = Utils.leerDiasYBloques();
+
+                // Filtrar los espacios según los parámetros ingresados
+                var espaciosFiltrados = aulaService.listarAulasDisponiblesPorSolicitud(capacidad, tieneProyector,
+                        tieneTV,fechaInicio,fechaFin,diasYBloques);
+
+                if (espaciosFiltrados.isEmpty()) {
+                    System.out.println("No se encontraron aulas que coincidan con los criterios de búsqueda.");
+                } else {
+                    System.out.println("Aulas encontrados:");
+                    espaciosFiltrados.forEach(System.out::println);
+                }
+
+            } catch (JsonNotFoundException e) {
+                System.out.println(STR."Error: \{e.getMessage()}");
             }
-            String bloquesStr = scanner.nextLine();
-            for (String bloqueIndex : bloquesStr.split(",")) {
-                int opcionBloque = Integer.parseInt(bloqueIndex.trim()) - 1;
-                bloques.add(BloqueHorario.values()[opcionBloque]);
-            }
-            diasYBloques.put(dia, bloques);
+        } else {
+            System.out.println("No posees el permiso para ver las aulas.");
         }
-
-        return diasYBloques;
     }
+
+    /**
+     * Método para filtrar todos los laboratorios disponibles
+     * @param usuario que esta logueado para verificar perfil con permisos
+     */
+    private void filtrarLaboratoriosDisponibles(Usuario usuario) {
+        if (seguridad.verificarPermiso(usuario, Permisos.VER_LABORATORIOS)) {
+            try {
+                var capacidad = Utils.obtenerCapacidadEspacio();
+                var tieneProyector = Utils.obtenerProyectoEspacio();
+                var tieneTV = Utils.obtenerTvEspacio();
+
+                LocalDate fechaInicio = Utils.leerFecha("Ingrese la fecha de inicio");
+
+
+                LocalDate fechaFin = Utils.leerFecha("Ingrese la fecha de fin");
+
+                var diasYBloques = Utils.leerDiasYBloques();
+
+                var computadoras = Utils.obtenerCantidadComputadoras();
+
+                // Filtrar los espacios según los parámetros ingresados
+                var espaciosFiltrados = aulaService
+                        .listarLaboratoriosDisponiblesPorSolicitud(computadoras,capacidad, tieneProyector, tieneTV,fechaInicio,fechaFin,diasYBloques);
+                if (espaciosFiltrados.isEmpty()) {
+                    System.out.println("No se encontraron laboratorios que coincidan con los criterios de búsqueda.");
+                } else {
+                    System.out.println("Laboratorios encontrados:");
+                    espaciosFiltrados.forEach(System.out::println);
+                }
+
+            } catch (JsonNotFoundException e) {
+                System.out.println(STR."Error: \{e.getMessage()}");
+            }
+        } else {
+            System.out.println("No posees el permiso para ver los laboratorios.");
+        }
+    }
+
 
     /**
      * Método para submenu reserva
@@ -596,7 +584,6 @@ public class MenuAdministrador {
      */
     private void menuReserva(Usuario usuario) {
         boolean salir = false;
-        int opcion;
 
         while (!salir) {
             System.out.println("Elija una opción:");
@@ -609,8 +596,7 @@ public class MenuAdministrador {
             System.out.println("7.Eliminar reserva");
             System.out.println("8.Salir.");
 
-            opcion = scanner.nextInt();
-            scanner.nextLine();
+            int opcion = Utils.leerEntero("Seleccione una opción: ");
 
             switch (opcion) {
                 case 1 -> crearReserva(usuario);
@@ -639,35 +625,24 @@ public class MenuAdministrador {
         try{
             Reserva reserva = new Reserva(null);
 
-            // Pedir fecha de inicio
-            System.out.print("Ingrese la fecha de inicio (AAAA-MM-DD): ");
-            String fechaInicioStr = scanner.nextLine();
-            LocalDate fechaInicio = LocalDate.parse(fechaInicioStr);
-
+            /// Pedir fecha de inicio
+            LocalDate fechaInicio = Utils.leerFecha("Ingrese la fecha de inicio");
             reserva.setFechaInicio(fechaInicio);
 
             // Pedir fecha de fin
-            System.out.print("Ingrese la fecha de fin (AAAA-MM-DD): ");
-            String fechaFinStr = scanner.nextLine();
-            LocalDate fechaFin = LocalDate.parse(fechaFinStr);
-
+            LocalDate fechaFin = Utils.leerFecha("Ingrese la fecha de fin");
             reserva.setFechaFin(fechaFin);
 
-            var diasYBloques = obtenerDiasYBloques();
+
+            var diasYBloques = Utils.leerDiasYBloques();
             reserva.setDiasYBloques(diasYBloques);
 
             aulaService.listarEspaciosDisponibles(fechaInicio,fechaFin,diasYBloques).forEach(System.out::println);
-            System.out.print("Ingrese el id del espacio: ");
-            int idAula = scanner.nextInt();
-            scanner.nextLine();
-
+            int idAula = Utils.leerEntero("Ingrese el id del espacio: ");
             reserva.setAula(new Aula(idAula));
 
             inscripcionService.listar().forEach(System.out::println);
-            System.out.print("Ingrese el id de la inscripción: ");
-            int idInscripcion = scanner.nextInt();
-            scanner.nextLine();
-
+            int idInscripcion = Utils.leerEntero("Ingrese el id de la inscripción: ");
             reserva.setInscripcion(new Inscripcion(idInscripcion));
 
             reservaService.guardar(reserva);
@@ -701,9 +676,7 @@ public class MenuAdministrador {
         if (seguridad.verificarPermiso(usuario, Permisos.VER_RESERVAS)) {
             try {
                 profesorService.listar().forEach(System.out::println);
-                System.out.println("Ingresa el id del profesor: ");
-                var idProfesor = scanner.nextInt();
-                scanner.nextLine();
+                var idProfesor = Utils.leerEntero("Ingresa el id del profesor: ");
                 reservaService.listarReservasPorProfesor(idProfesor).forEach(System.out::println);
             } catch (NotFoundException | JsonNotFoundException e) {
                 System.out.println(e.getMessage());
@@ -714,14 +687,13 @@ public class MenuAdministrador {
     }
 
     /**
-     * Método para listar todas las reservas por comision
+     * Método para listar todas las reservas por comisión
      * @param usuario que esta logueado para verificar perfil con permisos
      */
     private void listarReservasXComision(Usuario usuario) {
         if (seguridad.verificarPermiso(usuario, Permisos.VER_RESERVAS)) {
             try {
-                System.out.println("Ingresa la comision: ");
-                var comision = scanner.nextLine();
+                var comision = Utils.leerTexto("Ingresa la comisión: ");
                 reservaService.listarReservasPorComision(comision).forEach(System.out::println);
             } catch (NotFoundException | JsonNotFoundException e) {
                 System.out.println(e.getMessage());
@@ -739,9 +711,7 @@ public class MenuAdministrador {
         if (seguridad.verificarPermiso(usuario, Permisos.VER_RESERVAS)) {
             try {
                 asignaturaService.listar().forEach(System.out::println);
-                System.out.println("Ingresa el id de la asignatura: ");
-                var idAsignatura = scanner.nextInt();
-                scanner.nextLine();
+                var idAsignatura = Utils.leerEntero("Ingresa el id de la asignatura: ");
                 reservaService.listarReservasPorAsignatura(idAsignatura).forEach(System.out::println);
             } catch (NotFoundException | JsonNotFoundException e) {
                 System.out.println(e.getMessage());
@@ -761,8 +731,7 @@ public class MenuAdministrador {
                 reservaService.listar().forEach(System.out::println);
 
                 // Solicitar el número de la reserva a modificar
-                System.out.print("Ingrese el id de la reserva que desea modificar: ");
-                int numero = Integer.parseInt(scanner.nextLine());
+                int numero = Utils.leerEntero("Ingrese el id de la reserva que desea modificar: ");
 
                 // Obtener la reserva por id
                 Reserva reserva = reservaService.obtener(numero);
@@ -777,41 +746,32 @@ public class MenuAdministrador {
                     System.out.println(STR."4. \{reserva.getAula()}");
                     System.out.println(STR."5. \{reserva.getInscripcion()}");
                     System.out.println("6. Guardar cambios y salir");
-                    System.out.print("Seleccione el atributo que desea modificar (1-6): ");
 
-                    var opcion = Integer.parseInt(scanner.nextLine());
+                    var opcion = Utils.leerEntero("Seleccione el atributo que desea modificar (1-6): ");
 
                     switch (opcion) {
                         case 1:
                             // Pedir fecha de inicio
-                            System.out.print("Ingrese la fecha de inicio (AAAA-MM-DD): ");
-                            String fechaInicioStr = scanner.nextLine();
-                            LocalDate fechaInicio = LocalDate.parse(fechaInicioStr);
+                            LocalDate fechaInicio = Utils.leerFecha("Ingrese la fecha de inicio");
                             reserva.setFechaInicio(fechaInicio);
                             break;
                         case 2:
-                            System.out.print("Ingrese la fecha de fin (AAAA-MM-DD): ");
-                            String fechaFinStr = scanner.nextLine();
-                            LocalDate fechaFin = LocalDate.parse(fechaFinStr);
+                            LocalDate fechaFin = Utils.leerFecha("Ingrese la fecha de fin");
 
                             reserva.setFechaFin(fechaFin);
                             break;
                         case 3:
-                            reserva.setDiasYBloques(obtenerDiasYBloques());
+                            reserva.setDiasYBloques(Utils.leerDiasYBloques());
                             break;
                         case 4:
                             aulaService.listar().forEach(System.out::println);
-                            System.out.print("Ingrese el id del espacio: ");
-                            int idAula = scanner.nextInt();
-                            scanner.nextLine();
+                            int idAula = Utils.leerEntero("Ingrese el id del espacio: ");
 
                             reserva.setAula(new Aula(idAula));
                             break;
                         case 5:
                             inscripcionService.listar().forEach(System.out::println);
-                            System.out.print("Ingrese el id de la inscripción: ");
-                            int idInscripcion = scanner.nextInt();
-                            scanner.nextLine();
+                            int idInscripcion = Utils.leerEntero("Ingrese el id de la inscripción: ");
 
                             reserva.setInscripcion(new Inscripcion(idInscripcion));
                             break;
@@ -842,9 +802,7 @@ public class MenuAdministrador {
         {
             try {
                 reservaService.listar().forEach(System.out::println);
-                System.out.println("Ingrese el id de la reserva a eliminar");
-                int id = scanner.nextInt();
-                scanner.nextLine();
+                int id = Utils.leerEntero("Ingrese el id de la reserva a eliminar");
                 reservaService.eliminar(id);
                 System.out.println("Reserva eliminada exitosamente");
             }catch (JsonNotFoundException | NotFoundException e) {
@@ -862,7 +820,6 @@ public class MenuAdministrador {
      */
     private void menuSolicitudes(Usuario usuario) {
         boolean salir = false;
-        int opcion;
 
         while (!salir) {
             System.out.println("Elija una opción:");
@@ -870,8 +827,7 @@ public class MenuAdministrador {
             System.out.println("2.Revisar solicitudes pendientes");
             System.out.println("3.Salir.");
 
-            opcion = scanner.nextInt();
-            scanner.nextLine();
+            int opcion = Utils.leerEntero("Seleccione una opción: ");
 
             switch (opcion) {
                 case 1 -> menuListarSolicitudes(usuario);
@@ -888,7 +844,6 @@ public class MenuAdministrador {
      */
     private void menuListarSolicitudes(Usuario usuario) {
         boolean salir = false;
-        int opcion;
 
         while (!salir) {
             System.out.println("\nElija una opción de listado o filtro:");
@@ -899,8 +854,7 @@ public class MenuAdministrador {
             System.out.println("5. Listar todas las solicitudes x profesor");
             System.out.println("6. Salir");
 
-            opcion = scanner.nextInt();
-            scanner.nextLine();
+            int opcion = Utils.leerEntero("Seleccione una opción: ");
 
             switch (opcion) {
                 case 1 -> listarSolicitudes(usuario);
@@ -959,10 +913,7 @@ public class MenuAdministrador {
         if (seguridad.verificarPermiso(usuario, Permisos.VER_SOLICITUDES_CAMBIO)) {
             try {
                 profesorService.listar().forEach(System.out::println);
-
-                System.out.println("Ingresa el id del profesor: ");
-                var idProfesor = scanner.nextInt();
-                scanner.nextLine();
+                var idProfesor = Utils.leerEntero("Ingresa el id del profesor: ");
 
                 solicitudCambioAulaService.listarSolicitudesPorEstadoYProfesor(EstadoSolicitud.PENDIENTE,idProfesor)
                         .forEach(System.out::println);
@@ -984,20 +935,16 @@ public class MenuAdministrador {
                 solicitudCambioAulaService.listarSolicitudesPorEstado(EstadoSolicitud.PENDIENTE)
                         .forEach(System.out::println);
 
-                System.out.println("Ingresa el id de la solicitud: ");
-                var idSolicitud = scanner.nextInt();
-                scanner.nextLine();
+                var idSolicitud = Utils.leerEntero("Ingresa el id de la solicitud: ");
 
-                System.out.println("""
+                var estado= Utils.leerEntero("""
                         Elija una opción:
                         1.Rechazar
                         2.Aprobar
+                        -\s
                         """);
-                var estado= scanner.nextInt();
-                scanner.nextLine();
 
-                System.out.println("Indica el motivo (Enter si no quieres indicarlo):");
-                var motivo = scanner.nextLine();
+                var motivo = Utils.leerTexto("Indica el motivo (Enter si no quieres indicarlo): ");
 
                 switch (estado){
                     case 1:
@@ -1021,7 +968,6 @@ public class MenuAdministrador {
      */
     private void menuUsuarios(Usuario usuario){
         boolean salir = false;
-        int opcion;
 
         while (!salir) {
             System.out.println("Elija una opción:");
@@ -1032,7 +978,7 @@ public class MenuAdministrador {
             System.out.println("5. Cambiar contraseña");
             System.out.println("6. Salir.");
 
-            opcion = scanner.nextInt();
+            int opcion = Utils.leerEntero("Seleccione una opción: ");
             scanner.nextLine();
 
             switch (opcion) {
@@ -1059,21 +1005,20 @@ public class MenuAdministrador {
 
         try{
             // Pedir nombre de usuario
-            System.out.print("Ingrese el nombre de usuario: ");
-            var username = scanner.nextLine();
+            var username = Utils.leerTexto("Ingrese el nombre de usuario: ");
 
-            System.out.println("Ingrese la contraseña: ");
-            var contrasenia = scanner.nextLine();
+            var contrasenia = Utils.leerTexto("Ingrese la contraseña: ");
 
-            System.out.println("""
+            var idRol = Utils.leerEntero("""
                             Ingrese el rol:
                             1.Admin
                             2.Profesor
-                            -\s""");
-            var rol = scanner.nextInt();
-            scanner.nextLine();
+                            -\s
+                            """);
 
-            usuarioService.guardar(new Usuario(null,username,contrasenia,new Rol(rol)));
+            profesorService.listar().forEach(System.out::println);
+            var idProfesor = Utils.leerEntero("Ingresa el id del profesor que representa: ");
+            usuarioService.guardar(new Usuario(null,username,contrasenia,new Rol(idRol),new Profesor(idProfesor)));
             System.out.println("Usuario creado exitosamente.");
         } catch (JsonNotFoundException | BadRequestException | NotFoundException e) {
             System.out.println(e.getMessage());
@@ -1088,7 +1033,7 @@ public class MenuAdministrador {
         if (seguridad.verificarPermiso(usuario, Permisos.VER_USUARIOS)) {
             try {
                 usuarioService.listar().forEach(System.out::println);
-            } catch (JsonNotFoundException e) {
+            } catch (JsonNotFoundException | NotFoundException e) {
                 System.out.println(e.getMessage());
             }
         } else {
@@ -1106,11 +1051,9 @@ public class MenuAdministrador {
                 usuarioService.listar().forEach(System.out::println);
 
                 // Solicitar el número del usuario a modificar
-                System.out.print("Ingrese el id del usuario que desea modificar: ");
-                int id = scanner.nextInt();
-                scanner.nextLine();
+                int id = Utils.leerEntero("Ingrese el id del usuario que desea modificar: ");
 
-                // Obtener el espacio por número
+                // Obtener el usuario por id
                 var user= usuarioService.obtener(id);
 
                 boolean continuar = true;
@@ -1121,37 +1064,29 @@ public class MenuAdministrador {
                     System.out.println(STR."2. Contraseña: \{user.getPassword()}");
                     System.out.println(STR."3. Rol: \{user.getRol().getNombre()}");
                     System.out.println("4. Guardar cambios y salir");
-                    System.out.print("Seleccione el atributo que desea modificar (1-4): ");
 
-                    var opcion = scanner.nextInt();
-                    scanner.nextLine();
+                    var opcion = Utils.leerEntero("Seleccione el atributo que desea modificar (1-4): ");
 
                     switch (opcion) {
                         case 1:
                             // Pedir username
-                            System.out.print("Ingrese el nuevo nombre de usuario: ");
-                            var username = scanner.nextLine();
-                            user.setUsername(username);
+                            user.setUsername( Utils.leerTexto("Ingrese el nuevo nombre de usuario: "));
                             break;
                         case 2:
                             // Pedir password
-                            System.out.print("Ingrese la nueva contraseña: ");
-                            var password = scanner.nextLine();
-                            user.setPassword(password);
+                            user.setPassword(Utils.leerTexto("Ingrese la nueva contraseña: "));
                             break;
                         case 3:
                             // Pedir rol
                             boolean sigo = true;
                             int rol = 2;
                             while (sigo) {
-                                System.out.print("""
+
+                                rol = Utils.leerEntero("""
                                     Ingresa el nuevo rol:
                                     1. Admin
                                     2. Profesor
                                     """);
-
-                                rol = scanner.nextInt();
-                                scanner.nextLine();
 
                                 if (rol == 1 || rol == 2) {
                                     sigo = false;
@@ -1189,10 +1124,7 @@ public class MenuAdministrador {
         {
             try {
                 usuarioService.listar().forEach(System.out::println);
-                System.out.println("Ingrese el id del usuario a eliminar");
-                int id = scanner.nextInt();
-                scanner.nextLine();
-                usuarioService.eliminar(id);
+                usuarioService.eliminar(Utils.leerEntero("Ingrese el id del usuario a eliminar: "));
                 System.out.println("Usuario eliminado exitosamente");
             }catch (JsonNotFoundException | NotFoundException e) {
                 System.out.println(e.getMessage());
@@ -1212,10 +1144,8 @@ public class MenuAdministrador {
             try {
                 boolean passwordsCoinciden = false;
                 while (!passwordsCoinciden) {
-                    System.out.println("Ingresa la nueva contraseña: ");
-                    var password = scanner.nextLine();
-                    System.out.println("Ingresa nuevamente la contraseña: ");
-                    var validaPassword = scanner.nextLine();
+                    var password = Utils.leerTexto("Ingresa la nueva contraseña: ");
+                    var validaPassword = Utils.leerTexto("Ingresa nuevamente la contraseña: ");
 
                     if (password.equals(validaPassword)) {
                         usuario.setPassword(password);
@@ -1230,7 +1160,7 @@ public class MenuAdministrador {
                 System.out.println(e.getMessage());
             }
         }else {
-            System.out.println("No posees el permiso para eliminar usuarios.");
+            System.out.println("No posees el permiso para cambiar tu contraseña.");
         }
     }
 }
