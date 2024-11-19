@@ -727,9 +727,10 @@ public class MenuAdministrador {
             reserva.setFechaInicio(fechaInicio);
             reserva.setFechaFin(fechaFin);
 
-            Map<DayOfWeek,Set<BloqueHorario>> diasYBloques = new HashMap<>();
+            Map<DayOfWeek,Set<BloqueHorario>> diasYBloques;
 
             if (fechaInicio.equals(fechaFin)){
+                diasYBloques = new HashMap<>();
                 var bloques = Utils.leerBloques(fechaInicio.getDayOfWeek());
 
                 diasYBloques.put(fechaInicio.getDayOfWeek(),bloques);
@@ -746,7 +747,20 @@ public class MenuAdministrador {
             int idInscripcion = Utils.leerEntero("\nIngrese el id de la inscripción: ");
             reserva.setInscripcion(new Inscripcion(idInscripcion));
 
+            // Verificar superposición de días, horarios y fechas
             var inscripcion = inscripcionService.obtener(idInscripcion);
+            var reservasExistentes = reservaService.listarPorInscripcion(idInscripcion);
+
+            boolean haySuperposicion = reservasExistentes.stream()
+                    .anyMatch(reservaExistente ->
+                            Utils.tieneSolapamientoEnDiasYBloques(reservaExistente.getDiasYBloques(), diasYBloques) &&
+                                    Utils.seSolapanFechas(reservaExistente.getFechaInicio(), reservaExistente.getFechaFin(), fechaInicio, fechaFin));
+
+            if (haySuperposicion) {
+                System.out.println("\nError: La inscripción ya tiene una reserva en los días y horarios seleccionados dentro del rango de fechas.");
+                return;
+            }
+
             int alumnosRequeridos = inscripcion.getCantidadAlumnos() +
                     (inscripcion.getFechaFinInscripcion().isAfter(LocalDate.now()) ? inscripcion.getMargenAlumnos() : 0);
 
@@ -1533,6 +1547,13 @@ public class MenuAdministrador {
         }
     }
 
+    /**
+     * Método para validar el aula con la inscripción y sus condiciones
+     * @param aula a validar
+     * @param inscripcion a validar
+     * @param alumnosRequeridos que tiene la inscripción
+     * @return boolean true si cumple las condiciones, false si no las cumple
+     */
     private boolean validarAulaParaInscripcion(Aula aula, Inscripcion inscripcion, int alumnosRequeridos) {
         if (aula.getCapacidad() < alumnosRequeridos) {
             return false;
@@ -1547,5 +1568,4 @@ public class MenuAdministrador {
 
         return true;
     }
-
 }

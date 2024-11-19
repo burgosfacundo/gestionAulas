@@ -360,6 +360,41 @@ public class Utils {
     }
 
     /**
+     * Método que verifica si dos períodos de fechas se solapan.
+     * @param fechaInicio1 inicio del primer período.
+     * @param fechaFin1 fin del primer período.
+     * @param fechaInicio2 inicio del segundo período.
+     * @param fechaFin2 fin del segundo período.
+     * @return boolean si los períodos se solapan o no.
+     */
+    public static boolean seSolapanFechas(LocalDate fechaInicio1, LocalDate fechaFin1, LocalDate fechaInicio2, LocalDate fechaFin2) {
+        return !fechaFin1.isBefore(fechaInicio2) && !fechaInicio1.isAfter(fechaFin2);
+    }
+
+    /**
+     * Método que verifica si hay solapamiento en los días y bloques horarios entre dos mapas.
+     * @param diasYBloquesReserva días y bloques horarios de una reserva existente.
+     * @param diasYBloquesSolicitados días y bloques horarios solicitados para disponibilidad.
+     * @return boolean si existe al menos un día y bloque horario común.
+     */
+    public static boolean tieneSolapamientoEnDiasYBloques(Map<DayOfWeek, Set<BloqueHorario>> diasYBloquesReserva,
+                                                          Map<DayOfWeek, Set<BloqueHorario>> diasYBloquesSolicitados) {
+        for (var entry : diasYBloquesSolicitados.entrySet()) {
+            var diaSolicitado = entry.getKey();
+            var bloquesSolicitados = entry.getValue();
+
+            if (diasYBloquesReserva.containsKey(diaSolicitado)) {
+                var bloquesReservados = diasYBloquesReserva.get(diaSolicitado);
+                // Verificamos si hay al menos un bloque horario en común
+                if (bloquesReservados.stream().anyMatch(bloquesSolicitados::contains)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Método para cerrar el Scanner
      */
     public static void cerrarScanner() {

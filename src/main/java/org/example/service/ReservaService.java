@@ -156,6 +156,37 @@ public class ReservaService{
     }
 
 
+    /**
+     * Método para listar reservas por ID de inscripción
+     * @param idInscripcion a filtrar
+     * @return  List<Reserva> que tengan ese ID de inscripción
+     * @throws NotFoundException si no encuentra reservas con ese ID de inscripción
+     * @throws JsonNotFoundException si ocurre un problema con el archivo JSON
+     */
+    public List<Reserva> listarPorInscripcion(int idInscripcion) throws NotFoundException, JsonNotFoundException {
+        List<Reserva> reservas = new ArrayList<>();
+        //Obtenemos todas las reservas del JSON que tengan ese idInscripción
+        var dtoList = repositorio.getAll()
+                .stream()
+                .filter(r -> r.idInscripcion() == idInscripcion)
+                .toList();
+
+        //Si no hay reservas con ese idInscripción lanzamos excepción
+        if (dtoList.isEmpty()) {
+            throw new NotFoundException(STR."No se encontraron reservas para la inscripción con ID: \{idInscripcion}");
+        }
+
+        for (ReservaDTO dto : dtoList){
+            // Validamos que el aula exista
+            var aula = validarAulaExistenteById(dto.idAula());
+            // Validamos que la inscripción exista
+            var inscripcion = validarInscripcionExistente(dto.idInscripcion());
+            // Mapeamos y guardamos en reservas
+            reservas.add(Mapper.toReserva(dto, aula, inscripcion));
+        }
+        return reservas;
+    }
+
     // Validaciones
     /**
      * Método para validar la existencia de una reserva por ID
