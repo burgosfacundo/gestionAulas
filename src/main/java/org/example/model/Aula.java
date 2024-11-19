@@ -52,12 +52,12 @@ public class Aula {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Aula aula = (Aula) o;
-        return numero == aula.numero && Objects.equals(id, aula.id);
+        return Objects.equals(id, aula.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, numero);
+        return Objects.hash(id);
     }
 
     /**

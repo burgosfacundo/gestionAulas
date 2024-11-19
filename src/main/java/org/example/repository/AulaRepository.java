@@ -10,7 +10,6 @@ import org.example.model.Aula;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -147,21 +146,6 @@ public class AulaRepository implements JSONRepository<Integer, Aula> {
 
         // Guarda los cambios en el archivo JSON
         write(aulas);
-    }
-
-    /**
-     * Método para buscar un aula o laboratorio por número
-     * @param numero para buscar y devolver el aula o laboratorio
-     * @return Optional<Aula> el aula o laboratorio si lo encuentra, o Optional.empty() si no
-     * @throws JsonNotFoundException si no se encuentra el archivo JSON
-     */
-    public Optional<Aula> findByNumero(Integer numero) throws JsonNotFoundException {
-        //Usamos stream para filtrar por número
-        //Devuelve el aula si existe
-        //Devuelve optional.empty() sino
-        return getAll().stream()
-                .filter(aula -> aula.getNumero() == numero)
-                .findFirst();
     }
 
 }

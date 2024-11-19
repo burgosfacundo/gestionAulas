@@ -1,6 +1,7 @@
 package org.example.utils;
 
 import org.example.enums.BloqueHorario;
+import org.example.model.Usuario;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -87,17 +88,17 @@ public class Utils {
     public static int leerEntero(String mensaje) {
         int numero;
         while (true) {
-            System.out.print(mensaje);
+            System.out.print(STR."\{mensaje}");
             String input = scanner.nextLine().trim();
             if (input.isEmpty()) {
-                System.out.println("Error: No se ingresó ningún valor. Intente de nuevo.");
+                System.out.println("\nError: No se ingresó ningún valor. Intente de nuevo.");
                 continue;  // Salta al siguiente ciclo del bucle
             }
             try {
                 numero = Integer.parseInt(input); // Usamos parseInt en lugar de nextInt para manejar el salto de línea
                 return numero;
             } catch (NumberFormatException e) {
-                System.out.println("Error: Debe ingresar un número entero.");
+                System.out.println("\nError: Debe ingresar un número entero.");
             }
         }
     }
@@ -113,16 +114,48 @@ public class Utils {
             System.out.print(STR."\{mensaje} (YYYY-MM-DD): ");
             String input = scanner.nextLine().trim();
             if (input.isEmpty()) {
-                System.out.println("Error: No se ingresó ninguna fecha. Intente de nuevo.");
+                System.out.println("\nError: No se ingresó ninguna fecha. Intente de nuevo.");
                 continue;  // Salta al siguiente ciclo del bucle
             }
             try {
                 return LocalDate.parse(input); // Parseando directamente
             } catch (DateTimeParseException e) {
-                System.out.println("Error: Formato de fecha incorrecto. Use el formato YYYY-MM-DD.");
+                System.out.println("\nError: Formato de fecha incorrecto. Use el formato YYYY-MM-DD.");
             }
         }
     }
+
+    /**
+     * Método para obtener un rango de fechas válidas (inicio y fin).
+     * Se asegura de que la fecha de inicio sea anterior o igual a la de fin,
+     * y que ambas sean iguales o posteriores a la fecha actual.
+     *
+     * @param mensajeInicio Mensaje a mostrar al pedir la fecha de inicio.
+     * @param mensajeFin Mensaje a mostrar al pedir la fecha de fin.
+     * @return List<LocalDate> lista de fechas válidas (inicio y fin).
+     */
+    public static List<LocalDate> leerRangoDeFechas(String mensajeInicio, String mensajeFin) {
+        LocalDate fechaInicio;
+        LocalDate fechaFin;
+
+        while (true) {
+            // Pedir fecha de inicio
+            fechaInicio = leerFecha(mensajeInicio);
+
+            // Pedir fecha de fin
+            fechaFin = leerFecha(mensajeFin);
+
+            // Validar fechas
+            if (!fechaInicio.isAfter(fechaFin) && !fechaInicio.isBefore(LocalDate.now())) {
+                return List.of(fechaInicio, fechaFin);
+            } else if (fechaInicio.isBefore(LocalDate.now())) {
+                System.out.println("\nError: Las fechas no pueden ser anteriores a hoy.");
+            } else {
+                System.out.println("\nError: La fecha de inicio debe ser anterior o igual a la fecha de fin.");
+            }
+        }
+    }
+
 
 
     /**
@@ -131,7 +164,7 @@ public class Utils {
      * @return String ingresada por el usuario.
      */
     public static String leerTexto(String mensaje) {
-        System.out.print(mensaje);
+        System.out.print(STR."\{mensaje}");
         return scanner.nextLine().trim();
     }
 
@@ -144,13 +177,14 @@ public class Utils {
         while (true) {
             System.out.print(STR."\{mensaje} (s/n): ");
             String respuesta = scanner.nextLine().trim().toLowerCase();
+            // Validación de respuesta
             if (respuesta.equals("s")) {
                 return true;
-            }
-            if (respuesta.equals("n")) {
+            } else if (respuesta.equals("n")) {
                 return false;
+            } else {
+                System.out.println("\nRespuesta inválida. Debe ingresar 's' para sí o 'n' para no.");
             }
-            System.out.println("Respuesta inválida. Debe ingresar 's' para sí o 'n' para no.");
         }
     }
 
@@ -166,7 +200,7 @@ public class Utils {
         // Seleccionar días de la semana
         boolean diasValidos = false;
         while (!diasValidos) {
-            System.out.println("Ingrese los días de la semana (separados por comas): ");
+            System.out.println("\nIngrese los días de la semana (separados por comas): ");
             System.out.println("1. Lunes");
             System.out.println("2. Martes");
             System.out.println("3. Miércoles");
@@ -177,7 +211,7 @@ public class Utils {
 
             String diasInput = scanner.nextLine().trim();
             if (diasInput.isEmpty()) {
-                System.out.println("Error: No se ingresaron días. Intente de nuevo.");
+                System.out.println("\nError: No se ingresaron días. Intente de nuevo.");
                 continue;  // Salta al siguiente ciclo del bucle
             }
 
@@ -192,10 +226,10 @@ public class Utils {
                     if (dia >= 0 && dia < 7) {
                         diasSeleccionados.add(DayOfWeek.of(dia + 1));
                     } else {
-                        throw new IllegalArgumentException("Día fuera de rango");
+                        throw new IllegalArgumentException("\nDía fuera de rango");
                     }
                 } catch (Exception e) {
-                    System.out.println("Error: Ingrese números entre 1 y 7 para los días.");
+                    System.out.println("\nError: Ingrese números entre 1 y 7 para los días.");
                     break;
                 }
             }
@@ -203,17 +237,28 @@ public class Utils {
             if (!diasSeleccionados.isEmpty()) {
                 diasValidos = true;
             } else {
-                System.out.println("No se seleccionaron días válidos. Intente de nuevo.");
+                System.out.println("\nNo se seleccionaron días válidos. Intente de nuevo.");
             }
         }
 
         // Seleccionar bloques horarios para cada día
         for (DayOfWeek dia : diasSeleccionados) {
-            Set<BloqueHorario> bloques = new HashSet<>();
-            boolean bloquesValidos = false;
+            var bloques = leerBloques(dia);
+            diasYBloques.put(dia, bloques);
+        }
 
+        return diasYBloques;
+    }
+
+    /**
+     * Método para pedir los bloques horarios.
+     * @return Set<BloqueHorario> que contiene los bloques horarios
+     */
+    public static Set<BloqueHorario> leerBloques(DayOfWeek dia) {
+        Set<BloqueHorario> bloques = new HashSet<>();
+            boolean bloquesValidos = false;
             while (!bloquesValidos) {
-                System.out.println(STR."Seleccione los bloques horarios para \{dia} (separados por comas): ");
+                System.out.println(STR."\nSeleccione los bloques horarios para \{Utils.obtenerDiasEnEspaniol(Set.of(dia))} (separados por comas): ");
                 int i = 1;
                 for (BloqueHorario bloque : BloqueHorario.values()) {
                     System.out.println(STR."\{i}. \{bloque}");
@@ -222,7 +267,7 @@ public class Utils {
 
                 String bloquesStr = scanner.nextLine().trim();
                 if (bloquesStr.isEmpty()) {
-                    System.out.println("Error: Debe seleccionar al menos un bloque horario.");
+                    System.out.println("\nError: Debe seleccionar al menos un bloque horario.");
                     continue;  // Salta al siguiente ciclo del bucle
                 }
 
@@ -234,23 +279,19 @@ public class Utils {
                         if (opcionBloque >= 0 && opcionBloque < BloqueHorario.values().length) {
                             bloques.add(BloqueHorario.values()[opcionBloque]);
                         } else {
-                            throw new IllegalArgumentException("Bloque fuera de rango");
+                            throw new IllegalArgumentException("\nBloque fuera de rango");
                         }
                     }
                     if (!bloques.isEmpty()) {
                         bloquesValidos = true;
                     } else {
-                        System.out.println("Debe seleccionar al menos un bloque horario.");
+                        System.out.println("\nDebe seleccionar al menos un bloque horario.");
                     }
                 } catch (Exception e) {
-                    System.out.println("Error: Debe ingresar números válidos para los bloques.");
+                    System.out.println("\nError: Debe ingresar números válidos para los bloques.");
                 }
             }
-
-            diasYBloques.put(dia, bloques);
-        }
-
-        return diasYBloques;
+        return bloques;
     }
 
     /**
@@ -259,7 +300,7 @@ public class Utils {
      */
     public static Integer obtenerCapacidadEspacio(){
         // Solicitar la capacidad
-        var capacidadInput = Utils.leerEntero("Ingrese la capacidad (-1 si no quiere aplicar este filtro): ");
+        var capacidadInput = Utils.leerEntero("\nIngrese la capacidad (-1 si no quiere aplicar este filtro): ");
         return capacidadInput == -1 ? null : capacidadInput;
     }
 
@@ -267,13 +308,22 @@ public class Utils {
      * Método para preguntarle al usuario si un espacio tiene proyector
      * @return si tiene o no proyector o null si no quiere aplicar el filtro
      */
-    public static Boolean obtenerProyectoEspacio(){
-        // Solicitar si tiene proyector
-        var proyectorInput = Utils
-                .leerTexto("¿Debe tener proyector? (Si/No) (Enter si no quiere aplicar el filtro): ")
-                .toLowerCase();
+    public static Boolean obtenerProyectorEspacio(){
+        while (true) {
+            // Solicitar si tiene proyector
+            String proyectorInput = leerTexto("\n¿Debe tener proyector el espacio? (s/n) (Enter si no quiere aplicar el filtro): ").toLowerCase();
 
-        return proyectorInput.isEmpty() ? null : proyectorInput.equalsIgnoreCase("si");
+            if (proyectorInput.isEmpty()) {
+                return null;  // Si presiona Enter sin ingresar nada, no aplicar el filtro
+            }
+
+            if (proyectorInput.equals("s")) {
+                return true;  // Si responde 's', tiene proyector
+            } else if (proyectorInput.equals("n")) {
+                return false;  // Si responde 'n', no tiene proyector
+            }
+            System.out.println("\nRespuesta inválida. Debe ingresar 's' para sí o 'n' para no.");
+        }
 
     }
     /**
@@ -281,12 +331,22 @@ public class Utils {
      * @return si tiene o no tv o null si no quiere aplicar el filtro
      */
     public static Boolean obtenerTvEspacio(){
-        // Solicitar si tiene TV
-        var tvInput = Utils
-                .leerTexto("¿Debe tener TV? (Si/No) (Enter si no quiere aplicar el filtro):")
-                .toLowerCase();
-        return tvInput.isEmpty() ? null : tvInput.equalsIgnoreCase("si");
+        while (true) {
+            // Solicitar si tiene TV
+            String tvInput = leerTexto("\n¿Debe tener TV el espacio? (s/n) (Enter si no quiere aplicar el filtro): ").toLowerCase();
 
+            if (tvInput.isEmpty()) {
+                return null;  // Si presiona Enter sin ingresar nada, no aplicar el filtro
+            }
+
+            if (tvInput.equals("s")) {
+                return true;  // Si responde 's', tiene TV
+            } else if (tvInput.equals("n")) {
+                return false;  // Si responde 'n', no tiene TV
+            }
+
+            System.out.println("\nRespuesta inválida. Debe ingresar 's' para sí o 'n' para no.");
+        }
     }
 
     /**
@@ -295,8 +355,28 @@ public class Utils {
      */
     public static Integer obtenerCantidadComputadoras(){
         // Solicitar las computadoras
-        var computadorasInput = Utils.leerEntero("Ingrese la cantidad de computadoras (-1 si no quiere aplicar este filtro): ");
+        var computadorasInput = Utils.leerEntero("\nIngrese la cantidad de computadoras (-1 si no quiere aplicar este filtro): ");
         return computadorasInput == -1 ? null : computadorasInput;
+    }
+
+    /**
+     * Método para cambiar contraseña
+     * @param usuario que esta logueado para verificar perfil con permisos
+     */
+    public static Usuario cambiarPassword(Usuario usuario){
+        boolean passwordsCoinciden = false;
+        while (!passwordsCoinciden) {
+            var password = Utils.leerTexto("\nIngresa la nueva contraseña: ");
+            var validaPassword = Utils.leerTexto("\nIngresa nuevamente la contraseña: ");
+
+            if (password.equals(validaPassword)) {
+                usuario.setPassword(password);
+                passwordsCoinciden = true;
+            } else {
+                System.out.println("\nLas contraseñas no coinciden. Intenta nuevamente.");
+            }
+        }
+        return usuario;
     }
 
     /**

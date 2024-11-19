@@ -156,6 +156,19 @@ public class UsuarioService{
     }
 
     /**
+     * Método para validar si existe un usuario con ese username
+     * @param username a validar
+     * @throws BadRequestException si existe usuario con ese username
+     * @throws JsonNotFoundException sí existe un problema con el archivo JSON
+     */
+    public void validarUsernameUnico(String username) throws JsonNotFoundException, BadRequestException {
+        var user = repositorioUsuario.findByUsername(username);
+        if (user.isPresent()){
+            throw new BadRequestException("El username ya esta en uso");
+        }
+    }
+
+    /**
      * Método para validar la existencia de un Profesor por ID
      * @param id del profesor que se quiere verificar
      * @return Profesor si existe

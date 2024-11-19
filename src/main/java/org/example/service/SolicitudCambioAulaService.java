@@ -269,7 +269,7 @@ public class SolicitudCambioAulaService{
         var aulasDisponibles = aulaService.listarEspaciosDisponibles(solicitud.getFechaInicio(),solicitud.getFechaFin(),solicitud.getDiasYBloques());
         //Si no está dentro de las disponibles lanzamos excepción
         if (!aulasDisponibles.contains(solicitud.getNuevaAula())) {
-            throw new BadRequestException(STR."El aula \{solicitud.getNuevaAula()} no está disponible.");
+            throw new BadRequestException(STR."El aula \{solicitud.getNuevaAula().getId()} no está disponible.");
         }
     }
 
@@ -283,7 +283,7 @@ public class SolicitudCambioAulaService{
         int alumnosRequeridos = inscripcion.getCantidadAlumnos() +
                 (inscripcion.getFechaFinInscripcion().isAfter(LocalDate.now()) ? inscripcion.getMargenAlumnos() : 0);
         if (aula.getCapacidad() < alumnosRequeridos) {
-            throw new BadRequestException(STR."El aula \{aula.getNumero()} tiene capacidad para \{aula.getCapacidad()} alumnos, pero se requieren \{alumnosRequeridos}.");
+            throw new BadRequestException(STR."El aula \{aula.getId()} tiene capacidad para \{aula.getCapacidad()} alumnos, pero se requieren \{alumnosRequeridos}.");
         }
     }
 

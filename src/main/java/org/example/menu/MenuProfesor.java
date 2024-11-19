@@ -28,7 +28,10 @@ public class MenuProfesor {
         boolean salir = false;
 
         while (!salir) {
-            System.out.println("Elija una opcion:");
+            System.out.println("\n====================================");
+            System.out.println("     Menú Profesor");
+            System.out.println("======================================");
+            System.out.println("Elija una opción:");
             System.out.println("1.Listar espacios.");
             System.out.println("2.Solicitar reserva.");
             System.out.println("3.Listar mis solicitudes pendientes.");
@@ -49,7 +52,7 @@ public class MenuProfesor {
                 case 6 -> listarMisReservas(usuario);
                 case 7 -> cambiarPassword(usuario);
                 case 8 -> salir = true;
-                default -> System.out.println("Opción inválida.");
+                default -> System.out.println("\nOpción inválida.");
             }
         }
     }
@@ -61,7 +64,10 @@ public class MenuProfesor {
         boolean salir = false;
 
         while (!salir) {
-            System.out.println("\nElija una opción de listado o filtro:");
+            System.out.println("\n====================================");
+            System.out.println("     Listado Espacios");
+            System.out.println("======================================");
+            System.out.println("Elija una opción de listado o filtro:");
             System.out.println("1. Listar todas las aulas");
             System.out.println("2. Listar todos los laboratorios");
             System.out.println("3. Filtrar aulas disponibles");
@@ -76,7 +82,7 @@ public class MenuProfesor {
                 case 3 -> filtrarAulasDisponibles(usuario);
                 case 4 -> filtrarLaboratoriosDisponibles(usuario);
                 case 5 -> salir = true;
-                default -> System.out.println("Opción inválida.");
+                default -> System.out.println("\nOpción inválida.");
             }
         }
     }
@@ -89,12 +95,20 @@ public class MenuProfesor {
     private void listarAulas(Usuario usuario) {
         if (seguridad.verificarPermiso(usuario, Permisos.VER_AULAS)) {
             try {
-                aulaService.listarAulas().forEach(System.out::println);
+                var aulas = aulaService.listarAulas();
+                if (aulas.isEmpty()){
+                    System.out.println("\nNo hay aulas");
+                    return;
+                }
+                System.out.println("\nAulas:");
+                System.out.println("======================");
+                aulas.forEach(System.out::println);
+                System.out.println("======================");
             } catch (JsonNotFoundException e) {
                 System.out.println(e.getMessage());
             }
         } else {
-            System.out.println("No posees el permiso para ver las aulas.");
+            System.out.println("\nNo posees el permiso para ver las aulas.");
         }
     }
 
@@ -105,12 +119,20 @@ public class MenuProfesor {
     private void listarLaboratorios(Usuario usuario) {
         if (seguridad.verificarPermiso(usuario, Permisos.VER_LABORATORIOS)) {
             try {
-                aulaService.listarLaboratorios().forEach(System.out::println);
+                var laboratorios = aulaService.listarLaboratorios();
+                if (laboratorios.isEmpty()){
+                    System.out.println("\nNo hay laboratorios");
+                    return;
+                }
+                System.out.println("\nLaboratorios:");
+                System.out.println("======================");
+                laboratorios.forEach(System.out::println);
+                System.out.println("======================");
             } catch (JsonNotFoundException e) {
                 System.out.println(e.getMessage());
             }
         } else {
-            System.out.println("No posees el permiso para ver los laboratorios.");
+            System.out.println("\nNo posees el permiso para ver los laboratorios.");
         }
     }
 
@@ -122,32 +144,31 @@ public class MenuProfesor {
         if (seguridad.verificarPermiso(usuario, Permisos.VER_AULAS)) {
             try {
                 var capacidad = Utils.obtenerCapacidadEspacio();
-                var tieneProyector = Utils.obtenerProyectoEspacio();
+                var tieneProyector = Utils.obtenerProyectorEspacio();
                 var tieneTV = Utils.obtenerTvEspacio();
 
-                LocalDate fechaInicio = Utils.leerFecha("Ingrese la fecha de inicio");
-
-
-                LocalDate fechaFin = Utils.leerFecha("Ingrese la fecha de fin");
+                var rangoFechas = Utils.leerRangoDeFechas("\nIngrese la fecha de inicio:", "\nIngrese la fecha de fin:");
+                LocalDate fechaInicio = rangoFechas.get(0);
+                LocalDate fechaFin = rangoFechas.get(1);
 
                 var diasYBloques = Utils.leerDiasYBloques();
 
                 // Filtrar los espacios según los parámetros ingresados
-                var espaciosFiltrados = aulaService.listarAulasDisponiblesPorSolicitud(capacidad, tieneProyector,
+                var espaciosFiltrados = aulaService.listarAulasDisponiblesConCondiciones(capacidad, tieneProyector,
                         tieneTV,fechaInicio,fechaFin,diasYBloques);
 
                 if (espaciosFiltrados.isEmpty()) {
-                    System.out.println("No se encontraron aulas que coincidan con los criterios de búsqueda.");
+                    System.out.println("\nNo se encontraron aulas que coincidan con los criterios de búsqueda.");
                 } else {
-                    System.out.println("Aulas encontrados:");
+                    System.out.println("\nAulas encontrados:");
                     espaciosFiltrados.forEach(System.out::println);
                 }
 
             } catch (JsonNotFoundException e) {
-                System.out.println(STR."Error: \{e.getMessage()}");
+                System.out.println(STR."\nError: \{e.getMessage()}");
             }
         } else {
-            System.out.println("No posees el permiso para ver las aulas.");
+            System.out.println("\nNo posees el permiso para ver las aulas.");
         }
     }
 
@@ -159,13 +180,12 @@ public class MenuProfesor {
         if (seguridad.verificarPermiso(usuario, Permisos.VER_LABORATORIOS)) {
             try {
                 var capacidad = Utils.obtenerCapacidadEspacio();
-                var tieneProyector = Utils.obtenerProyectoEspacio();
+                var tieneProyector = Utils.obtenerProyectorEspacio();
                 var tieneTV = Utils.obtenerTvEspacio();
 
-                LocalDate fechaInicio = Utils.leerFecha("Ingrese la fecha de inicio");
-
-
-                LocalDate fechaFin = Utils.leerFecha("Ingrese la fecha de fin");
+                var rangoFechas = Utils.leerRangoDeFechas("\nIngrese la fecha de inicio:", "\nIngrese la fecha de fin:");
+                LocalDate fechaInicio = rangoFechas.get(0);
+                LocalDate fechaFin = rangoFechas.get(1);
 
                 var diasYBloques = Utils.leerDiasYBloques();
 
@@ -173,19 +193,19 @@ public class MenuProfesor {
 
                 // Filtrar los espacios según los parámetros ingresados
                 var espaciosFiltrados = aulaService
-                        .listarLaboratoriosDisponiblesPorSolicitud(computadoras,capacidad, tieneProyector, tieneTV,fechaInicio,fechaFin,diasYBloques);
+                        .listarLaboratoriosDisponiblesConCondiciones(computadoras,capacidad, tieneProyector, tieneTV,fechaInicio,fechaFin,diasYBloques);
                 if (espaciosFiltrados.isEmpty()) {
-                    System.out.println("No se encontraron laboratorios que coincidan con los criterios de búsqueda.");
+                    System.out.println("\nNo se encontraron laboratorios que coincidan con los criterios de búsqueda.");
                 } else {
-                    System.out.println("Laboratorios encontrados:");
+                    System.out.println("\nLaboratorios encontrados:");
                     espaciosFiltrados.forEach(System.out::println);
                 }
 
             } catch (JsonNotFoundException e) {
-                System.out.println(STR."Error: \{e.getMessage()}");
+                System.out.println(STR."\nError: \{e.getMessage()}");
             }
         } else {
-            System.out.println("No posees el permiso para ver los laboratorios.");
+            System.out.println("\nNo posees el permiso para ver los laboratorios.");
         }
     }
 
@@ -198,11 +218,18 @@ public class MenuProfesor {
         if(seguridad.verificarPermiso(usuario, Permisos.SOLICITAR_CAMBIO)){
             try {
                 // listar reservas por profesor:
-                List<Reserva> reservas = reservaService.listarReservasPorProfesor(usuario.getProfesor().getId());
+                var reservas = reservaService.listarReservasPorProfesor(usuario.getProfesor().getId());
+                if (reservas.isEmpty()){
+                    System.out.println("\nNo tienes reservas aun");
+                    return;
+                }
+                System.out.println("\nReservas:");
+                System.out.println("============================");
                 reservas.forEach(System.out::println);
+                System.out.println("============================");
 
 
-                int idReserva = Utils.leerEntero("Ingresa el id de la reserva en la cual necesita un cambio:");
+                int idReserva = Utils.leerEntero("\nIngresa el id de la reserva en la cual necesita un cambio:");
                 Reserva reserva = reservaService.obtener(idReserva);
 
 
@@ -215,6 +242,7 @@ public class MenuProfesor {
                 int opcion;
                 do {
                     opcion = Utils.leerEntero("""
+                            \n
                             Ingresa que tipo de cambio necesita:
                             1. Temporal
                             2. Permanente
@@ -222,45 +250,48 @@ public class MenuProfesor {
                             """);
                 } while (opcion != 1 && opcion != 2);
 
+                Map<DayOfWeek, Set<BloqueHorario>> diasYBloques = null;
                 if(opcion == 1){
                     tipoSolicitud = TipoSolicitud.TEMPORAL;
 
-                    // Pedir fecha de inicio
-                    fechaInicio = Utils.leerFecha("Ingrese la fecha de inicio");
-
-
-                    // Pedir fecha de fin
-                    fechaFin = Utils.leerFecha("Ingrese la fecha de fin");
-
+                    var rangoFechas = Utils.leerRangoDeFechas("\nIngrese la fecha de inicio:", "\nIngrese la fecha de fin:");
+                    fechaInicio = rangoFechas.get(0);
+                    fechaFin = rangoFechas.get(1);
+                    if (fechaInicio.equals(fechaFin)){
+                        var bloques = Utils.leerBloques(fechaFin.getDayOfWeek());
+                        diasYBloques = new HashMap<>();
+                        diasYBloques.put(fechaFin.getDayOfWeek(),bloques);
+                    }
+                }else {
+                    // obtener días y bloque horario
+                    diasYBloques  = Utils.leerDiasYBloques();
                 }
 
-                // obtener días y bloque horario
-                Map<DayOfWeek, Set<BloqueHorario>> diasYBloques = Utils.leerDiasYBloques();
+
 
                 // Comentario adicional
-                String comentarioProfesor = Utils.leerTexto("Escriba un comentario adicional para la solicitud: ");
+                String comentarioProfesor = Utils.leerTexto("\nEscriba un comentario adicional para la solicitud: ");
 
 
                 List<? extends Aula> aulasCoinciden;
                 if(reserva.getAula() instanceof Laboratorio) {
-
-                    aulasCoinciden = aulaService.listarLaboratoriosDisponiblesPorSolicitud(
+                    aulasCoinciden = aulaService.listarLaboratoriosDisponiblesConCondiciones(
                             ((Laboratorio) reserva.getAula()).getComputadoras(), reserva.getAula().getCapacidad(),
                             reserva.getAula().isTieneProyector(), reserva.getAula().isTieneTV(), fechaInicio, fechaFin, diasYBloques);
                 }else{
-                    aulasCoinciden = aulaService.listarAulasDisponiblesPorSolicitud(reserva.getAula().getCapacidad(),
+                    aulasCoinciden = aulaService.listarAulasDisponiblesConCondiciones(reserva.getAula().getCapacidad(),
                             reserva.getAula().isTieneProyector(), reserva.getAula().isTieneTV(), fechaInicio, fechaFin, diasYBloques);
                 }
 
                 if (!aulasCoinciden.isEmpty()){
-                    System.out.println("Espacios disponibles: ");
+                    System.out.println("\nEspacios disponibles: ");
                     aulasCoinciden.forEach(System.out::println);
-                    Aula aula = aulaService.obtener(Utils.leerEntero("Ingresa el id del aula que desea solicitar: "));
+                    Aula aula = aulaService.obtener(Utils.leerEntero("\nIngresa el id del espacio que desea solicitar: "));
                     SolicitudCambioAula solicitud = new SolicitudCambioAula(null, reserva.getInscripcion().getProfesor(), reserva,
                             aula, tipoSolicitud, fechaInicio, fechaFin, diasYBloques, comentarioProfesor);
                     solicitudCambioAulaService.guardar(solicitud);
                 }else {
-                    System.out.println("No hay espacios disponibles con esas características en las fechas ingresadas");
+                    System.out.println("\nNo hay espacios disponibles con esas características en las fechas ingresadas");
                 }
             } catch (BadRequestException | JsonNotFoundException | NotFoundException e) {
             System.out.println(e.getMessage());
@@ -276,8 +307,16 @@ public class MenuProfesor {
     private void listarMisSolicitudes(Usuario usuario, EstadoSolicitud estadoSolicitud){
         if(seguridad.verificarPermiso(usuario, Permisos.SOLICITAR_CAMBIO)){
             try{
-                solicitudCambioAulaService.listarSolicitudesPorEstadoYProfesor(estadoSolicitud, usuario.getProfesor().getId())
-                        .forEach(System.out::println);
+                var solicitudes = solicitudCambioAulaService
+                        .listarSolicitudesPorEstadoYProfesor(estadoSolicitud, usuario.getProfesor().getId());
+                if (solicitudes.isEmpty()){
+                    System.out.println(STR."\nNo tiene solicitudes \{estadoSolicitud.toString().toLowerCase()}s");
+                    return;
+                }
+                System.out.println("\nSolicitudes:");
+                System.out.println("==============================");
+                solicitudes.forEach(System.out::println);
+                System.out.println("==============================");
             }catch (NotFoundException | JsonNotFoundException e){
                 System.out.println(e.getMessage());
             }
@@ -293,7 +332,15 @@ public class MenuProfesor {
     private void listarMisReservas(Usuario usuario){
         if (seguridad.verificarPermiso(usuario, Permisos.VER_RESERVAS)) {
             try {
-                reservaService.listarReservasPorProfesor(usuario.getProfesor().getId()).forEach(System.out::println);
+                var reservas = reservaService.listarReservasPorProfesor(usuario.getProfesor().getId());
+                if (reservas.isEmpty()){
+                    System.out.println("\nNo tienes reservas");
+                    return;
+                }
+                System.out.println("\nReservas:");
+                System.out.println("==============================");
+                reservas.forEach(System.out::println);
+                System.out.println("==============================");
             } catch (NotFoundException | JsonNotFoundException e) {
                 System.out.println(e.getMessage());
             }
@@ -307,29 +354,15 @@ public class MenuProfesor {
      * @param usuario que esta logueado para verificar perfil con permisos
      */
     private void cambiarPassword(Usuario usuario){
-        if(seguridad.verificarPermiso(usuario, Permisos.CAMBIAR_PASSWORD))
-        {
+        if(seguridad.verificarPermiso(usuario, Permisos.CAMBIAR_PASSWORD)){
             try {
-                boolean passwordsCoinciden = false;
-                while (!passwordsCoinciden) {
-                    var password = Utils.leerTexto("Ingresa la nueva contraseña: ");
-                    var validaPassword = Utils.leerTexto("Ingresa nuevamente la contraseña: ");
-
-                    if (password.equals(validaPassword)) {
-                        usuario.setPassword(password);
-                        usuarioService.modificar(usuario);
-                        passwordsCoinciden = true;
-                        System.out.println("Contraseña modificada correctamente. ");
-                    } else {
-                        System.out.println("Las contraseñas no coinciden. Intenta nuevamente.");
-                    }
-                }
-            }catch (JsonNotFoundException | NotFoundException e) {
+                var usuarioNuevo = Utils.cambiarPassword(usuario);
+                usuarioService.modificar(usuarioNuevo);
+            } catch (NotFoundException | JsonNotFoundException e) {
                 System.out.println(e.getMessage());
             }
         }else {
-            System.out.println("No posees el permiso para cambiar tu contraseña.");
+            System.out.println("\nNo posees el permiso para cambiar tu contraseña.");
         }
     }
-
 }

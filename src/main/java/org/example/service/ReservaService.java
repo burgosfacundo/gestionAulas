@@ -230,7 +230,7 @@ public class ReservaService{
         var aulasDisponibles = aulaService.listarEspaciosDisponibles(reserva.getFechaInicio(), reserva.getFechaFin()
                 , reserva.getDiasYBloques());
         if (!aulasDisponibles.contains(reserva.getAula())) {
-            throw new BadRequestException(STR."El aula \{reserva.getAula().getNumero()} no está disponible.");
+            throw new BadRequestException(STR."El aula \{reserva.getAula().getId()} no está disponible.");
         }
     }
 

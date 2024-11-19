@@ -27,5 +27,15 @@ public enum BloqueHorario {
     public LocalTime getFin() {
         return fin;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s (%s hs - %s hs)",
+                name().replace("_", " ").toLowerCase(),
+                inicio,
+                fin);
+    }
+
+
 }
 
