@@ -19,8 +19,7 @@ import java.util.Optional;
  * Su responsabilidad es interactuar con el JSON
  */
 public class ProfesorRepository implements JSONRepository<Integer, Profesor>{
-    String relativePath = "gestionAulas/json/profesores.json";
-    String ruta = Paths.get(System.getProperty("user.dir"), relativePath).toString();
+    private final String ruta = "./json/profesores.json";
     /**
      * Método para retornar la ruta al json
      * que se quiere utilizar en el método default

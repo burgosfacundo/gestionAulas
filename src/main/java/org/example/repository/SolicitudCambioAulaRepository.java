@@ -27,8 +27,7 @@ import java.util.stream.Collectors;
  * Su responsabilidad es interactuar con el JSON
  */
 public class SolicitudCambioAulaRepository implements JSONRepository<Integer, SolicitudCambioAulaDTO>{
-    String relativePath = "gestionAulas/json/solicitudes.json";
-    String ruta = Paths.get(System.getProperty("user.dir"), relativePath).toString();
+    private final String ruta = "./json/solicitudes.json";
     /**
      * Método para retornar la ruta al json
      * que se quiere utilizar en el método default
