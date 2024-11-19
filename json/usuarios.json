@@ -3,18 +3,21 @@
     "id": 1,
     "username": "admin",
     "password": "$2a$10$OM8dWsUv2N9kWi16C7oJBOIsigTaXOu4FJ5sWigYzrdei8Aw1Bk3W",
-    "idRol": 1
+    "idRol": 1,
+    "idProfesor": 4
   },
   {
     "id": 2,
     "username": "adrianAroca",
     "password": "$2a$10$xBdAEizDQYlV17ChZ/ZZK..xoXSwzflGOErGp7EwT/HYMFgKr2ryu",
-    "idRol": 2
+    "idRol": 2,
+    "idProfesor": 1
   },
   {
     "id": 3,
     "username": "pri",
     "password": "$2a$10$m6f27FmDUUSVzVowHUOXqux55cQ1W1MoRKnlKKHocSjnvzsQXZ7C.",
-    "idRol": 2
+    "idRol": 2,
+    "idProfesor": 2
   }
 ]

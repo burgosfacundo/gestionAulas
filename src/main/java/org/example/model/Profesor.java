@@ -16,6 +16,9 @@ public class Profesor {
         this.apellido = apellido;
         this.matricula = matricula;
     }
+    public Profesor(Integer id){
+        this.id = id;
+    }
 
     public Integer getId() {
         return id;

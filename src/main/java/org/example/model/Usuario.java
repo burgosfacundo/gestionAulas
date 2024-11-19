@@ -11,12 +11,14 @@ public class Usuario {
     private String username;
     private String password;
     private Rol rol;
+    private Profesor profesor;
 
-    public Usuario(Integer id,String username, String password, Rol rol) {
+    public Usuario(Integer id,String username, String password, Rol rol,Profesor profesor) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.rol = rol;
+        this.profesor = profesor;
     }
     public Usuario(Integer id){
         this.id = id;
@@ -44,6 +46,12 @@ public class Usuario {
     public void setRol(Rol rol) {
         this.rol = rol;
     }
+    public Profesor getProfesor() {
+        return profesor;
+    }
+    public void setProfesor(Profesor profesor) {
+        this.profesor = profesor;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -69,12 +77,15 @@ public class Usuario {
                 ║ Password: %s
                 ║ Rol:
                 %s
+                ║ Profesor:
+                %s
                 ╚═══════════════════════════════════════════════╝
                 """,
                 id,
                 username,
                 password,
-                Utils.indentString(rol.toString(), 6)
+                Utils.indentString(rol.toString(), 6),
+                Utils.indentString(profesor.toString(), 6)
         ).trim();
     }
 

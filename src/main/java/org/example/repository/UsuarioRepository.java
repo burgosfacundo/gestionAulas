@@ -1,11 +1,9 @@
 package org.example.repository;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import org.example.model.dto.UsuarioDTO;
 import org.example.exception.JsonNotFoundException;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -22,8 +20,7 @@ import com.google.gson.reflect.TypeToken;
  * Su responsabilidad es interactuar con el JSON
  */
 public class UsuarioRepository implements JSONRepository<Integer, UsuarioDTO> {
-    String relativePath = "gestionAulas/json/usuarios.json";
-    String ruta = Paths.get(System.getProperty("user.dir"), relativePath).toString();
+    private final String ruta = "./json/usuarios.json";
     /**
      * Método para retornar la ruta al json
      * que se quiere utilizar en el método default
@@ -69,7 +66,7 @@ public class UsuarioRepository implements JSONRepository<Integer, UsuarioDTO> {
 
         // Verificamos el último ID y generamos el próximo
         var lastId = dtos.isEmpty() ? 0 : dtos.getLast().id();
-        dto = new UsuarioDTO(lastId + 1, dto.username(), dto.password(), dto.idRol());
+        dto = new UsuarioDTO(lastId + 1, dto.username(), dto.password(), dto.idRol(),dto.idProfesor());
 
         // Agregamos el nuevo usuario
         dtos.add(dto);
@@ -150,7 +147,7 @@ public class UsuarioRepository implements JSONRepository<Integer, UsuarioDTO> {
             throw new JsonNotFoundException(STR."No se encontró el archivo JSON: \{ruta}");
         }
         // Reemplaza el objeto en la lista con una nueva instancia actualizada
-        var nuevoDTO = new UsuarioDTO(dto.id(),dto.username(),dto.password(),dto.idRol());
+        var nuevoDTO = new UsuarioDTO(dto.id(),dto.username(),dto.password(),dto.idRol(),dto.idProfesor());
         dtos.set(index, nuevoDTO);
 
         // Guarda los cambios en el archivo JSON

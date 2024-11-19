@@ -1,12 +1,14 @@
 package org.example.service;
 
 
+import org.example.model.Profesor;
 import org.example.model.Rol;
 import org.example.model.dto.UsuarioDTO;
 import org.example.exception.BadRequestException;
 import org.example.exception.JsonNotFoundException;
 import org.example.exception.NotFoundException;
 import org.example.model.Usuario;
+import org.example.repository.ProfesorRepository;
 import org.example.repository.RolRepository;
 import org.example.repository.UsuarioRepository;
 import org.example.utils.Mapper;
@@ -23,6 +25,7 @@ import java.util.List;
 public class UsuarioService{
     private final UsuarioRepository repositorioUsuario = new UsuarioRepository();
     private final RolRepository repositorioRol = new RolRepository();
+    private final ProfesorRepository profesorRepository = new ProfesorRepository();
 
 
     /**
@@ -30,12 +33,13 @@ public class UsuarioService{
      * @return List<Usuario>
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
-    public List<Usuario> listar() throws JsonNotFoundException {
+    public List<Usuario> listar() throws JsonNotFoundException, NotFoundException {
         List<Usuario> usuarios = new ArrayList<>();
         var dtoList = repositorioUsuario.getAll();
         for (UsuarioDTO dto : dtoList){
-            var rolOptional = repositorioRol.findById(dto.idRol());
-            rolOptional.ifPresent(rol -> usuarios.add(Mapper.toUsuario(dto, rol)));
+            var rol = validarRolExistente(dto.idRol());
+            var profesor = validarProfesorExistente(dto.idProfesor());
+            usuarios.add(Mapper.toUsuario(dto,rol,profesor));
         }
         return usuarios;
     }
@@ -57,6 +61,9 @@ public class UsuarioService{
 
         //Tomamos el ID del rol y verificamos que existe, si no lanzamos excepción
         validarRolExistente(usuario.getRol().getId());
+
+        //Tomamos el ID del profesor y verificamos que existe, si no lanzamos excepción
+        validarProfesorExistente(usuario.getProfesor().getId());
 
         // Codifica la contraseña usando bcrypt
         usuario.setPassword(BCrypt.hashpw(usuario.getPassword(), BCrypt.gensalt()));
@@ -93,9 +100,10 @@ public class UsuarioService{
 
         //Validamos que exista el rol del usuario
         var rol = validarRolExistente(dto.idRol());
+        var profesor = validarProfesorExistente(dto.idProfesor());
 
-        //Mapeamos y retornamos el usuario con su rol
-        return Mapper.toUsuario(dto,rol);
+        //Mapeamos y retornamos el usuario con su rol y el profesor que representa
+        return Mapper.toUsuario(dto,rol,profesor);
     }
 
     /**
@@ -110,6 +118,9 @@ public class UsuarioService{
 
         //Validamos que exista su rol
         validarRolExistente(usuario.getRol().getId());
+
+        //Validamos que exista el profesor que representa
+        validarProfesorExistente(usuario.getProfesor().getId());
 
         // Codifica la contraseña usando bcrypt
         usuario.setPassword(BCrypt.hashpw(usuario.getPassword(), BCrypt.gensalt()));
@@ -142,5 +153,17 @@ public class UsuarioService{
     private UsuarioDTO validarUsuarioExistente(Integer idUsuario) throws NotFoundException, JsonNotFoundException {
         return repositorioUsuario.findById(idUsuario)
                 .orElseThrow(()-> new NotFoundException(STR."No existe un usuario con el id: \{idUsuario}"));
+    }
+
+    /**
+     * Método para validar la existencia de un Profesor por ID
+     * @param id del profesor que se quiere verificar
+     * @return Profesor si existe
+     * @throws NotFoundException Si no se encuentra el profesor con ese ID
+     * @throws JsonNotFoundException Sí ocurre un error con el archivo JSON
+     */
+    private Profesor validarProfesorExistente(Integer id) throws NotFoundException, JsonNotFoundException {
+        return profesorRepository.findById(id)
+                .orElseThrow(()-> new NotFoundException(STR."No existe un profesor con el id: \{id}"));
     }
 }

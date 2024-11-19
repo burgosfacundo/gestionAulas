@@ -3,6 +3,7 @@ package org.example.security;
 import org.example.enums.Permisos;
 import org.example.exception.AutenticacionException;
 import org.example.exception.JsonNotFoundException;
+import org.example.exception.NotFoundException;
 import org.example.service.UsuarioService;
 import org.example.model.Usuario;
 import org.mindrot.jbcrypt.BCrypt;
@@ -22,7 +23,7 @@ public class Seguridad {
      * @throws AutenticacionException si el username o password son incorrectos
      * @throws JsonNotFoundException si no se encuentra el archivo JSON
      */
-    public Usuario autenticar(String username, String password) throws AutenticacionException, JsonNotFoundException {
+    public Usuario autenticar(String username, String password) throws AutenticacionException, JsonNotFoundException, NotFoundException {
         //Verificamos si existe un usuario con ese username y password a traves de un stream
         return usuarioService.listar().stream()
                 .filter(usuario -> usuario.getUsername().equals(username) &&
