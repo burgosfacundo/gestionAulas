@@ -206,8 +206,8 @@ public class SolicitudCambioAula {
                 fechaInicio,
                 fechaFin,
                 Utils.indentString(Utils.formatDiasYBloques(diasYBloques), 6),
-                comentarioEstado.isEmpty() ? "Sin comentario" : comentarioEstado,
-                comentarioProfesor.isEmpty() ? "Sin comentario" : comentarioProfesor,
+                (comentarioEstado == null || comentarioEstado.isEmpty()) ? "Sin comentario" : comentarioEstado,
+                (comentarioProfesor == null || comentarioProfesor.isEmpty()) ? "Sin comentario" : comentarioProfesor,
                 fechaHoraSolicitud
         ).trim();
     }

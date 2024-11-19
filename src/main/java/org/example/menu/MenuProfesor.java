@@ -33,7 +33,7 @@ public class MenuProfesor {
             System.out.println("======================================");
             System.out.println("Elija una opción:");
             System.out.println("1.Listar espacios.");
-            System.out.println("2.Solicitar reserva.");
+            System.out.println("2.Solicitar cambio.");
             System.out.println("3.Listar mis solicitudes pendientes.");
             System.out.println("4.Listar mis solicitudes aprobadas.");
             System.out.println("5.Listar mis solicitudes rechazadas.");
@@ -41,7 +41,7 @@ public class MenuProfesor {
             System.out.println("7.Cambiar mi contraseña.");
             System.out.println("8.Salir.");
 
-            int opcion = Utils.leerEntero("Seleccione una opción: ");
+            var opcion = Utils.leerEntero("Seleccione una opción: ");
 
             switch (opcion) {
                 case 1 -> menuListarEspacios(usuario);
@@ -74,7 +74,7 @@ public class MenuProfesor {
             System.out.println("4. Filtrar laboratorios disponibles");
             System.out.println("5. Salir");
 
-            int opcion = Utils.leerEntero("Seleccione una opción: ");
+            var opcion = Utils.leerEntero("Seleccione una opción: ");
 
             switch (opcion) {
                 case 1 -> listarAulas(usuario);
@@ -229,8 +229,19 @@ public class MenuProfesor {
                 System.out.println("============================");
 
 
+                // Solicitar el ID de la reserva que necesita cambio
                 int idReserva = Utils.leerEntero("\nIngresa el id de la reserva en la cual necesita un cambio:");
-                Reserva reserva = reservaService.obtener(idReserva);
+
+                // Validar que el idReserva ingresado esté dentro de las reservas listadas
+                boolean reservaValida = reservas.stream()
+                        .anyMatch(reserva -> reserva.getId() == idReserva);
+
+                if (!reservaValida) {
+                    System.out.println("\nEl ID de la reserva ingresado no es válido.");
+                    return;  // Salir del método si el ID no es válido
+                }
+
+                var reserva = reservaService.obtener(idReserva);
 
 
                 // Extraer fecha inicio y fin. Por defecto tipo es permanente.
@@ -250,7 +261,7 @@ public class MenuProfesor {
                             """);
                 } while (opcion != 1 && opcion != 2);
 
-                Map<DayOfWeek, Set<BloqueHorario>> diasYBloques = null;
+                Map<DayOfWeek, Set<BloqueHorario>> diasYBloques;
                 if(opcion == 1){
                     tipoSolicitud = TipoSolicitud.TEMPORAL;
 
@@ -261,6 +272,8 @@ public class MenuProfesor {
                         var bloques = Utils.leerBloques(fechaFin.getDayOfWeek());
                         diasYBloques = new HashMap<>();
                         diasYBloques.put(fechaFin.getDayOfWeek(),bloques);
+                    }else {
+                        diasYBloques  = Utils.leerDiasYBloques();
                     }
                 }else {
                     // obtener días y bloque horario

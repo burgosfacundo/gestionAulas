@@ -3,10 +3,7 @@ package org.example.menu;
 import org.example.enums.BloqueHorario;
 import org.example.enums.EstadoSolicitud;
 import org.example.enums.Permisos;
-import org.example.exception.BadRequestException;
-import org.example.exception.ConflictException;
-import org.example.exception.JsonNotFoundException;
-import org.example.exception.NotFoundException;
+import org.example.exception.*;
 import org.example.model.*;
 import org.example.security.Seguridad;
 import org.example.service.*;
@@ -25,7 +22,6 @@ public class MenuAdministrador {
     private final UsuarioService usuarioService = new UsuarioService();
     private final SolicitudCambioAulaService solicitudCambioAulaService = new SolicitudCambioAulaService();
     private final ProfesorService profesorService = new ProfesorService();
-    private final Scanner scanner = new Scanner(System.in);
 
     /**
      * Método para iniciar menu principal de admin
@@ -45,7 +41,7 @@ public class MenuAdministrador {
             System.out.println("4. Gestionar usuarios");
             System.out.println("5. Salir");
 
-            int opcion = Utils.leerEntero("Seleccione una opción: ");
+            var opcion = Utils.leerEntero("Seleccione una opción: ");
 
             switch (opcion) {
                 case 1 -> menuEspacios(usuario);
@@ -76,7 +72,7 @@ public class MenuAdministrador {
             System.out.println("4. Eliminar espacio");
             System.out.println("5. Salir");
 
-            int opcion = Utils.leerEntero("Seleccione una opción: ");
+            var opcion = Utils.leerEntero("Seleccione una opción: ");
 
             switch (opcion) {
                 case 1 -> crearEspacio(usuario);
@@ -98,56 +94,55 @@ public class MenuAdministrador {
             System.out.println("\nNo posees el permiso para crear un aula.");
             return;
         }
-
-        Aula aula;
-        int tipo;
-        do {
-            tipo = Utils.leerEntero("""
-                \n
-                Elija el tipo de Espacio:
-                1. Aula
-                2. Laboratorio
-                -\s
-                """);
-            if (tipo != 1 && tipo != 2) {
-                System.out.println("\nOpción inválida, debe elegir 1 (Aula) o 2 (Laboratorio).");
-            }
-        } while (tipo != 1 && tipo != 2);
-
-        int capacidad;
-        do {
-            capacidad = Utils.leerEntero("\nIngrese la capacidad del aula: ");
-            if (capacidad <= 0) {
-                System.out.println("\nLa capacidad debe ser mayor que 0.");
-            }
-        } while (capacidad <= 0);
-
-        boolean tieneProyector = Utils.leerConfirmacion("\n¿El aula tiene proyector?");
-
-        boolean tieneTV = Utils.leerConfirmacion("\n¿El aula tiene televisor?");
-
-        int numero;
-        do {
-            numero = Utils.leerEntero("\nIngrese el número de aula: ");
-            if (numero <= 0) {
-                System.out.println("\nEl número de aula debe ser mayor que 0.");
-            }
-        } while (numero <= 0);
-
-        if (tipo == 2) {
-            int computadoras;
+        try{
+            Aula aula;
+            int tipo;
             do {
-                computadoras = Utils.leerEntero("\nIngrese la cantidad de computadoras: ");
-                if (computadoras < 0) {
-                    System.out.println("\nLa cantidad de computadoras no puede ser negativa.");
+                tipo = Utils.leerEntero("""
+                    \n
+                    Elija el tipo de Espacio:
+                    1. Aula
+                    2. Laboratorio
+                    
+                    """);
+                if (tipo != 1 && tipo != 2) {
+                    System.out.println("\nOpción inválida, debe elegir 1 (Aula) o 2 (Laboratorio).");
                 }
-            } while (computadoras < 0);
-            aula = new Laboratorio(null, numero, capacidad, tieneProyector, tieneTV, computadoras);
-        } else {
-            aula = new Aula(null, numero, capacidad, tieneProyector, tieneTV);
-        }
+            } while (tipo != 1 && tipo != 2);
 
-        try {
+            int capacidad;
+            do {
+                capacidad = Utils.leerEntero("\nIngrese la capacidad del aula: ");
+                if (capacidad <= 0) {
+                    System.out.println("\nLa capacidad debe ser mayor que 0.");
+                }
+            } while (capacidad <= 0);
+
+            boolean tieneProyector = Utils.leerConfirmacion("\n¿El aula tiene proyector?");
+
+            boolean tieneTV = Utils.leerConfirmacion("\n¿El aula tiene televisor?");
+
+            int numero;
+            do {
+                numero = Utils.leerEntero("\nIngrese el número de aula: ");
+                if (numero <= 0) {
+                    System.out.println("\nEl número de aula debe ser mayor que 0.");
+                }
+            } while (numero <= 0);
+
+            if (tipo == 2) {
+                int computadoras;
+                do {
+                    computadoras = Utils.leerEntero("\nIngrese la cantidad de computadoras: ");
+                    if (computadoras < 0) {
+                        System.out.println("\nLa cantidad de computadoras no puede ser negativa.");
+                    }
+                } while (computadoras < 0);
+                aula = new Laboratorio(null, numero, capacidad, tieneProyector, tieneTV, computadoras);
+            } else {
+                aula = new Aula(null, numero, capacidad, tieneProyector, tieneTV);
+            }
+
             aulaService.guardar(aula);
             System.out.println("\nEspacio creado exitosamente.");
         } catch (JsonNotFoundException | BadRequestException e) {
@@ -161,72 +156,80 @@ public class MenuAdministrador {
      * @param usuario que esta logueado para verificar perfil con permisos
      */
     private void modificarEspacio(Usuario usuario) {
-        if (seguridad.verificarPermiso(usuario, Permisos.MODIFICAR_ESPACIO)) {
-            try {
-                var aulas = aulaService.listar();
-                if (aulas.isEmpty()){
-                    System.out.println("\nNo hay espacios");
-                    return;
-                }
-                System.out.println("\nEspacios:");
-                System.out.println("==========================");
-                aulas.forEach(System.out::println);
-                System.out.println("==========================");
+        if (!seguridad.verificarPermiso(usuario, Permisos.MODIFICAR_ESPACIO)) {
+            System.out.println("\nNo posees el permiso para modificar espacios.");
+            return;
+        }
 
-                // Solicitar el número del espacio a modificar
-                int numero = Utils.leerEntero("\nIngrese el id del espacio que desea modificar: ");
+        try {
+            var aulas = aulaService.listar();
+            if (aulas.isEmpty()) {
+                System.out.println("\nNo hay espacios disponibles.");
+                return;
+            }
 
-                // Obtener el espacio por número
-                Aula aula = aulaService.obtener(numero);
+            System.out.println("\nEspacios:");
+            System.out.println("==========================");
+            aulas.forEach(System.out::println);
+            System.out.println("==========================");
 
-                boolean continuar = true;
-                while (continuar) {
-                    // Mostrar información actual del espacio
-                    System.out.println("\nInformación actual del espacio:");
-                    System.out.println(STR."1. Número: \{aula.getNumero()}");
-                    System.out.println(STR."2. Capacidad: \{aula.getCapacidad()}");
-                    System.out.println(STR."3. Tiene proyector: \{aula.isTieneProyector()}");
-                    System.out.println(STR."4. Tiene TV: \{aula.isTieneTV()}");
+            // Solicitar el número del espacio a modificar
+            int numero = Utils.leerEntero("\nIngrese el id del espacio que desea modificar: ");
 
-                    if (aula instanceof Laboratorio){
-                        System.out.println(STR."5.Computadoras: \{((Laboratorio) aula).getComputadoras()}");
-                        System.out.println("6. Guardar cambios y salir");
-                        System.out.print("\nSeleccione el atributo que desea modificar (1-6): ");
-                    }
+            // Obtener el espacio por número
+            Aula aula = aulaService.obtener(numero);
 
-                    System.out.println("5. Guardar cambios y salir");
-                    var opcion = Utils.leerEntero("\nSeleccione el atributo que desea modificar (1-5): ");
+            boolean continuar = true;
+            while (continuar) {
+                // Mostrar información actual del espacio
+                System.out.println("\nInformación actual del espacio:");
+                System.out.println(STR."1. Número: \{aula.getNumero()}");
+                System.out.println(STR."2. Capacidad: \{aula.getCapacidad()}");
+                System.out.println(STR."3. Tiene proyector: \{aula.isTieneProyector() ? "sí" : "no"}");
+                System.out.println(STR."4. Tiene TV: \{aula.isTieneTV() ? "sí" : "no"}");
+
+                int opcion;
+                if (aula instanceof Laboratorio laboratorio) {
+                    System.out.println(STR."5. Computadoras: \{laboratorio.getComputadoras()}");
+                    System.out.println("6. Guardar cambios y salir");
+                    opcion = Utils.leerEntero("\nSeleccione el atributo que desea modificar (1-6): ");
 
                     switch (opcion) {
-                        case 1:
-                            aula.setNumero(Utils.leerEntero("\nIngrese el nuevo número: "));
-                            break;
-                        case 2:
-                            aula.setCapacidad(Utils.leerEntero("\nIngrese la nueva capacidad: "));
-                            break;
-                        case 3:
-                            aula.setTieneProyector(Utils.leerConfirmacion("\n¿Tiene proyector?"));
-                            break;
-                        case 4:
-                            aula.setTieneTV(Utils.leerConfirmacion("\n¿Tiene TV?"));
-                            break;
-                        case 5:
-                            // Guardar cambios
+                        case 1 -> aula.setNumero(Utils.leerEntero("\nIngrese el nuevo número: "));
+                        case 2 -> aula.setCapacidad(Utils.leerEntero("\nIngrese la nueva capacidad: "));
+                        case 3 -> aula.setTieneProyector(Utils.leerConfirmacion("\n¿Tiene proyector?"));
+                        case 4 -> aula.setTieneTV(Utils.leerConfirmacion("\n¿Tiene TV?"));
+                        case 5 -> laboratorio.setComputadoras(Utils.leerEntero("\nIngrese la nueva cantidad de computadoras: "));
+                        case 6 -> {
                             aulaService.modificar(aula);
                             System.out.println("\nEl espacio se ha modificado exitosamente.");
                             continuar = false;
-                            break;
-                        default:
-                            System.out.println("\nOpción no válida.");
+                        }
+                        default -> System.out.println("\nOpción no válida.");
+                    }
+                } else {
+                    System.out.println("5. Guardar cambios y salir");
+                    opcion = Utils.leerEntero("\nSeleccione el atributo que desea modificar (1-5): ");
+
+                    switch (opcion) {
+                        case 1 -> aula.setNumero(Utils.leerEntero("\nIngrese el nuevo número: "));
+                        case 2 -> aula.setCapacidad(Utils.leerEntero("\nIngrese la nueva capacidad: "));
+                        case 3 -> aula.setTieneProyector(Utils.leerConfirmacion("\n¿Tiene proyector?"));
+                        case 4 -> aula.setTieneTV(Utils.leerConfirmacion("\n¿Tiene TV?"));
+                        case 5 -> {
+                            aulaService.modificar(aula);
+                            System.out.println("\nEl espacio se ha modificado exitosamente.");
+                            continuar = false;
+                        }
+                        default -> System.out.println("\nOpción no válida.");
                     }
                 }
-            } catch (JsonNotFoundException | NotFoundException e) {
-                System.out.println(e.getMessage());
             }
-        } else {
-            System.out.println("\nNo posees el permiso para modificar espacios.");
+        } catch (JsonNotFoundException | NotFoundException e) {
+            System.out.println(e.getMessage());
         }
     }
+
 
     /**
      * Método para eliminar un espacio del submenu espacio
@@ -246,7 +249,7 @@ public class MenuAdministrador {
                 aulas.forEach(System.out::println);
                 System.out.println("==========================");
 
-                int id = Utils.leerEntero("\nIngrese el id del espacio a eliminar");
+                int id = Utils.leerEntero("\nIngrese el id del espacio a eliminar: ");
                 aulaService.eliminar(id);
                 System.out.println("\nEspacio eliminado exitosamente");
             }catch (JsonNotFoundException | NotFoundException e) {
@@ -283,7 +286,7 @@ public class MenuAdministrador {
             System.out.println("12. Filtrar laboratorios disponibles");
             System.out.println("13. Salir");
 
-            int opcion = Utils.leerEntero("Seleccione una opción: ");
+            var opcion = Utils.leerEntero("Seleccione una opción: ");
 
             switch (opcion) {
                 case 1 -> listarEspacios(usuario);
@@ -397,7 +400,7 @@ public class MenuAdministrador {
                 }
 
             } catch (JsonNotFoundException e) {
-                System.out.println(STR."\nError: \{e.getMessage()}");
+                System.out.println(STR."\n\{e.getMessage()}");
             }
         } else {
             System.out.println("\nNo posees el permiso para ver los espacios.");
@@ -425,7 +428,7 @@ public class MenuAdministrador {
                 }
 
             } catch (JsonNotFoundException e) {
-                System.out.println(STR."\nError: \{e.getMessage()}");
+                System.out.println(STR."\n\{e.getMessage()}");
             }
         } else {
             System.out.println("\nNo posees el permiso para ver las aulas.");
@@ -456,7 +459,7 @@ public class MenuAdministrador {
                 }
 
             } catch (JsonNotFoundException e) {
-                System.out.println(STR."\nError: \{e.getMessage()}");
+                System.out.println(STR."\n\{e.getMessage()}");
             }
         } else {
             System.out.println("\nNo posees el permiso para ver los laboratorios.");
@@ -689,7 +692,7 @@ public class MenuAdministrador {
             System.out.println("7.Eliminar reserva");
             System.out.println("8.Salir.");
 
-            int opcion = Utils.leerEntero("Seleccione una opción: ");
+            var opcion = Utils.leerEntero("Seleccione una opción: ");
 
             switch (opcion) {
                 case 1 -> crearReserva(usuario);
@@ -917,9 +920,9 @@ public class MenuAdministrador {
                     System.out.println("\nInformación actual de la reserva:");
                     System.out.println(STR."1. Fecha de Inicio: \{reserva.getFechaInicio()}");
                     System.out.println(STR."2. Fecha de Fin: \{reserva.getFechaFin()}");
-                    System.out.println(STR."3. Dias y Horarios: \{reserva.getDiasYBloques()}");
-                    System.out.println(STR."4. \{reserva.getAula()}");
-                    System.out.println(STR."5. \{reserva.getInscripcion()}");
+                    System.out.println(STR."3. Dias y Horarios: \{Utils.formatDiasYBloques(reserva.getDiasYBloques())}");
+                    System.out.println(STR."4. Aula: \{reserva.getAula().getId()}");
+                    System.out.println(STR."5. Inscripción: \{reserva.getInscripcion().getId()}");
                     System.out.println("6. Guardar cambios y salir");
 
                     var opcion = Utils.leerEntero("\nSeleccione el atributo que desea modificar (1-6): ");
@@ -927,24 +930,43 @@ public class MenuAdministrador {
                     switch (opcion) {
                         case 1:
                             while (true) {
-                                LocalDate fechaInicio = Utils.leerFecha("\nIngrese la fecha de inicio: ");
+                                LocalDate fechaInicio = Utils.leerFecha("\nIngrese la fecha de inicio");
                                 if (!reserva.getFechaFin().isBefore(fechaInicio)) {
                                     reserva.setFechaInicio(fechaInicio);
+
+                                    // Validar si las fechas ahora son iguales
+                                    if (reserva.getFechaInicio().equals(reserva.getFechaFin())) {
+                                        System.out.println("\nLas fechas de inicio y fin ahora coinciden. Debe reconfigurar los días y bloques.");
+                                        var diaSemana = reserva.getFechaInicio().getDayOfWeek();
+                                        var bloques = Utils.leerBloques(diaSemana);
+                                        reserva.setDiasYBloques(Map.of(diaSemana, bloques));
+                                    }
                                     break;
                                 } else {
                                     System.out.println("Error: La fecha de inicio no puede ser posterior a la fecha de fin actual.");
                                 }
                             }
+                            break;
+
                         case 2:
                             while (true) {
-                                LocalDate fechaFin = Utils.leerFecha("\nIngrese la fecha de fin: ");
+                                LocalDate fechaFin = Utils.leerFecha("\nIngrese la fecha de fin");
                                 if (!fechaFin.isBefore(reserva.getFechaInicio())) {
                                     reserva.setFechaFin(fechaFin);
+
+                                    // Validar si las fechas ahora son iguales
+                                    if (reserva.getFechaInicio().equals(reserva.getFechaFin())) {
+                                        System.out.println("\nLas fechas de inicio y fin ahora coinciden. Debe reconfigurar los días y bloques.");
+                                        var diaSemana = reserva.getFechaInicio().getDayOfWeek();
+                                        var bloques = Utils.leerBloques(diaSemana);
+                                        reserva.setDiasYBloques(Map.of(diaSemana, bloques));
+                                    }
                                     break;
                                 } else {
                                     System.out.println("Error: La fecha de inicio no puede ser posterior a la fecha de fin actual.");
                                 }
                             }
+                            break;
                         case 3:
                             var diasYBloques = reserva.getFechaInicio().equals(reserva.getFechaFin())
                                     ? Map.of(reserva.getFechaInicio().getDayOfWeek(),
@@ -995,11 +1017,68 @@ public class MenuAdministrador {
                             reserva.setAula(aulaSeleccionada);
                             break;
                         case 5:
+                            // Mostrar inscripciones disponibles
                             inscripcionService.listar().forEach(System.out::println);
                             int idInscripcion = Utils.leerEntero("\nIngrese el id de la inscripción: ");
-                            var inscri = inscripcionService.obtener(idInscripcion);
-                            reserva.setInscripcion(inscri);
+                            var nuevaInscripcion = inscripcionService.obtener(idInscripcion);
+
+                            // Validar si el aula actual es adecuada para la nueva inscripción
+                            var aulaActual = reserva.getAula();
+                            int alumnos = nuevaInscripcion.getCantidadAlumnos() +
+                                    (nuevaInscripcion.getFechaFinInscripcion().isAfter(LocalDate.now())
+                                            ? nuevaInscripcion.getMargenAlumnos()
+                                            : 0);
+
+                            boolean aulaEsAdecuada = validarAulaParaInscripcion(aulaActual, nuevaInscripcion, alumnos);
+
+                            if (!aulaEsAdecuada) {
+                                System.out.println("\nEl aula actual no cumple con los requisitos de la nueva inscripción.");
+                                System.out.println("Debe seleccionar un nuevo aula.");
+
+                                // Solicitar un nuevo aula
+                                var hasProyector = Utils.obtenerProyectorEspacio();
+                                var hasTv = Utils.obtenerTvEspacio();
+
+                                List<? extends Aula> espacios;
+                                if (nuevaInscripcion.getAsignatura().isRequiereLaboratorio()) {
+                                    int computadoras = Utils.leerEntero("\nIngrese la cantidad de computadoras que requiere el laboratorio: ");
+                                    espacios = aulaService.listarLaboratoriosDisponiblesConCondiciones(
+                                            computadoras, alumnos, hasProyector, hasTv,
+                                            reserva.getFechaInicio(), reserva.getFechaFin(), reserva.getDiasYBloques());
+                                } else {
+                                    espacios = aulaService.listarAulasDisponiblesConCondiciones(
+                                            alumnos, hasProyector, hasTv,
+                                            reserva.getFechaInicio(), reserva.getFechaFin(), reserva.getDiasYBloques());
+                                }
+
+                                // Mostrar espacios disponibles
+                                if (espacios.isEmpty()) {
+                                    System.out.println("\nNo hay espacios disponibles que cumplan con las condiciones.");
+                                    break;
+                                }
+                                espacios.forEach(System.out::println);
+
+                                // Seleccionar ua nueva aula
+                                Aula aula = null;
+                                while (aula == null) {
+                                    var idAula = Utils.leerEntero("\nIngrese el id del espacio: ");
+                                    aula = espacios.stream()
+                                            .filter(a -> a.getId() == idAula)
+                                            .findFirst()
+                                            .orElse(null);
+
+                                    if (aula == null) {
+                                        System.out.println("\nError: El id ingresado no corresponde a un espacio disponible. Intente nuevamente.");
+                                    }
+                                }
+
+                                reserva.setAula(aula);
+                            }
+
+                            // Finalmente, setear la nueva inscripción
+                            reserva.setInscripcion(nuevaInscripcion);
                             break;
+
                         case 6:
                             // Guardar cambios
                             reservaService.modificar(reserva);
@@ -1036,7 +1115,7 @@ public class MenuAdministrador {
                 reservas.forEach(System.out::println);
                 System.out.println("============================");
 
-                int id = Utils.leerEntero("\nIngrese el id de la reserva a eliminar");
+                int id = Utils.leerEntero("\nIngrese el id de la reserva a eliminar: ");
                 reservaService.eliminar(id);
                 System.out.println("\nReserva eliminada exitosamente");
             }catch (JsonNotFoundException | NotFoundException e) {
@@ -1256,8 +1335,8 @@ public class MenuAdministrador {
             System.out.println("5. Cambiar contraseña");
             System.out.println("6. Salir.");
 
-            int opcion = Utils.leerEntero("Seleccione una opción: ");
-            scanner.nextLine();
+
+            var opcion = Utils.leerEntero("Seleccione una opción: ");
 
             switch (opcion) {
                 case 1 -> crearUsuario(usuario);
@@ -1389,10 +1468,11 @@ public class MenuAdministrador {
                                 }
                             } while (!opcionesValidas.contains(rol));
 
+                            user.setRol(new Rol(rol));
                             break;
                         case 4:
                             // Guardar cambios
-                            usuarioService.modificar(usuario);
+                            usuarioService.modificar(user);
                             System.out.println("\nEl usuario se ha modificado exitosamente.");
                             continuar = false;
                             break;
@@ -1452,4 +1532,20 @@ public class MenuAdministrador {
             System.out.println("\nNo posees el permiso para cambiar tu contraseña.");
         }
     }
+
+    private boolean validarAulaParaInscripcion(Aula aula, Inscripcion inscripcion, int alumnosRequeridos) {
+        if (aula.getCapacidad() < alumnosRequeridos) {
+            return false;
+        }
+
+        if (inscripcion.getAsignatura().isRequiereLaboratorio()) {
+            if (!(aula instanceof Laboratorio lab)) {
+                return false;
+            }
+            return lab.getComputadoras() >= alumnosRequeridos;
+        }
+
+        return true;
+    }
+
 }

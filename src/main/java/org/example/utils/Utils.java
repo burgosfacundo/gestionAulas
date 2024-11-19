@@ -177,14 +177,13 @@ public class Utils {
         while (true) {
             System.out.print(STR."\{mensaje} (s/n): ");
             String respuesta = scanner.nextLine().trim().toLowerCase();
-            // Validación de respuesta
             if (respuesta.equals("s")) {
                 return true;
-            } else if (respuesta.equals("n")) {
-                return false;
-            } else {
-                System.out.println("\nRespuesta inválida. Debe ingresar 's' para sí o 'n' para no.");
             }
+            if (respuesta.equals("n")) {
+                return false;
+            }
+            System.out.println("\nRespuesta inválida. Debe ingresar 's' para sí o 'n' para no.");
         }
     }
 
@@ -309,21 +308,12 @@ public class Utils {
      * @return si tiene o no proyector o null si no quiere aplicar el filtro
      */
     public static Boolean obtenerProyectorEspacio(){
-        while (true) {
-            // Solicitar si tiene proyector
-            String proyectorInput = leerTexto("\n¿Debe tener proyector el espacio? (s/n) (Enter si no quiere aplicar el filtro): ").toLowerCase();
+        // Solicitar si tiene proyector
+        var proyectorInput = Utils
+                .leerTexto("\n¿Debe tener proyector el espacio? (Si/No) (Enter si no quiere aplicar el filtro): ")
+                .toLowerCase();
 
-            if (proyectorInput.isEmpty()) {
-                return null;  // Si presiona Enter sin ingresar nada, no aplicar el filtro
-            }
-
-            if (proyectorInput.equals("s")) {
-                return true;  // Si responde 's', tiene proyector
-            } else if (proyectorInput.equals("n")) {
-                return false;  // Si responde 'n', no tiene proyector
-            }
-            System.out.println("\nRespuesta inválida. Debe ingresar 's' para sí o 'n' para no.");
-        }
+        return proyectorInput.isEmpty() ? null : proyectorInput.equalsIgnoreCase("si");
 
     }
     /**
@@ -331,22 +321,12 @@ public class Utils {
      * @return si tiene o no tv o null si no quiere aplicar el filtro
      */
     public static Boolean obtenerTvEspacio(){
-        while (true) {
-            // Solicitar si tiene TV
-            String tvInput = leerTexto("\n¿Debe tener TV el espacio? (s/n) (Enter si no quiere aplicar el filtro): ").toLowerCase();
+        // Solicitar si tiene TV
+        var tvInput = Utils
+                .leerTexto("\n¿Debe tener TV el espacio? (Si/No) (Enter si no quiere aplicar el filtro):")
+                .toLowerCase();
+        return tvInput.isEmpty() ? null : tvInput.equalsIgnoreCase("si");
 
-            if (tvInput.isEmpty()) {
-                return null;  // Si presiona Enter sin ingresar nada, no aplicar el filtro
-            }
-
-            if (tvInput.equals("s")) {
-                return true;  // Si responde 's', tiene TV
-            } else if (tvInput.equals("n")) {
-                return false;  // Si responde 'n', no tiene TV
-            }
-
-            System.out.println("\nRespuesta inválida. Debe ingresar 's' para sí o 'n' para no.");
-        }
     }
 
     /**

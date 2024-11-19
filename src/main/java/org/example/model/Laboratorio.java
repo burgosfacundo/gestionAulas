@@ -49,7 +49,7 @@ public class Laboratorio extends Aula {
                 super.getId(),
                 super.getNumero(),
                 super.getCapacidad(),
-                this.getCapacidad(),
+                this.getComputadoras(),
                 super.isTieneProyector() ? "Sí" : "No",
                 super.isTieneTV() ? "Sí" : "No"
         ).trim();
