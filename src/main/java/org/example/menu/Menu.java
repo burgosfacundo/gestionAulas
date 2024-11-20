@@ -5,7 +5,7 @@ import org.example.exception.JsonNotFoundException;
 import org.example.exception.NotFoundException;
 import org.example.model.Usuario;
 import org.example.security.Seguridad;
-import org.example.utils.Utils;
+import org.example.utils.MenuUtils;
 
 public class Menu {
 
@@ -27,7 +27,7 @@ public class Menu {
             System.out.println("2. Salir");
             System.out.println("======================================");
 
-            int opcion = Utils.leerEntero("Seleccione una opción: ");
+            int opcion = MenuUtils.leerEntero("Seleccione una opción: ");
 
             switch (opcion) {
                 case 1 -> iniciarSesion();
@@ -38,7 +38,7 @@ public class Menu {
                 default -> System.out.println("Opción inválida.");
             }
         }
-        Utils.cerrarScanner();
+        MenuUtils.cerrarScanner();
     }
 
     /**
@@ -78,15 +78,15 @@ public class Menu {
         boolean intentarDeNuevo = true;
 
         while (usuario == null && intentarDeNuevo) {
-            String username = Utils.leerTexto("Ingrese su nombre de usuario: ");
-            String contrasenia = Utils.leerTexto("Ingrese su contraseña: ");
+            String username = MenuUtils.leerTexto("Ingrese su nombre de usuario: ");
+            String contrasenia = MenuUtils.leerTexto("Ingrese su contraseña: ");
 
 
             try {
                 usuario = seguridad.autenticar(username, contrasenia);
             } catch (AutenticacionException | JsonNotFoundException | NotFoundException e) {
                 System.out.println(STR."Error: \{e.getMessage()}");
-                intentarDeNuevo = Utils.leerConfirmacion("¿Desea intentar nuevamente?");
+                intentarDeNuevo = MenuUtils.leerConfirmacion("¿Desea intentar nuevamente?");
             }
         }
         return usuario;

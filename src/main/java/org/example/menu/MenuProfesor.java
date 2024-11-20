@@ -10,7 +10,7 @@ import org.example.exception.NotFoundException;
 import org.example.model.*;
 import org.example.security.Seguridad;
 import org.example.service.*;
-import org.example.utils.Utils;
+import org.example.utils.MenuUtils;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -41,7 +41,7 @@ public class MenuProfesor {
             System.out.println("7.Cambiar mi contraseña.");
             System.out.println("8.Salir.");
 
-            var opcion = Utils.leerEntero("Seleccione una opción: ");
+            var opcion = MenuUtils.leerEntero("Seleccione una opción: ");
 
             switch (opcion) {
                 case 1 -> menuListarEspacios(usuario);
@@ -74,7 +74,7 @@ public class MenuProfesor {
             System.out.println("4. Filtrar laboratorios disponibles");
             System.out.println("5. Salir");
 
-            var opcion = Utils.leerEntero("Seleccione una opción: ");
+            var opcion = MenuUtils.leerEntero("Seleccione una opción: ");
 
             switch (opcion) {
                 case 1 -> listarAulas(usuario);
@@ -86,7 +86,6 @@ public class MenuProfesor {
             }
         }
     }
-
 
     /**
      * Método para listar todas las aulas estándar
@@ -143,15 +142,15 @@ public class MenuProfesor {
     private void filtrarAulasDisponibles(Usuario usuario) {
         if (seguridad.verificarPermiso(usuario, Permisos.VER_AULAS)) {
             try {
-                var capacidad = Utils.obtenerCapacidadEspacio();
-                var tieneProyector = Utils.obtenerProyectorEspacio();
-                var tieneTV = Utils.obtenerTvEspacio();
+                var capacidad = MenuUtils.obtenerCapacidadEspacio();
+                var tieneProyector = MenuUtils.obtenerProyectorEspacio();
+                var tieneTV = MenuUtils.obtenerTvEspacio();
 
-                var rangoFechas = Utils.leerRangoDeFechas("\nIngrese la fecha de inicio:", "\nIngrese la fecha de fin:");
+                var rangoFechas = MenuUtils.leerRangoDeFechas("\nIngrese la fecha de inicio:", "\nIngrese la fecha de fin:");
                 LocalDate fechaInicio = rangoFechas.get(0);
                 LocalDate fechaFin = rangoFechas.get(1);
 
-                var diasYBloques = Utils.leerDiasYBloques();
+                var diasYBloques = MenuUtils.leerDiasYBloques();
 
                 // Filtrar los espacios según los parámetros ingresados
                 var espaciosFiltrados = aulaService.listarAulasDisponiblesConCondiciones(capacidad, tieneProyector,
@@ -179,17 +178,17 @@ public class MenuProfesor {
     private void filtrarLaboratoriosDisponibles(Usuario usuario) {
         if (seguridad.verificarPermiso(usuario, Permisos.VER_LABORATORIOS)) {
             try {
-                var capacidad = Utils.obtenerCapacidadEspacio();
-                var tieneProyector = Utils.obtenerProyectorEspacio();
-                var tieneTV = Utils.obtenerTvEspacio();
+                var capacidad = MenuUtils.obtenerCapacidadEspacio();
+                var tieneProyector = MenuUtils.obtenerProyectorEspacio();
+                var tieneTV = MenuUtils.obtenerTvEspacio();
 
-                var rangoFechas = Utils.leerRangoDeFechas("\nIngrese la fecha de inicio:", "\nIngrese la fecha de fin:");
+                var rangoFechas = MenuUtils.leerRangoDeFechas("\nIngrese la fecha de inicio:", "\nIngrese la fecha de fin:");
                 LocalDate fechaInicio = rangoFechas.get(0);
                 LocalDate fechaFin = rangoFechas.get(1);
 
-                var diasYBloques = Utils.leerDiasYBloques();
+                var diasYBloques = MenuUtils.leerDiasYBloques();
 
-                var computadoras = Utils.obtenerCantidadComputadoras();
+                var computadoras = MenuUtils.obtenerCantidadComputadoras();
 
                 // Filtrar los espacios según los parámetros ingresados
                 var espaciosFiltrados = aulaService
@@ -230,7 +229,7 @@ public class MenuProfesor {
 
 
                 // Solicitar el ID de la reserva que necesita cambio
-                int idReserva = Utils.leerEntero("\nIngresa el id de la reserva en la cual necesita un cambio:");
+                int idReserva = MenuUtils.leerEntero("\nIngresa el id de la reserva en la cual necesita un cambio:");
 
                 // Validar que el idReserva ingresado esté dentro de las reservas listadas
                 boolean reservaValida = reservas.stream()
@@ -252,7 +251,7 @@ public class MenuProfesor {
                 // consultar al user si es temporal
                 int opcion;
                 do {
-                    opcion = Utils.leerEntero("""
+                    opcion = MenuUtils.leerEntero("""
                             \n
                             Ingresa que tipo de cambio necesita:
                             1. Temporal
@@ -265,25 +264,25 @@ public class MenuProfesor {
                 if(opcion == 1){
                     tipoSolicitud = TipoSolicitud.TEMPORAL;
 
-                    var rangoFechas = Utils.leerRangoDeFechas("\nIngrese la fecha de inicio:", "\nIngrese la fecha de fin:");
+                    var rangoFechas = MenuUtils.leerRangoDeFechas("\nIngrese la fecha de inicio:", "\nIngrese la fecha de fin:");
                     fechaInicio = rangoFechas.get(0);
                     fechaFin = rangoFechas.get(1);
                     if (fechaInicio.equals(fechaFin)){
-                        var bloques = Utils.leerBloques(fechaFin.getDayOfWeek());
+                        var bloques = MenuUtils.leerBloques(fechaFin.getDayOfWeek());
                         diasYBloques = new HashMap<>();
                         diasYBloques.put(fechaFin.getDayOfWeek(),bloques);
                     }else {
-                        diasYBloques  = Utils.leerDiasYBloques();
+                        diasYBloques  = MenuUtils.leerDiasYBloques();
                     }
                 }else {
                     // obtener días y bloque horario
-                    diasYBloques  = Utils.leerDiasYBloques();
+                    diasYBloques  = MenuUtils.leerDiasYBloques();
                 }
 
 
 
                 // Comentario adicional
-                String comentarioProfesor = Utils.leerTexto("\nEscriba un comentario adicional para la solicitud: ");
+                String comentarioProfesor = MenuUtils.leerTexto("\nEscriba un comentario adicional para la solicitud: ");
 
 
                 List<? extends Aula> aulasCoinciden;
@@ -299,10 +298,11 @@ public class MenuProfesor {
                 if (!aulasCoinciden.isEmpty()){
                     System.out.println("\nEspacios disponibles: ");
                     aulasCoinciden.forEach(System.out::println);
-                    Aula aula = aulaService.obtener(Utils.leerEntero("\nIngresa el id del espacio que desea solicitar: "));
+                    Aula aula = aulaService.obtener(MenuUtils.leerEntero("\nIngresa el id del espacio que desea solicitar: "));
                     SolicitudCambioAula solicitud = new SolicitudCambioAula(null, reserva.getInscripcion().getProfesor(), reserva,
                             aula, tipoSolicitud, fechaInicio, fechaFin, diasYBloques, comentarioProfesor);
                     solicitudCambioAulaService.guardar(solicitud);
+                    System.out.println("\nSolicitud creada exitosamente.");
                 }else {
                     System.out.println("\nNo hay espacios disponibles con esas características en las fechas ingresadas");
                 }
@@ -318,7 +318,7 @@ public class MenuProfesor {
      * @param estadoSolicitud por el cual se quiere filtrar
      */
     private void listarMisSolicitudes(Usuario usuario, EstadoSolicitud estadoSolicitud){
-        if(seguridad.verificarPermiso(usuario, Permisos.SOLICITAR_CAMBIO)){
+        if(seguridad.verificarPermiso(usuario, Permisos.VER_SOLICITUDES_CAMBIO)){
             try{
                 var solicitudes = solicitudCambioAulaService
                         .listarSolicitudesPorEstadoYProfesor(estadoSolicitud, usuario.getProfesor().getId());
@@ -369,8 +369,9 @@ public class MenuProfesor {
     private void cambiarPassword(Usuario usuario){
         if(seguridad.verificarPermiso(usuario, Permisos.CAMBIAR_PASSWORD)){
             try {
-                var usuarioNuevo = Utils.cambiarPassword(usuario);
+                var usuarioNuevo = MenuUtils.cambiarPassword(usuario);
                 usuarioService.modificar(usuarioNuevo);
+                System.out.println("\nContraseña modificada correctamente.");
             } catch (NotFoundException | JsonNotFoundException e) {
                 System.out.println(e.getMessage());
             }
