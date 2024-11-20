@@ -32,14 +32,14 @@ public class MenuProfesor {
             System.out.println("     Menú Profesor");
             System.out.println("======================================");
             System.out.println("Elija una opción:");
-            System.out.println("1.Listar espacios.");
-            System.out.println("2.Solicitar cambio.");
-            System.out.println("3.Listar mis solicitudes pendientes.");
-            System.out.println("4.Listar mis solicitudes aprobadas.");
-            System.out.println("5.Listar mis solicitudes rechazadas.");
-            System.out.println("6.Listar mis reservas.");
-            System.out.println("7.Cambiar mi contraseña.");
-            System.out.println("8.Salir.");
+            System.out.println("1. Listar espacios.");
+            System.out.println("2. Solicitar cambio.");
+            System.out.println("3. Listar mis solicitudes pendientes.");
+            System.out.println("4. Listar mis solicitudes aprobadas.");
+            System.out.println("5. Listar mis solicitudes rechazadas.");
+            System.out.println("6. Listar mis reservas.");
+            System.out.println("7. Cambiar mi contraseña.");
+            System.out.println("8. Salir.");
 
             var opcion = MenuUtils.leerEntero("Seleccione una opción: ");
 

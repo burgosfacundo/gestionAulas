@@ -686,14 +686,14 @@ public class MenuAdministrador {
             System.out.println("     Menú Reservas");
             System.out.println("======================================");
             System.out.println("Elija una opción:");
-            System.out.println("1.Crear reserva.");
-            System.out.println("2.Listar todas las reservas.");
-            System.out.println("3.Listar reservas por profesor.");
-            System.out.println("4.Listar reservas por comisión");
-            System.out.println("5.Listar reservas por asignatura");
-            System.out.println("6.Modificar reserva");
-            System.out.println("7.Eliminar reserva");
-            System.out.println("8.Salir.");
+            System.out.println("1. Crear reserva.");
+            System.out.println("2. Listar todas las reservas.");
+            System.out.println("3. Listar reservas por profesor.");
+            System.out.println("4. Listar reservas por comisión");
+            System.out.println("5. Listar reservas por asignatura");
+            System.out.println("6. Modificar reserva");
+            System.out.println("7. Eliminar reserva");
+            System.out.println("8. Salir.");
 
             var opcion = MenuUtils.leerEntero("Seleccione una opción: ");
 
@@ -1156,9 +1156,9 @@ public class MenuAdministrador {
             System.out.println("     Menú Solicitudes");
             System.out.println("======================================");
             System.out.println("Elija una opción:");
-            System.out.println("1.Listar");
-            System.out.println("2.Revisar solicitudes pendientes");
-            System.out.println("3.Salir.");
+            System.out.println("1. Listar");
+            System.out.println("2. Revisar solicitudes pendientes");
+            System.out.println("3. Salir.");
 
             int opcion = MenuUtils.leerEntero("Seleccione una opción: ");
 
@@ -1187,7 +1187,7 @@ public class MenuAdministrador {
             System.out.println("2. Listar todas las solicitudes pendientes");
             System.out.println("3. Listar todas las solicitudes aprobadas");
             System.out.println("4. Listar todas las solicitudes rechazadas");
-            System.out.println("5. Listar todas las solicitudes x profesor");
+            System.out.println("5. Listar todas las solicitudes por profesor");
             System.out.println("6. Salir");
 
             int opcion = MenuUtils.leerEntero("Seleccione una opción: ");
