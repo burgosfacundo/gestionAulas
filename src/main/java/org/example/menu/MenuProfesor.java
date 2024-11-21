@@ -39,7 +39,7 @@ public class MenuProfesor {
             System.out.println("5. Listar mis solicitudes rechazadas.");
             System.out.println("6. Listar mis reservas.");
             System.out.println("7. Cambiar mi contraseña.");
-            System.out.println("8. Salir.");
+            System.out.println("8. Cerrar sesión.");
 
             var opcion = MenuUtils.leerEntero("Seleccione una opción: ");
 
@@ -72,7 +72,7 @@ public class MenuProfesor {
             System.out.println("2. Listar todos los laboratorios");
             System.out.println("3. Filtrar aulas disponibles");
             System.out.println("4. Filtrar laboratorios disponibles");
-            System.out.println("5. Salir");
+            System.out.println("5. Volver al menú principal");
 
             var opcion = MenuUtils.leerEntero("Seleccione una opción: ");
 

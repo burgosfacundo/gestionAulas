@@ -42,7 +42,7 @@ public class MenuAdministrador {
             System.out.println("2. Gestionar reservas");
             System.out.println("3. Gestionar solicitudes");
             System.out.println("4. Gestionar usuarios");
-            System.out.println("5. Salir");
+            System.out.println("5. Cerrar sesión");
 
             var opcion = MenuUtils.leerEntero("Seleccione una opción: ");
 
@@ -73,7 +73,7 @@ public class MenuAdministrador {
             System.out.println("2. Listar espacios y filtros");
             System.out.println("3. Modificar espacio");
             System.out.println("4. Eliminar espacio");
-            System.out.println("5. Salir");
+            System.out.println("5. Volver al menú principal");
 
             var opcion = MenuUtils.leerEntero("Seleccione una opción: ");
 
@@ -287,7 +287,7 @@ public class MenuAdministrador {
             System.out.println("10. Filtrar espacios disponibles");
             System.out.println("11. Filtrar aulas disponibles");
             System.out.println("12. Filtrar laboratorios disponibles");
-            System.out.println("13. Salir");
+            System.out.println("13. Volver al submenú Espacios");
 
             var opcion = MenuUtils.leerEntero("Seleccione una opción: ");
 
@@ -693,7 +693,7 @@ public class MenuAdministrador {
             System.out.println("5. Listar reservas por asignatura");
             System.out.println("6. Modificar reserva");
             System.out.println("7. Eliminar reserva");
-            System.out.println("8. Salir.");
+            System.out.println("8. Volver al menú principal");
 
             var opcion = MenuUtils.leerEntero("Seleccione una opción: ");
 
@@ -1158,7 +1158,7 @@ public class MenuAdministrador {
             System.out.println("Elija una opción:");
             System.out.println("1. Listar");
             System.out.println("2. Revisar solicitudes pendientes");
-            System.out.println("3. Salir.");
+            System.out.println("3. Volver al menú principal");
 
             int opcion = MenuUtils.leerEntero("Seleccione una opción: ");
 
@@ -1188,7 +1188,7 @@ public class MenuAdministrador {
             System.out.println("3. Listar todas las solicitudes aprobadas");
             System.out.println("4. Listar todas las solicitudes rechazadas");
             System.out.println("5. Listar todas las solicitudes por profesor");
-            System.out.println("6. Salir");
+            System.out.println("6. Volver al submenú Solicitudes");
 
             int opcion = MenuUtils.leerEntero("Seleccione una opción: ");
 
@@ -1352,7 +1352,7 @@ public class MenuAdministrador {
             System.out.println("3. Modificar usuario");
             System.out.println("4. Eliminar usuario");
             System.out.println("5. Cambiar contraseña");
-            System.out.println("6. Salir.");
+            System.out.println("6. Volver al menú principal");
 
 
             var opcion = MenuUtils.leerEntero("Seleccione una opción: ");
